@@ -15,7 +15,7 @@ export const config = {
   dashboardPassword: process.env.DASHBOARD_PASSWORD ?? '',
   devToken: process.env.DEV_TOKEN ?? '',
   decideModel: process.env.DECIDE_MODEL ?? 'convaiinnovations/laya',
-  textModel: process.env.TEXT_MODEL ?? 'anthropic/claude-sonnet-5-5',
+  textModel: process.env.TEXT_MODEL ?? 'openai/gpt-4.1-mini',
   devinApiKey: process.env.DEVIN_API_KEY ?? '',
   devinOrgId: process.env.DEVIN_ORG_ID ?? '',
   googleClientId: process.env.GOOGLE_CLIENT_ID ?? '',
