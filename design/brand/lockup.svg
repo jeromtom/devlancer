@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 51" role="img" aria-label="Devlancer">
+  <g stroke-width="3" stroke-linejoin="round" transform="translate(-10 0)">
+    <polygon fill="#3B63D1" stroke="#3B63D1" points="19.40,1.40 26.50,5.50 26.50,13.70 19.40,17.80 12.30,13.70 12.30,5.50"/>
+    <polygon fill="#1DB98F" stroke="#1DB98F" points="28.58,17.30 35.68,21.40 35.68,29.60 28.58,33.70 21.48,29.60 21.48,21.40"/>
+    <polygon fill="#0B96DC" stroke="#0B96DC" points="19.40,33.20 26.50,37.30 26.50,45.50 19.40,49.60 12.30,45.50 12.30,37.30"/>
+  </g>
+  <text x="38" y="35" fill="#172036" font-family="'Bricolage Grotesque', sans-serif" font-weight="700" font-size="30" letter-spacing="-0.6">Devlancer</text>
+</svg>

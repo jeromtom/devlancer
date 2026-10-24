@@ -6,3 +6,9 @@ out/
 *.log
 .DS_Store
 ._*
+
+# Copied into design/app by scripts/design-app.mjs
+design/app/tokens.css
+design/app/fonts.css
+design/app/fonts/
+design/app/brand/

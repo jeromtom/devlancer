@@ -1,0 +1,215 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Upkeep | Devlancer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+.proj{margin-top:20px}
+.proj .box-head{flex-wrap:wrap;gap:6px 12px;padding:14px 18px}
+.proj .box-head h2{font:600 var(--text-lg)/1.3 var(--font-ui)}
+.proj .box-head .ctl{margin-left:auto;display:flex;align-items:center;gap:14px}
+.proj .box-head label{display:inline-flex;align-items:center;gap:8px;font-size:var(--text-sm);font-weight:500}
+.proj-body{display:grid;grid-template-columns:minmax(0,1fr) 340px}
+.proj-main{padding:16px 18px;min-width:0}
+.proj-note{padding:16px 18px;border-left:1px solid var(--line);background:#fafbfd;border-radius:0 0 var(--r-panel) 0}
+
+/* Check results strip */
+.checks{display:grid;grid-template-columns:repeat(4,auto);justify-content:start;border:1px solid var(--line);border-radius:10px}
+.checks>div{padding:10px 16px;border-left:1px solid var(--line);min-width:0}
+.checks>div:first-child{border-left:0}
+.checks dt{font-size:var(--text-xs);color:var(--ink-3)}
+.checks dd{font-weight:600;font-variant-numeric:tabular-nums;margin-top:2px}
+.checks dd small{display:block;font-weight:400;font-size:var(--text-xs);color:var(--ink-3)}
+.lh{display:flex;gap:16px}
+.lh span{display:grid;line-height:1.2}
+.lh b{font:600 var(--text-xl)/1.2 var(--font-display);font-variant-numeric:tabular-nums}
+.lh em{font-style:normal;font-size:var(--text-xs);color:var(--ink-3);font-weight:400}
+.lh .ok{color:var(--hex-green-ink)}.lh .mid{color:var(--amber-ink)}
+.d{font-style:normal;font-size:var(--text-xs);font-weight:500;margin-left:3px;font-family:var(--font-ui)}
+.d.up{color:var(--hex-green-ink)}.d.dn{color:var(--coral-ink)}
+
+/* Findings, each marked with who hears about it */
+.finds{margin-top:14px}
+.finds li{display:grid;grid-template-columns:150px minmax(0,1fr) auto;gap:2px 14px;align-items:baseline;padding:9px 0;border-top:1px solid var(--line)}
+.finds li:first-child{border-top:0}
+.finds p{font-size:var(--text-md)}
+.finds p small{display:block;color:var(--ink-3);font-size:var(--text-sm)}
+.hears{font-size:var(--text-xs);color:var(--ink-3);white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.hears.told{color:var(--hex-blue-ink)}
+.hears.told::before{content:"";width:8px;height:8px;border-radius:2px;background:var(--hex-blue-wash);box-shadow:inset 0 0 0 1.5px var(--hex-blue)}
+.hears.you::before{content:"";width:8px;height:8px;border-radius:2px;box-shadow:inset 0 0 0 1.5px var(--line-strong)}
+.proj-note .label-row{display:flex;align-items:center;gap:8px;font-size:var(--text-sm);font-weight:500;color:var(--ink-2);margin-bottom:8px}
+.proj-note .label-row .st{margin-left:auto}
+.proj-note .thread{padding:10px}
+.proj-note .msg{max-width:100%}
+mark{background:var(--hex-blue-wash);color:inherit;border-bottom:1.5px solid var(--hex-blue);padding:0 1px}
+.note-acts{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.off-note{color:var(--ink-2);font-size:var(--text-sm);display:grid;gap:8px}
+.legend2{display:flex;gap:16px;flex-wrap:wrap;font-size:var(--text-sm);color:var(--ink-2);margin-top:14px}
+@media (max-width:1100px){.proj-body{grid-template-columns:1fr}.proj-note{border-left:0;border-top:1px solid var(--line);border-radius:0 0 var(--r-panel) var(--r-panel)}}
+@media (max-width:820px){
+  .checks{grid-template-columns:1fr 1fr}.checks>div:nth-child(3){border-left:0}.checks>div:nth-child(n+3){border-top:1px solid var(--line)}
+  .checks>div.wide,.checks>div:last-child{grid-column:1/-1}.checks>div:last-child{border-left:0}
+  .finds li{grid-template-columns:minmax(0,1fr) auto}.finds li .st{grid-column:1/-1}
+  .proj .box-head .ctl{margin-left:0;width:100%}
+  .proj-main,.proj-note{padding:14px}
+  .facts>div{padding:10px 16px 10px 0;margin-right:16px}
+}
+</style>
+</head>
+<body data-page="upkeep">
+<div class="app"><main class="main"><div class="page">
+
+<header class="page-head">
+  <div>
+    <h1>Upkeep</h1>
+    <p class="sub">Every Friday at 7:00 pm, a Devin Schedule checks each project: package updates, broken links, Lighthouse and uptime. Safe fixes go in on their own. Anything bigger, and every note to a client, waits for you.</p>
+  </div>
+  <div class="actions">
+    <button class="btn"><svg class="i sm"><use href="#i-upkeep"/></svg>Run all now</button>
+    <button class="btn blue"><svg class="i sm"><use href="#i-send"/></svg>Send 3 client notes</button>
+  </div>
+</header>
+
+<dl class="facts">
+  <div><dt>Last run</dt><dd>Fri 24 Oct, 7:00 pm</dd></div>
+  <div><dt>Fixed on its own</dt><dd class="green">3</dd></div>
+  <div><dt>Needs you</dt><dd class="amber">1</dd></div>
+  <div><dt>Asked of clients</dt><dd>2</dd></div>
+  <div><dt>Next run</dt><dd>Fri 31 Oct, 7:00 pm</dd></div>
+</dl>
+<p class="legend2"><span class="hears told">In the client note</span><span class="hears you">Kept to you</span><span class="meta">Notes go out Mon 27 Oct at 10:00 am once you approve them</span></p>
+
+<!-- Boutique -->
+<section class="box proj">
+  <div class="box-head">
+    <span class="avatar amber">F</span>
+    <div><h2>Boutique catalogue</h2><p class="meta">Fathima S, <a href="#">fabbyfathima.in</a></p></div>
+    <div class="ctl"><button class="btn ghost sm">Run now</button><label><span class="switch"><input type="checkbox" checked><span></span></span>Weekly upkeep</label></div>
+  </div>
+  <div class="proj-body">
+    <div class="proj-main">
+      <dl class="checks">
+        <div><dt>Packages</dt><dd>4 updated<small>Tests passed, merged</small></dd></div>
+        <div><dt>Broken links</dt><dd style="color:var(--coral-ink)">2 found<small>1 fixed</small></dd></div>
+        <div class="wide"><dt>Lighthouse after fixes, change on last week</dt><dd class="lh">
+          <span><b class="ok">86<i class="d dn">-3</i></b><em>Performance</em></span>
+          <span><b class="mid">89</b><em>Accessibility</em></span>
+          <span><b class="ok">97<i class="d up">+1</i></b><em>SEO</em></span></dd></div>
+        <div><dt>Uptime</dt><dd>100%<small>7 of 7 days</small></dd></div>
+      </dl>
+      <ul class="finds">
+        <li><span class="st green">Fixed on its own</span><p>14 new product photos were 4 to 6 MB each<small>Compressed to WebP. Performance went from 68 to 86 on the recheck.</small></p><span class="hears told">In the note</span></li>
+        <li><span class="st green">Fixed on its own</span><p>Size guide link pointed to the old PDF<small>Now opens the size chart page from CO-2026-002</small></p><span class="hears you">Kept to you</span></li>
+        <li><span class="st amber">Asked Fathima</span><p>Instagram link in the footer goes to a missing profile<small>Handle may have changed</small></p><span class="hears told">In the note</span></li>
+      </ul>
+    </div>
+    <div class="proj-note">
+      <div class="label-row">Note to Fathima<span class="st amber">Waiting for you</span></div>
+      <div class="thread"><div class="msg out draft"><span class="from">Draft</span>Hi Fathima, did the weekly check on the site 👍 <mark>The new product photos were a bit heavy and slowing the page on phones, I've compressed them</mark>, loads quick now.<br><br>One small thing: <mark>the Instagram link at the bottom isn't opening</mark>. Is your handle still @fabbyfathima?<span class="time">Mon 10:00 am</span></div></div>
+      <p class="note amber" style="margin-top:10px"><svg class="i sm"><use href="#i-alert"/></svg><span>INV-2026-004 is 6 days overdue. This note leaves it out; the <a href="approvals.html">second reminder</a> is in Approvals.</span></p>
+      <div class="note-acts"><button class="btn blue sm"><svg class="i sm"><use href="#i-check"/></svg>Approve note</button><button class="btn sm"><svg class="i sm"><use href="#i-edit"/></svg>Edit</button><button class="btn ghost sm">Don't send</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- Homestay -->
+<section class="box proj">
+  <div class="box-head">
+    <span class="avatar">T</span>
+    <div><h2>Homestay booking site</h2><p class="meta">Thomas K J, <a href="#">thekkady-hills.vercel.app</a> (preview, still building)</p></div>
+    <div class="ctl"><button class="btn ghost sm">Run now</button><label><span class="switch"><input type="checkbox" checked><span></span></span>Weekly upkeep</label></div>
+  </div>
+  <div class="proj-body">
+    <div class="proj-main">
+      <dl class="checks">
+        <div><dt>Packages</dt><dd>2 updated<small>1 major update held</small></dd></div>
+        <div><dt>Broken links</dt><dd>None</dd></div>
+        <div class="wide"><dt>Lighthouse, change on last week</dt><dd class="lh">
+          <span><b class="mid">74<i class="d dn">-3</i></b><em>Performance</em></span>
+          <span><b class="ok">91<i class="d up">+2</i></b><em>Accessibility</em></span>
+          <span><b class="mid">83</b><em>SEO</em></span></dd></div>
+        <div><dt>Uptime</dt><dd>100%<small>Preview</small></dd></div>
+      </dl>
+      <ul class="finds">
+        <li><span class="st amber">Needs you</span><p>react-day-picker 8 to 9 is a major update<small>It changes the booking calendar's API. It may also fix the iPhone calendar bug Thomas reported on Friday, which Devin Cloud could not reproduce.</small></p><a class="btn sm" href="#">Review update</a></li>
+        <li><span class="st hollow">Expected</span><p>Performance 74: room photos are not optimised yet<small>The gallery session running now converts them to WebP</small></p><span class="hears you">Kept to you</span></li>
+        <li><span class="st hollow">Expected</span><p>SEO 83: no page descriptions yet<small>Part of milestone 2, due Mon 27 Oct</small></p><span class="hears you">Kept to you</span></li>
+      </ul>
+    </div>
+    <div class="proj-note">
+      <div class="label-row">Note to Thomas<span class="st hollow">Off while building</span></div>
+      <div class="off-note"><p>Clients still building don't get a weekly note. Thomas hears about progress in the milestone 2 update instead.</p><button class="btn sm" style="justify-self:start">Draft one anyway</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- Menu -->
+<section class="box proj">
+  <div class="box-head">
+    <span class="avatar green">A</span>
+    <div><h2>Restaurant menu site</h2><p class="meta">Arjun Menon, <a href="#">malabarkitchen.in</a></p></div>
+    <div class="ctl"><button class="btn ghost sm">Run now</button><label><span class="switch"><input type="checkbox" checked><span></span></span>Weekly upkeep</label></div>
+  </div>
+  <div class="proj-body">
+    <div class="proj-main">
+      <dl class="checks">
+        <div><dt>Packages</dt><dd>3 updated<small>Tests passed, merged</small></dd></div>
+        <div><dt>Broken links</dt><dd style="color:var(--coral-ink)">1 found</dd></div>
+        <div class="wide"><dt>Lighthouse, change on last week</dt><dd class="lh">
+          <span><b class="ok">96<i class="d up">+2</i></b><em>Performance</em></span>
+          <span><b class="ok">98</b><em>Accessibility</em></span>
+          <span><b class="ok">100</b><em>SEO</em></span></dd></div>
+        <div><dt>Uptime</dt><dd>100%<small>7 of 7 days</small></dd></div>
+      </dl>
+      <ul class="finds">
+        <li><span class="st amber">Asked Arjun</span><p>"Order on Swiggy" button returns a 404<small>Swiggy changed the restaurant's link. Needs the new one from Arjun.</small></p><span class="hears told">In the note</span></li>
+        <li><span class="st green">Fine</span><p>Next.js, Supabase client and sharp updated<small>Patch versions only, no visible change</small></p><span class="hears you">Kept to you</span></li>
+      </ul>
+    </div>
+    <div class="proj-note">
+      <div class="label-row">Note to Arjun<span class="st amber">Waiting for you</span></div>
+      <div class="thread"><div class="msg out draft"><span class="from">Draft</span>Hi Arjun, weekly check on malabarkitchen.in done ✅ Site was up all week and loads fast.<br><br>Only thing: <mark>the Swiggy order button has stopped working</mark>, looks like Swiggy changed your link. Can you send me the new one? Will update it same day.<span class="time">Mon 10:00 am</span></div></div>
+      <div class="note-acts"><button class="btn blue sm"><svg class="i sm"><use href="#i-check"/></svg>Approve note</button><button class="btn sm"><svg class="i sm"><use href="#i-edit"/></svg>Edit</button><button class="btn ghost sm">Don't send</button></div>
+    </div>
+  </div>
+</section>
+
+<!-- Tuition -->
+<section class="box proj">
+  <div class="box-head">
+    <span class="avatar amber">L</span>
+    <div><h2>Tuition centre app</h2><p class="meta">Lakshmi R, <a href="#">tuition-centre-kakkanad.vercel.app</a></p></div>
+    <div class="ctl"><button class="btn ghost sm">Run now</button><label><span class="switch"><input type="checkbox" checked><span></span></span>Weekly upkeep</label></div>
+  </div>
+  <div class="proj-body">
+    <div class="proj-main">
+      <dl class="checks">
+        <div><dt>Packages</dt><dd>2 updated<small>Tests passed, merged</small></dd></div>
+        <div><dt>Broken links</dt><dd>None</dd></div>
+        <div class="wide"><dt>Lighthouse, change on last week</dt><dd class="lh">
+          <span><b class="ok">93<i class="d up">+1</i></b><em>Performance</em></span>
+          <span><b class="ok">95<i class="d up">+7</i></b><em>Accessibility</em></span>
+          <span><b class="ok">92</b><em>SEO</em></span></dd></div>
+        <div><dt>Uptime</dt><dd>99.98%<small>3 min down Wed 2:10 am</small></dd></div>
+      </dl>
+      <ul class="finds">
+        <li><span class="st green">Fixed on its own</span><p>Attendance page images had no alt text<small>Added labels in English and Malayalam. Accessibility 88 to 95.</small></p><span class="hears told">In the note</span></li>
+        <li><span class="st hollow">No action</span><p>3 minute outage, Wed 2:10 am<small>Supabase maintenance window, no requests lost</small></p><span class="hears you">Kept to you</span></li>
+        <li><span class="st hollow">After this run</span><p>Malayalam toggle shipped at 2:14 am today<small>Devin checked it in PR #14: performance 91 with the Malayalam font</small></p><span class="hears you">Kept to you</span></li>
+      </ul>
+    </div>
+    <div class="proj-note">
+      <div class="label-row">Note to Lakshmi<span class="st amber">Waiting for you</span></div>
+      <div class="thread"><div class="msg out draft"><span class="from">Draft</span>Hi Lakshmi, weekly check done 👍 Everything is running smoothly. <mark>Made a small fix on the attendance page so it works well with screen readers too.</mark><span class="time">Mon 10:00 am</span></div></div>
+      <div class="note-acts"><button class="btn blue sm"><svg class="i sm"><use href="#i-check"/></svg>Approve note</button><button class="btn sm"><svg class="i sm"><use href="#i-edit"/></svg>Edit</button><button class="btn ghost sm">Don't send</button></div>
+    </div>
+  </div>
+</section>
+
+</div></main></div>
+<script src="shell.js"></script>
+</body>
+</html>

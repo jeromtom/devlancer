@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Devlancer</title>
+<link rel="icon" href="/brand/mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/tokens.css">
+<link rel="stylesheet" href="/fonts.css">
+<link rel="stylesheet" href="/components.css">
+<script>try{if(localStorage.getItem('dl-rail')==='1')document.documentElement.classList.add('rail')}catch{}</script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-overview" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="8" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="5" rx="1.5"/><rect x="13.5" y="11.5" width="7" height="9" rx="1.5"/><rect x="3.5" y="14.5" width="7" height="6" rx="1.5"/></symbol>
+    <symbol id="i-pipeline" viewBox="0 0 24 24"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="7" rx="1.5"/></symbol>
+    <symbol id="i-projects" viewBox="0 0 24 24"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/></symbol>
+    <symbol id="i-devin" viewBox="0 0 24 24"><path d="M12 3l7.8 4.5v9L12 21l-7.8-4.5v-9z"/><circle cx="12" cy="12" r="2.2"/></symbol>
+    <symbol id="i-activity" viewBox="0 0 24 24"><path d="M3 12h4l2.5-6.5 5 13L17 12h4"/></symbol>
+    <symbol id="i-invoices" viewBox="0 0 24 24"><path d="M6 3.5h12v17l-3-1.8-3 1.8-3-1.8-3 1.8z"/><path d="M9 8.5h6M9 12h6M9 15.5h3"/></symbol>
+    <symbol id="i-connections" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></symbol>
+    <symbol id="i-rail" viewBox="0 0 24 24"><rect x="3.5" y="4.5" width="17" height="15" rx="2"/><path d="M9.5 4.5v15"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+    <symbol id="i-out" viewBox="0 0 24 24"><path d="M14 4.5h5.5V10M19.5 4.5l-8 8M17 14v4.5a1 1 0 0 1-1 1H5.5a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1H10"/></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <aside class="sidebar" id="sidebar" aria-label="Main">
+    <a class="brand" href="#/overview" aria-label="Devlancer overview">
+      <img src="/brand/mark.svg" alt="" width="32" height="32">
+      <span class="brand-name">Devlancer</span>
+    </a>
+
+    <div class="presence" id="presence">
+      <span class="pulse"></span>
+      <span class="presence-text"><b></b><span></span></span>
+    </div>
+
+    <nav class="nav">
+      <div class="group">
+        <p class="group-name">Work</p>
+        <a href="#/overview" data-page="overview"><svg><use href="#i-overview"/></svg><span>Overview</span></a>
+        <a href="#/pipeline" data-page="pipeline"><svg><use href="#i-pipeline"/></svg><span>Pipeline</span><em id="b-pipeline"></em></a>
+        <a href="#/projects" data-page="projects"><svg><use href="#i-projects"/></svg><span>Projects</span><em id="b-projects"></em></a>
+      </div>
+      <div class="group">
+        <p class="group-name">Automation</p>
+        <a href="#/devin" data-page="devin"><svg><use href="#i-devin"/></svg><span>Devin sessions</span><em id="b-devin"></em></a>
+        <a href="#/activity" data-page="activity"><svg><use href="#i-activity"/></svg><span>Activity</span></a>
+      </div>
+      <div class="group">
+        <p class="group-name">Money</p>
+        <a href="#/invoices" data-page="invoices"><svg><use href="#i-invoices"/></svg><span>Invoices</span><em id="b-invoices"></em></a>
+      </div>
+    </nav>
+
+    <div class="sidebar-foot">
+      <a href="#/connections" data-page="connections"><svg><use href="#i-connections"/></svg><span>Connections</span><em id="b-connections"></em></a>
+      <button class="rail-toggle" id="rail-toggle" type="button" aria-controls="sidebar" aria-expanded="true" title="Collapse sidebar ( [ )">
+        <svg><use href="#i-rail"/></svg><span>Collapse</span>
+      </button>
+    </div>
+  </aside>
+  <div class="scrim" id="scrim" hidden></div>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="menu" id="menu" type="button" aria-controls="sidebar" aria-label="Open menu"><svg><use href="#i-menu"/></svg></button>
+      <div class="title">
+        <h1 id="page-title">Overview</h1>
+        <p id="page-sub"></p>
+      </div>
+      <ul class="health" id="health" aria-label="Connections"></ul>
+    </header>
+    <main id="view" tabindex="-1"></main>
+  </div>
+</div>
+<script src="/app.js"></script>
+</body>
+</html>

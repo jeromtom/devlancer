@@ -1,0 +1,154 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Approvals | Devlancer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+.inbox{display:grid;grid-template-columns:360px minmax(0,1fr);height:100vh}
+.queue{border-right:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;min-height:0}
+.queue-head{padding:20px 20px 12px}
+.queue-head h1{font:700 24px/1.15 var(--font-display);letter-spacing:-.02em}
+.queue-head p{color:var(--ink-3);font-size:var(--text-sm);margin-top:2px}
+.queue-head .seg{margin-top:14px}
+.items{overflow:auto;flex:1}
+.items p.grp{padding:14px 20px 6px;font-size:var(--text-xs);color:var(--ink-3);font-weight:500}
+.item{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px 10px;padding:12px 20px;border-left:3px solid transparent;cursor:pointer;color:inherit;text-decoration:none!important}
+.item:hover{background:#f8f9fc}
+.item[aria-current=true]{background:#3b63d10b;border-left-color:var(--hex-blue)}
+.item .avatar{grid-row:span 3;margin-top:2px}
+.item b{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item time{font-size:var(--text-xs);color:var(--ink-3);white-space:nowrap}
+.item .one{grid-column:2/4;font-size:var(--text-sm);color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .kind{grid-column:2/4;margin-top:4px}
+.queue-foot{border-top:1px solid var(--line);padding:10px 20px;display:flex;gap:14px;font-size:var(--text-xs);color:var(--ink-3)}
+
+.detail{display:flex;flex-direction:column;min-height:0;min-width:0}
+.detail-scroll{overflow:auto;flex:1}
+.detail-inner{max-width:880px;padding:22px 36px 32px}
+.d-top{display:flex;align-items:center;gap:10px;color:var(--ink-3);font-size:var(--text-sm)}
+.d-top .nav-btns{margin-left:auto;display:flex;gap:4px}
+.d-title{font:700 26px/1.2 var(--font-display);letter-spacing:-.02em;margin:10px 0 6px;max-width:30ch}
+.d-sub{color:var(--ink-2)}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;margin-top:22px}
+.label-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:var(--text-sm);font-weight:500;color:var(--ink-2)}
+.label-row .meta{margin-left:auto;font-weight:400}
+.why{margin-top:24px;border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface)}
+.why-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.why-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr))}
+.why-grid>div{padding:12px 16px;border-left:1px solid var(--line)}
+.why-grid>div:first-child{border-left:0}
+.why-grid dt{font-size:var(--text-xs);color:var(--ink-3)}
+.why-grid dd{font-weight:600;margin-top:2px}
+.why-grid dd small{display:block;font-weight:400;font-size:var(--text-xs);color:var(--ink-3)}
+.why-body{padding:12px 16px;border-top:1px solid var(--line);font-size:var(--text-sm);color:var(--ink-2)}
+.scope-cmp{display:grid;gap:6px;margin-top:8px}
+.scope-cmp li{display:flex;gap:8px;align-items:baseline}
+.scope-cmp li::before{content:"✓";color:var(--hex-green-ink);font-weight:600}
+.scope-cmp li.x::before{content:"✕";color:var(--coral-ink)}
+.doc{border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface);overflow:hidden}
+.doc-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.doc-head .meta{margin-left:auto}
+.doc .tbl td,.doc .tbl th{padding:9px 16px}
+.doc .tbl tfoot td{font-size:var(--text-lg)}
+.via{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:12px;font-size:var(--text-sm);color:var(--ink-2)}
+.via label{display:inline-flex;align-items:center;gap:8px}
+.bar-actions{border-top:1px solid var(--line);background:var(--surface);padding:12px 36px;display:flex;align-items:center;gap:8px}
+.bar-actions .meta{margin-right:auto}
+.draft-edit{position:relative}
+.draft-edit .msg{max-width:100%}
+.voice{display:flex;align-items:center;gap:6px;font-size:var(--text-xs);color:var(--ink-3);margin-top:8px}
+@media (max-width:1100px){.cols{grid-template-columns:1fr}.why-grid{grid-template-columns:1fr 1fr}.why-grid>div:nth-child(3){border-left:0}.why-grid>div:nth-child(n+3){border-top:1px solid var(--line)}}
+@media (max-width:820px){.inbox{grid-template-columns:1fr;height:auto}.queue{display:none}.detail-inner{padding:16px}.bar-actions{position:sticky;bottom:0;padding:10px 16px;flex-wrap:wrap}}
+</style>
+</head>
+<body data-page="approvals">
+<div class="app"><main class="main">
+<div class="inbox">
+  <section class="queue" aria-label="Waiting for approval">
+    <div class="queue-head">
+      <h1>Approvals</h1>
+      <p>Nothing here goes out until you say so.</p>
+      <div class="seg" role="group" aria-label="Filter"><button aria-pressed="true">All <span class="n">4</span></button><button aria-pressed="false">Money <span class="n">3</span></button><button aria-pressed="false">Gigs <span class="n">1</span></button><button aria-pressed="false">Done</button></div>
+    </div>
+    <div class="items">
+      <p class="grp">Commits money or scope</p>
+      <a class="item" aria-current="true" href="#"><span class="avatar amber">L</span><b>Change order: online fee payments</b><time>8 h</time><span class="one">Lakshmi: "Can students pay fees online through the app?"</span><span class="kind"><span class="st coral">Change order</span> <span class="meta">Tuition centre app, ₹10,000</span></span></a>
+      <a class="item" href="#"><span class="avatar">T</span><b>Mark INV-2026-002 as paid</b><time>41 m</time><span class="one">UPI alert: ₹8,000 from THOMAS K J via Gmail</span><span class="kind"><span class="st green">Payment match</span> <span class="meta">Homestay booking site</span></span></a>
+      <a class="item" href="#"><span class="avatar">F</span><b>Second reminder for INV-2026-004</b><time>1 h</time><span class="one">"Hi Fathima, just a gentle nudge on the invoice for…"</span><span class="kind"><span class="st amber">Reminder</span> <span class="meta">Boutique catalogue, 6 days overdue</span></span></a>
+      <p class="grp">Goes out in your name</p>
+      <a class="item" href="#"><span class="avatar blue">R</span><b>Pitch: pharmacy order bot</b><time>2 h</time><span class="one">Rahul in Kochi Freelancers: "Need a WhatsApp bot for orders…"</span><span class="kind"><span class="st blue">Pitch</span> <span class="meta">Fit 0.86, ₹25,000</span></span></a>
+    </div>
+    <div class="queue-foot"><span><kbd>J</kbd> <kbd>K</kbd> move</span><span><kbd>1</kbd> send</span><span><kbd>2</kbd> edit</span><span><kbd>0</kbd> skip</span></div>
+  </section>
+
+  <section class="detail" aria-label="Selected approval">
+    <div class="detail-scroll"><div class="detail-inner">
+      <div class="d-top"><span class="st coral">Change order</span><span>Tuition centre app</span><span>Lakshmi, client group</span>
+        <span class="nav-btns"><button class="btn ghost sm" aria-label="Previous">↑</button><button class="btn ghost sm" aria-label="Next">↓</button></span></div>
+      <h2 class="d-title">Online fee payments is new work. Price it, don't build it.</h2>
+      <p class="d-sub">Lakshmi asked at 11:48 pm. It isn't in the proposal she accepted on 12 October, so Devin hasn't touched it. Send the change order and it joins the next invoice once she says ok.</p>
+
+      <div class="cols">
+        <div>
+          <div class="label-row">The client said<span class="meta">Tuition Centre Kakkanad, WhatsApp group</span></div>
+          <div class="thread">
+            <span class="day">Yesterday</span>
+            <div class="msg"><span class="from">Lakshmi</span>Malayalam toggle looks super 👌 parents will love it<span class="time">11:46 pm</span></div>
+            <div class="msg"><span class="from">Lakshmi</span>One more thing. Can students pay fees online through the app? Like GPay or card. Many parents asking<span class="time">11:48 pm</span></div>
+            <div class="msg out"><div class="quote"><b>Lakshmi</b>Can students pay fees online through the app?</div>Good idea! Let me check what it involves and get back to you tomorrow morning 🙂<span class="time">11:56 pm ✓✓</span></div>
+          </div>
+          <p class="voice"><svg class="i sm"><use href="#i-moon"/></svg>Holding reply sent at a natural pace while you were away</p>
+        </div>
+        <div class="draft-edit">
+          <div class="label-row">Devlancer will reply<span class="meta">In your voice, edit freely</span></div>
+          <div class="thread">
+            <div class="msg out draft"><span class="from">Draft</span>Morning Lakshmi! Checked the online payments idea. It's a solid add: Razorpay checkout with GPay, UPI and cards, payment receipts to parents, and a fee status page for you.<br><br>Since it wasn't part of our original scope, I've put it as a small add-on below. About 7 hours of work, so I can have it live in 2 days. Shall I go ahead? 🙂<span class="time">Sends 9:30 am</span></div>
+            <div class="msg out draft"><span class="from">Draft attachment</span><span style="display:flex;align-items:center;gap:8px"><svg class="i"><use href="#i-file"/></svg>CO-2026-003 Online fee payments.pdf</span><span class="time">1 page</span></div>
+          </div>
+          <p class="voice"><svg class="i sm"><use href="#i-chat"/></svg>Matches your style: English with light Manglish, one emoji, short paragraphs</p>
+        </div>
+      </div>
+
+      <section class="why">
+        <div class="why-head"><h3 class="h3">Why Devlancer flagged it</h3><span class="meta" style="margin-left:auto">Read by Laya, checked against the accepted proposal</span></div>
+        <dl class="why-grid">
+          <div><dt>Intent</dt><dd>Change request<small>0.94 confident</small></dd></div>
+          <div><dt>In scope</dt><dd style="color:var(--coral-ink)">No<small>0.91 confident</small></dd></div>
+          <div><dt>Size</dt><dd>About 7 hours<small>Over the 3 hour line</small></dd></div>
+          <div><dt>Needs you</dt><dd>Yes<small>Payment provider account</small></dd></div>
+        </dl>
+        <div class="why-body">Closest match in the accepted scope:
+          <ul class="scope-cmp"><li>Fee calculator with sibling discounts</li><li>Fee due reminders on WhatsApp</li><li class="x">Collecting payments online (listed under out of scope, item 3)</li></ul>
+        </div>
+      </section>
+
+      <section style="margin-top:24px">
+        <div class="label-row">Change order CO-2026-003<span class="meta">₹1,500 an hour, testing at a flat ₹1,000</span></div>
+        <div class="doc">
+          <table class="tbl"><thead><tr><th>Item</th><th class="r">Hours</th><th class="r">Amount</th></tr></thead>
+            <tbody>
+              <tr><td>Razorpay checkout with UPI, GPay and cards</td><td class="r num">2.5</td><td class="r num">₹3,750</td></tr>
+              <tr><td>Receipts to parents on WhatsApp and email</td><td class="r num">1.5</td><td class="r num">₹2,250</td></tr>
+              <tr><td>Fee status page for the centre</td><td class="r num">2</td><td class="r num">₹3,000</td></tr>
+              <tr><td>Testing with live test mode, handover notes</td><td class="r num">0.5</td><td class="r num">₹1,000</td></tr>
+            </tbody>
+            <tfoot><tr><td>Total</td><td class="r num">6.5</td><td class="r num">₹10,000</td></tr></tfoot></table>
+        </div>
+        <div class="via"><span>Send through</span><label><span class="switch"><input type="checkbox" checked><span></span></span>WhatsApp group</label><label><span class="switch"><input type="checkbox" checked><span></span></span>Gmail to lakshmi.tck@gmail.com</label></div>
+      </section>
+    </div></div>
+
+    <div class="bar-actions">
+      <span class="meta">Adds ₹10,000 to Scope caught when Lakshmi agrees</span>
+      <button class="btn ghost"><svg class="i sm"><use href="#i-skip"/></svg>Skip <kbd>0</kbd></button>
+      <button class="btn"><svg class="i sm"><use href="#i-edit"/></svg>Edit <kbd>2</kbd></button>
+      <button class="btn blue"><svg class="i sm"><use href="#i-send"/></svg>Send at 9:30 am <kbd>1</kbd></button>
+    </div>
+  </section>
+</div>
+</main></div>
+<script src="shell.js"></script>
+</body>
+</html>

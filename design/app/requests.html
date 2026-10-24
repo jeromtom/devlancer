@@ -1,0 +1,182 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Requests | Devlancer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+/* Routing rule: presence x how much it needs a human */
+.rule-box{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:28px;align-items:start;padding:18px 20px;margin-bottom:24px}
+.rule-box h2{font:600 var(--text-lg)/1.3 var(--font-ui)}
+.rule-box p{color:var(--ink-2);font-size:var(--text-sm);margin-top:6px}
+.pre{display:grid;gap:6px;margin-top:12px;font-size:var(--text-sm)}
+.pre li{display:flex;gap:8px;align-items:baseline;color:var(--ink-2)}
+.pre li b{color:var(--ink);font-weight:500}
+.pre svg{position:relative;top:3px}
+.grid22{display:grid;grid-template-columns:118px minmax(0,1fr) minmax(0,1fr);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:var(--text-sm)}
+.grid22>div{padding:10px 14px;border-top:1px solid var(--line);border-left:1px solid var(--line)}
+.grid22 .ax{background:var(--canvas);color:var(--ink-3);font-weight:500}
+.grid22 .ax.top{border-top:0}
+.grid22 .corner{border-left:0;border-top:0;background:var(--canvas)}
+.grid22 .rowh{border-left:0;background:var(--canvas);color:var(--ink-2);font-weight:500;display:grid;align-content:center;gap:2px}
+.grid22 .cell b{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--ink)}
+.grid22 .cell b svg{color:var(--hex-cyan-ink)}
+.grid22 .cell span{display:block;color:var(--ink-2);margin-top:2px}
+.grid22 .cell em{font-style:normal;color:var(--ink-3);font-size:var(--text-xs);display:block;margin-top:6px}
+.grid22 .now{background:#0b96dc0d}
+.grid22 .now.cell{box-shadow:inset 0 3px 0 var(--hex-cyan)}
+.grid22 .rowh.now{color:var(--hex-cyan-ink)}
+.grid22 .dim{color:var(--ink-3)}
+.grid22 .dim b{color:var(--ink-2)}
+
+.filters{display:flex;gap:10px 16px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.filters .lbl{font-size:var(--text-sm);color:var(--ink-3);margin-right:-8px}
+.said{min-width:260px;max-width:40ch}
+.said q{quotes:none;display:block;line-height:1.45}
+.said a{color:inherit}
+.said .sub{margin-top:3px}
+.route{display:inline-flex;align-items:center;gap:6px;font-size:var(--text-sm);color:var(--ink-2);white-space:nowrap}
+.route svg{color:var(--hex-cyan-ink)}
+.route.co svg{color:var(--coral-ink)}
+.route.ask svg{color:var(--ink-3)}
+.links{white-space:nowrap;font-size:var(--text-sm)}
+.links a+a{margin-left:10px}
+.stx{display:block;font-size:var(--text-xs);color:var(--ink-3);margin-top:2px;max-width:24ch}
+.tbl td.proj{min-width:120px}
+.filters .select{width:170px;height:32px}
+tr.hot td:first-child{box-shadow:inset 3px 0 0 var(--hex-cyan)}
+tr.you td:first-child{box-shadow:inset 3px 0 0 var(--amber)}
+.foot{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;font-size:var(--text-sm);color:var(--ink-3)}
+@media (max-width:1100px){.rule-box{grid-template-columns:1fr;gap:16px}}
+@media (max-width:820px){.rule-box{padding:14px}.grid22{grid-template-columns:72px minmax(0,1fr) minmax(0,1fr)}.grid22>div{padding:8px 10px}.grid22 .cell em{display:none}.search{min-width:0;flex:1}.filters .seg{max-width:100%;overflow-x:auto;scrollbar-width:none}.filters .seg button{white-space:nowrap;flex:none}.filters .select{flex:1;width:auto;min-width:0}}
+</style>
+</head>
+<body data-page="devin">
+<div class="app"><main class="main"><div class="page">
+
+<header class="page-head">
+  <div>
+    <h1>Requests</h1>
+    <p class="sub">Every change a client has asked for, how Devlancer routed it, and where it stands. Last 7 days, newest first.</p>
+  </div>
+  <div class="actions">
+    <label class="search"><svg class="i sm"><use href="#i-search"/></svg><input placeholder="Search what clients said"></label>
+  </div>
+</header>
+
+<section class="box rule-box" aria-labelledby="rule-h">
+  <div>
+    <h2 id="rule-h">How a request is routed</h2>
+    <p>Laya reads each message, then two things decide where it goes: whether you are around, and how much it needs a human (taste, money, access or missing context). Two checks come first.</p>
+    <ul class="pre">
+      <li><svg class="i sm" style="color:var(--coral-ink)"><use href="#i-rupee"/></svg><span><b>Out of scope:</b> priced as a change order, never built free</span></li>
+      <li><svg class="i sm" style="color:var(--ink-3)"><use href="#i-chat"/></svg><span><b>Unclear:</b> a clarifying question goes out in your voice first</span></li>
+    </ul>
+  </div>
+  <div class="grid22" role="table" aria-label="Routing rule">
+    <div class="corner" role="columnheader"></div>
+    <div class="ax top" role="columnheader">Clear, checkable, small</div>
+    <div class="ax top" role="columnheader">Needs a human</div>
+
+    <div class="rowh now" role="rowheader">Away<span class="meta" style="color:inherit;font-weight:400">You, right now</span></div>
+    <div class="cell now"><b><svg class="i sm"><use href="#i-devin"/></svg>Devin Cloud</b><span>Runs on its own. Client gets a holding reply.</span><em>2 tonight: gallery, Malayalam toggle</em></div>
+    <div class="cell now"><b><svg class="i sm"><use href="#i-file"/></svg>Ask Devin brief</b><span>Scoped and queued for your morning.</span><em>1 tonight: brand colour</em></div>
+
+    <div class="rowh" role="rowheader">Online</div>
+    <div class="cell dim"><b><svg class="i sm"><use href="#i-devin"/></svg>Devin Cloud</b><span>Runs in parallel, you review the preview.</span><em>4 this week</em></div>
+    <div class="cell dim"><b><svg class="i sm"><use href="#i-terminal"/></svg>Devin CLI</b><span>Opens on your laptop with the brief loaded.</span><em>1 this week</em></div>
+  </div>
+</section>
+
+<div class="filters">
+  
+  <div class="seg" role="group" aria-label="Status">
+    <button aria-pressed="true">All <span class="n">11</span></button>
+    <button aria-pressed="false">Running <span class="n">2</span></button>
+    <button aria-pressed="false">Waiting for you <span class="n">2</span></button>
+    <button aria-pressed="false">Preview sent <span class="n">2</span></button>
+    <button aria-pressed="false">Waiting on client <span class="n">1</span></button>
+    <button aria-pressed="false">Done <span class="n">3</span></button>
+    <button aria-pressed="false">Failed <span class="n">1</span></button>
+  </div>
+  
+  <select class="select" aria-label="Route">
+    <option>All routes</option><option>Devin Cloud (6)</option><option>Ask Devin brief (1)</option><option>Devin CLI (1)</option><option>Priced as change order (2)</option><option>Clarifying question sent (1)</option>
+  </select>
+  <select class="select" aria-label="Project">
+    <option>All projects</option><option>Homestay booking site</option><option>Tuition centre app</option><option>Boutique catalogue</option><option>Restaurant menu site</option>
+  </select>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>Client said</th><th>Project</th><th>Received</th><th>Route</th><th>Status</th><th>Links</th></tr></thead>
+  <tbody>
+    <tr class="group"><td colspan="6">Overnight, while you were away</td></tr>
+    <tr class="hot"><td class="said"><a href="request.html"><q>can you add a gallery with all 12 room photos? sending pics now</q></a><span class="sub">Thomas K J, 12 photos attached</span></td>
+      <td class="proj">Homestay booking site</td><td class="nowrap num">12:20 am</td>
+      <td><span class="route"><svg class="i sm"><use href="#i-devin"/></svg>Devin Cloud</span></td>
+      <td><span class="st cyan live">Running, 38 min</span><span class="stx">Started 7:34 am, when the photos landed</span></td>
+      <td class="links"><a href="request.html">Request</a><a href="#">Session</a></td></tr>
+    <tr class="you"><td class="said"><q>Can we change the brand colour to a deeper maroon? the pink looks too light on phone</q><span class="sub">Fathima S</span></td>
+      <td class="proj">Boutique catalogue</td><td class="nowrap num">3:05 am</td>
+      <td><span class="route"><svg class="i sm"><use href="#i-file"/></svg>Ask Devin brief</span></td>
+      <td><span class="st amber">Waiting for you</span><span class="stx">Needs your eye on the shade</span></td>
+      <td class="links"><a href="#">Brief</a></td></tr>
+    <tr><td class="said"><q>Malayalam option ready aano? Parents asking 🙏</q><span class="sub">Lakshmi R</span></td>
+      <td class="proj">Tuition centre app</td><td class="nowrap num">12:31 am</td>
+      <td><span class="route"><svg class="i sm"><use href="#i-devin"/></svg>Devin Cloud</span></td>
+      <td><span class="st green">Preview sent</span><span class="stx">2:14 am, by autopilot</span></td>
+      <td class="links"><a href="#">Session</a><a href="#">PR #14</a><a href="#">Preview</a></td></tr>
+    <tr class="you"><td class="said"><q>One more thing. Can students pay fees online through the app? Like GPay or card. Many parents asking</q><span class="sub">Lakshmi R</span></td>
+      <td class="proj">Tuition centre app</td><td class="nowrap num">11:48 pm</td>
+      <td><span class="route co"><svg class="i sm"><use href="#i-rupee"/></svg>Priced as change order</span></td>
+      <td><span class="st amber">Waiting for you</span><span class="stx">CO-2026-003, ₹10,000</span></td>
+      <td class="links"><a href="approvals.html">Change order</a></td></tr>
+
+    <tr class="group"><td colspan="6">Earlier this week</td></tr>
+    <tr class="hot"><td class="said"><q>Sibling discount is showing 2833.33, can make it round figure?</q><span class="sub">Lakshmi R</span></td>
+      <td class="proj">Tuition centre app</td><td class="nowrap num">Fri 9:52 pm</td>
+      <td><span class="route"><svg class="i sm"><use href="#i-terminal"/></svg>Devin CLI</span></td>
+      <td><span class="st cyan live">Running, 1 h 12 m</span><span class="stx">On your laptop, paused at 11:00 pm</span></td>
+      <td class="links"><a href="#">Session</a></td></tr>
+    <tr><td class="said"><q>booking form la phone number field venam, mandatory aakkanam</q><span class="sub">Thomas K J</span></td>
+      <td class="proj">Homestay booking site</td><td class="nowrap num">Fri 7:15 pm</td>
+      <td><span class="route"><svg class="i sm"><use href="#i-devin"/></svg>Devin Cloud</span></td>
+      <td><span class="st green">Done</span><span class="stx">Merged after you approved</span></td>
+      <td class="links"><a href="#">Session</a><a href="#">PR #9</a></td></tr>
+    <tr><td class="said"><q>Onam special section remove cheyyamo? season over 😅</q><span class="sub">Arjun Menon</span></td>
+      <td class="proj">Restaurant menu site</td><td class="nowrap num">Fri 1:30 pm</td>
+      <td><span class="route"><svg class="i sm"><use href="#i-devin"/></svg>Devin Cloud</span></td>
+      <td><span class="st green">Preview sent</span><span class="stx">You sent it at 2:05 pm</span></td>
+      <td class="links"><a href="#">Session</a><a href="#">PR #22</a><a href="#">Preview</a></td></tr>
+    <tr><td class="said"><q>the booking calendar is not opening on my iPhone</q><span class="sub">Thomas K J</span></td>
+      <td class="proj">Homestay booking site</td><td class="nowrap num">Fri 11:10 am</td>
+      <td><span class="route"><svg class="i sm"><use href="#i-devin"/></svg>Devin Cloud</span></td>
+      <td><span class="st coral">Failed</span><span class="stx">Could not reproduce on Safari, needs a real iPhone</span></td>
+      <td class="links"><a href="#">Session</a><a href="#">Take over</a></td></tr>
+    <tr><td class="said"><q>Attendance page date showing in US format, pls change to dd/mm</q><span class="sub">Lakshmi R</span></td>
+      <td class="proj">Tuition centre app</td><td class="nowrap num">Thu 5:10 pm</td>
+      <td><span class="route"><svg class="i sm"><use href="#i-devin"/></svg>Devin Cloud</span></td>
+      <td><span class="st green">Done</span><span class="stx">Shipped by autopilot in 26 min</span></td>
+      <td class="links"><a href="#">Session</a><a href="#">PR #12</a></td></tr>
+    <tr><td class="said"><q>Can you put the new prices? sending photo of menu card</q><span class="sub">Arjun Menon</span></td>
+      <td class="proj">Restaurant menu site</td><td class="nowrap num">Thu 4:02 pm</td>
+      <td><span class="route ask"><svg class="i sm"><use href="#i-chat"/></svg>Clarifying question sent</span></td>
+      <td><span class="st hollow">Waiting on client</span><span class="stx">"Same prices for delivery also?"</span></td>
+      <td class="links"><a href="#">Chat</a></td></tr>
+    <tr><td class="said"><q>can customers filter by size also? like S M L XL</q><span class="sub">Fathima S</span></td>
+      <td class="proj">Boutique catalogue</td><td class="nowrap num">Tue 2:40 pm</td>
+      <td><span class="route co"><svg class="i sm"><use href="#i-rupee"/></svg>Priced as change order</span></td>
+      <td><span class="st green">Done</span><span class="stx">CO-2026-002 accepted, ₹10,000</span></td>
+      <td class="links"><a href="scope.html">Change order</a></td></tr>
+  </tbody>
+</table>
+</div>
+<p class="foot"><span>11 requests in 7 days</span><span>2 shipped by autopilot, 2 priced instead of built (₹20,000)</span><span>Every pull request goes through Devin Review with Auto-Fix</span></p>
+
+</div></main></div>
+<script src="shell.js"></script>
+</body>
+</html>

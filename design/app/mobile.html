@@ -1,0 +1,212 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>On the phone | Devlancer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+.frames{display:flex;gap:44px;justify-content:center;align-items:flex-start;padding:12px 0 8px;zoom:.86}
+figure.ph{width:390px;flex:none;display:grid;gap:18px}
+figure.ph figcaption{padding:0 12px}
+figure.ph figcaption b{display:block;font:600 var(--text-lg)/1.3 var(--font-ui)}
+figure.ph figcaption span{display:block;color:var(--ink-2);margin-top:4px;line-height:1.5}
+
+/* The phone: 390 x 844 screen, bezel drawn outside it */
+.screen{position:relative;width:390px;height:844px;border-radius:46px;overflow:hidden;background:var(--canvas);box-shadow:0 0 0 10px var(--night),0 0 0 11px #2c3866,0 30px 60px -20px #0e163066;display:flex;flex-direction:column;font-size:15px}
+.sb{display:flex;align-items:center;justify-content:space-between;height:50px;padding:14px 30px 0 34px;font:600 15px/1 var(--font-ui);color:var(--ink);flex:none;position:relative}
+.sb::after{content:"";position:absolute;left:50%;top:11px;width:120px;height:33px;border-radius:20px;background:#000;transform:translateX(-50%)}
+.sb .sig{display:flex;align-items:center;gap:6px;font-size:13px}
+.batt{width:25px;height:12px;border:1.5px solid var(--ink);border-radius:4px;padding:1.5px;position:relative}
+.batt i{display:block;height:100%;width:72%;background:var(--ink);border-radius:1.5px}
+.home{position:absolute;bottom:8px;left:50%;width:134px;height:5px;border-radius:3px;background:var(--ink);transform:translateX(-50%);opacity:.85}
+
+.abar{display:flex;align-items:center;gap:10px;padding:8px 16px 10px;flex:none}
+.abar h2{font:600 17px/1.2 var(--font-ui)}
+.abar .r{margin-left:auto;font-size:13px;color:var(--ink-3)}
+.abar .ib{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;border:0;background:none;color:var(--ink);margin-left:-8px}
+.body{flex:1;overflow:hidden;padding:0 16px}
+
+/* Frame 1: approval card */
+.ac-title{font:700 22px/1.2 var(--font-display);letter-spacing:-.02em;margin:8px 0 6px}
+.ac-sub{font-size:14px;color:var(--ink-2);line-height:1.45}
+.screen .thread{padding:10px;gap:6px;margin-top:12px;border-radius:14px}
+.screen .msg{font-size:14px;max-width:88%}
+.mini-co{margin-top:12px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.mini-co li{display:flex;justify-content:space-between;gap:12px;padding:8px 14px;border-top:1px solid var(--line);font-size:13.5px}
+.mini-co li:first-child{border-top:0}
+.mini-co li span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap}
+.mini-co li.tot{font-weight:600;font-size:15px}
+.flag{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.thumb{flex:none;padding:12px 16px 30px;background:var(--surface);border-top:1px solid var(--line);display:grid;gap:8px}
+.thumb .commit{font-size:12.5px;color:var(--ink-3);text-align:center}
+.thumb .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.thumb .btn{height:48px;border-radius:12px;font-size:15px}
+.thumb .btn.big{height:54px;font-size:16px}
+
+/* Frame 2: today */
+.t-date{font-size:13px;color:var(--ink-3);margin-top:4px}
+.t-h1{font:700 28px/1.1 var(--font-display);letter-spacing:-.03em;margin-top:4px}
+.t-p{font-size:15px;line-height:1.55;color:var(--ink-2);margin-top:10px}
+.t-p b{color:var(--ink);font-weight:600}
+.w-head{display:flex;align-items:baseline;margin:18px 0 8px}
+.w-head h3{font-weight:600;font-size:15px}
+.w-head a{margin-left:auto;font-size:13px;font-weight:500}
+.wl{border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.wl a{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:11px 14px;border-top:1px solid var(--line);color:inherit;text-decoration:none!important}
+.wl a:first-child{border-top:0}
+.wl b{font-weight:500;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wl .amt{font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}
+.wl .st{font-size:12px}
+.mstrip{display:grid;grid-template-columns:1fr 1fr 1fr;margin-top:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface)}
+.mstrip div{padding:10px 12px;border-left:1px solid var(--line)}
+.mstrip div:first-child{border-left:0}
+.mstrip dt{font-size:12px;color:var(--ink-3)}
+.mstrip dd{font:700 17px/1.2 var(--font-display);letter-spacing:-.01em;font-variant-numeric:tabular-nums;margin-top:2px}
+.tabbar{flex:none;display:grid;grid-template-columns:repeat(5,1fr);padding:8px 6px 28px;background:var(--surface);border-top:1px solid var(--line)}
+.tabbar a{display:grid;justify-items:center;gap:3px;font-size:11px;font-weight:500;color:var(--ink-3);text-decoration:none!important;position:relative}
+.tabbar a svg{width:22px;height:22px}
+.tabbar a[aria-current=page]{color:var(--hex-blue-ink)}
+.tabbar .dotn{position:absolute;top:-4px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--hex-blue);color:#fff;font-size:11px;font-weight:600;display:grid;place-items:center}
+.pres{display:inline-flex;align-items:center;gap:6px;margin-left:auto;height:28px;padding:0 10px;border-radius:14px;background:var(--surface);border:1px solid var(--line);font-size:12.5px;font-weight:500}
+.pres i{width:8px;height:8px;border-radius:50%;background:var(--hex-cyan)}
+
+/* Frame 3: invoice */
+.inv-amt{font:700 34px/1.1 var(--font-display);letter-spacing:-.03em;margin-top:8px;font-variant-numeric:tabular-nums}
+.inv-who{font-size:14px;color:var(--ink-2);margin-top:4px}
+.inv-box{margin-top:14px;border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:12px 14px}
+.inv-box h4{font-size:13px;font-weight:500;color:var(--ink-3);margin-bottom:8px}
+.inv-lines li{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;padding:5px 0}
+.inv-lines li span:last-child{font-variant-numeric:tabular-nums;white-space:nowrap}
+.screen .tl>li{padding-bottom:12px;grid-template-columns:20px 1fr}
+.screen .tl .what{font-size:13.5px}
+.screen .tl .detail{font-size:12.5px}
+.upi{display:flex;gap:12px;align-items:center}
+.upi .qr{width:56px;height:56px;border-radius:8px;border:1px solid var(--line);padding:4px;flex:none}
+
+@media (max-width:1500px){.frames{zoom:.8}}
+@media (max-width:820px){.frames{flex-direction:column;align-items:center;zoom:.9;gap:56px}}
+</style>
+</head>
+<body data-page="approvals">
+<div class="app"><main class="main"><div class="page wide">
+
+<header class="page-head">
+  <div><div class="crumbs"><a href="approvals.html">Approvals</a><span>/</span><span>On the phone</span></div>
+    <h1>On the phone</h1>
+    <p class="sub">You check Devlancer from your phone first thing, usually before getting out of bed. Every screen puts the one thing that commits money at the bottom, where the thumb already is, and says on the button what it will do.</p></div>
+</header>
+
+<div class="frames">
+
+  <!-- Frame 1: approval -->
+  <figure class="ph">
+    <div class="screen">
+      <div class="sb"><span>8:12</span><span class="sig">5G <span class="batt"><i></i></span></span></div>
+      <div class="abar"><button class="ib" aria-label="Back"><svg class="i"><use href="#i-back"/></svg></button><h2>Approvals</h2><span class="r">1 of 4</span></div>
+      <div class="body">
+        <span class="st coral">Change order, Tuition centre app</span>
+        <h3 class="ac-title">Online fee payments is new work. Price it, don't build it.</h3>
+        <p class="ac-sub">Not in the proposal Lakshmi accepted on 12 Oct, so Devin hasn't touched it.</p>
+        <div class="thread">
+          <div class="msg"><span class="from">Lakshmi, 11:48 pm</span>Can students pay fees online through the app? Like GPay or card. Many parents asking</div>
+          <div class="msg out draft"><span class="from">Your reply, draft</span>Morning Lakshmi! Checked the online payments idea. Since it wasn't part of our original scope, I've put it as a small add-on below. About 7 hours, live in 2 days. Shall I go ahead? 🙂</div>
+        </div>
+        <ul class="mini-co">
+          <li><span>Razorpay checkout, UPI and cards</span><span>₹3,750</span></li>
+          <li><span>Receipts, fee status page, testing</span><span>₹6,250</span></li>
+          <li class="tot"><span>CO-2026-003</span><span>₹10,000</span></li>
+        </ul>
+      </div>
+      <div class="thumb">
+        <span class="commit">Sends to Lakshmi with the PDF. Adds ₹10,000 when she agrees.</span>
+        <button class="btn blue big" type="button"><svg class="i"><use href="#i-send"/></svg>Send at 9:30 am</button>
+        <div class="two"><button class="btn" type="button"><svg class="i sm"><use href="#i-edit"/></svg>Edit</button><button class="btn" type="button"><svg class="i sm"><use href="#i-skip"/></svg>Skip</button></div>
+      </div>
+      <span class="home"></span>
+    </div>
+    <figcaption><b>Approve a change order</b><span>The client's words, your reply and the price on one screen. Send is the biggest target and sits under the thumb; Edit and Skip are just above it.</span></figcaption>
+  </figure>
+
+  <!-- Frame 2: today -->
+  <figure class="ph">
+    <div class="screen">
+      <div class="sb"><span>8:12</span><span class="sig">5G <span class="batt"><i></i></span></span></div>
+      <div class="abar"><img src="brand/mark.svg" alt="" style="width:24px;height:24px"><h2 style="font:700 18px/1 var(--font-display);letter-spacing:-.02em">Devlancer</h2><span class="pres"><i></i>Online</span></div>
+      <div class="body">
+        <p class="t-date">Saturday 25 October, 8:12 am</p>
+        <h3 class="t-h1">While you were away</h3>
+        <p class="t-p">Devlancer covered for <b>9 hours</b>. It replied to <b>3 clients</b>, Devin shipped <b>2 changes</b>, and one request was priced instead of built. <b>4 drafts</b> are waiting for you.</p>
+        <div class="w-head"><h3>Waiting for you</h3><a href="approvals.html">Review all</a></div>
+        <div class="wl">
+          <a href="approvals.html"><b>Online fee payments</b><span class="amt">₹10,000</span><span class="st coral">Change order, Lakshmi</span></a>
+          <a href="approvals.html"><b>Pharmacy order bot pitch</b><span class="fit hi"><i style="--v:86%"></i>0.86</span><span class="st blue">Pitch, Rahul</span></a>
+          <a href="approvals.html"><b>Match ₹8,000 to INV-2026-002</b><span class="amt">₹8,000</span><span class="st green">Payment, Thomas</span></a>
+          <a href="approvals.html"><b>Second reminder for INV-2026-004</b><span class="amt">₹22,000</span><span class="st amber">Reminder, Fathima</span></a>
+        </div>
+        <dl class="mstrip">
+          <div><dt>Outstanding</dt><dd>₹42,000</dd></div>
+          <div><dt>Overdue</dt><dd style="color:var(--coral-ink)">₹22,000</dd></div>
+          <div><dt>October</dt><dd style="color:var(--hex-green-ink)">₹65,000</dd></div>
+        </dl>
+        <div class="w-head"><h3>Devin right now</h3><span class="st cyan live" style="margin-left:auto;font-size:12.5px">2 running</span></div>
+        <div class="wl">
+          <a href="request.html"><b>Gallery with 12 room photos</b><span class="meta" style="font-size:12.5px">38 min</span><span class="meta" style="font-size:12.5px">Homestay booking site, Cloud</span></a>
+        </div>
+      </div>
+      <nav class="tabbar" aria-label="App">
+        <a href="today.html" aria-current="page"><svg class="i"><use href="#i-today"/></svg>Today</a>
+        <a href="approvals.html"><svg class="i"><use href="#i-approvals"/></svg>Approvals<span class="dotn">4</span></a>
+        <a href="gigs.html"><svg class="i"><use href="#i-gigs"/></svg>Gigs</a>
+        <a href="projects.html"><svg class="i"><use href="#i-projects"/></svg>Projects</a>
+        <a href="invoices.html"><svg class="i"><use href="#i-invoices"/></svg>Money</a>
+      </nav>
+      <span class="home"></span>
+    </div>
+    <figcaption><b>Read the morning briefing</b><span>One paragraph says what happened overnight, then the four things waiting. Approvals carries the count in the tab bar so it is never more than a tap away.</span></figcaption>
+  </figure>
+
+  <!-- Frame 3: invoice -->
+  <figure class="ph">
+    <div class="screen">
+      <div class="sb"><span>8:12</span><span class="sig">5G <span class="batt"><i></i></span></span></div>
+      <div class="abar"><button class="ib" aria-label="Back"><svg class="i"><use href="#i-back"/></svg></button><h2>INV-2026-004</h2><button class="ib" aria-label="More" style="margin:0 -8px 0 auto"><svg class="i"><use href="#i-more"/></svg></button></div>
+      <div class="body">
+        <span class="st coral">Overdue 6 days</span>
+        <p class="inv-amt">₹22,000</p>
+        <p class="inv-who">Fathima S, Fab by Fathima. Due 19 Oct.</p>
+        <div class="inv-box">
+          <h4>Boutique catalogue</h4>
+          <ul class="inv-lines">
+            <li><span>Milestone 2: catalogue, enquiry cart, admin</span><span>₹12,000</span></li>
+            <li><span>CO-2026-002 Size chart filter</span><span>₹10,000</span></li>
+          </ul>
+        </div>
+        <div class="inv-box">
+          <h4>What has happened</h4>
+          <ol class="tl">
+            <li><span class="node blue"></span><div><p class="what">Sent on WhatsApp and Gmail</p><p class="detail">12 Oct, seen that evening</p></div></li>
+            <li><span class="node amber"></span><div><p class="what">Due date passed</p><p class="detail">19 Oct, no payment matched</p></div></li>
+            <li><span class="node amber"></span><div><p class="what">First reminder sent</p><p class="detail">22 Oct. Fathima: "will do this week 🙏"</p></div></li>
+            <li><span class="node coral"></span><div><p class="what">Second reminder drafted</p><p class="detail">Waiting for you, polite, quotes the UPI link</p></div></li>
+          </ol>
+        </div>
+        <div class="inv-box upi">
+          <svg class="qr" viewBox="0 0 21 21" shape-rendering="crispEdges"><path fill="#172036" d="M0 0h7v7H0zM1 1v5h5V1zM2 2h3v3H2zM14 0h7v7h-7zM15 1v5h5V1zM16 2h3v3h-3zM0 14h7v7H0zM1 15v5h5v-5zM2 16h3v3H2zM9 1h2v2H9zM8 4h1v3H8zM11 5h2v1h-2zM9 9h3v1H9zM14 9h1v2h-1zM17 8h3v1h-3zM10 12h1v3h-1zM12 13h3v1h-3zM16 12h2v2h-2zM9 17h2v2H9zM13 16h1v4h-1zM15 18h3v1h-3zM19 15h1v4h-1zM8 10h1v1H8zM0 9h2v1H0zM3 10h2v2H3zM18 10h3v1h-3z"/></svg>
+          <div><b style="font-weight:500;font-size:14px">jerom@okhdfc</b><p class="meta" style="font-size:12.5px">UPI QR and pay link on the invoice</p></div>
+        </div>
+      </div>
+      <div class="thumb">
+        <button class="btn blue big" type="button"><svg class="i"><use href="#i-send"/></svg>Review second reminder</button>
+        <div class="two"><button class="btn" type="button"><svg class="i sm"><use href="#i-check"/></svg>Mark as paid</button><button class="btn" type="button"><svg class="i sm"><use href="#i-download"/></svg>PDF</button></div>
+      </div>
+      <span class="home"></span>
+    </div>
+    <figcaption><b>Chase an overdue invoice</b><span>The amount, what has already been said and the next step, in that order. Mark as paid is there for when Fathima pays in cash at the shop.</span></figcaption>
+  </figure>
+
+</div>
+</div></main></div>
+<script src="shell.js"></script>
+</body>
+</html>

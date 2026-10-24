@@ -1,0 +1,214 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>States | Devlancer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+.ref{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.ref h2{font:700 var(--text-xl)/1.2 var(--font-display);letter-spacing:-.015em}
+.ref-sub{color:var(--ink-2);margin-bottom:16px;max-width:72ch}
+.grid2>*{min-width:0}
+.spec{font-size:var(--text-xs);color:var(--ink-3);margin-bottom:8px}
+
+/* Empty states in context */
+.ctx{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-panel);padding:18px 22px 6px}
+.ctx-top{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.ctx-top h3{font:700 20px/1.2 var(--font-display);letter-spacing:-.02em}
+.ctx-top .seg{margin-left:auto}
+.ctx .empty{padding:28px 0 26px}
+.ctx .empty .mark.green{background:var(--hex-green-wash)}
+.ctx .empty .mark.blue{background:var(--hex-blue-wash)}
+.ctx .empty .mark.cyan{background:var(--hex-cyan-wash)}
+.ctx .empty .mark.amber{background:var(--amber-wash)}
+.ctx .empty .row-flex{margin-top:6px}
+.ctx .empty .meta b{color:var(--ink-2);font-weight:500}
+
+/* Banners: kit .note plus an action and a "meanwhile" line */
+.banners{display:grid;gap:10px}
+.bn{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:4px 12px;align-items:start;padding:12px 14px 12px 16px;border-radius:10px;border:1px solid transparent}
+.bn>svg{margin-top:2px}
+.bn b{font-weight:600}
+.bn p{font-size:var(--text-sm);line-height:1.5}
+.bn .mean{grid-column:2;font-size:var(--text-sm);color:var(--ink-2)}
+.bn .mean::before{content:"Meanwhile: ";font-weight:500;color:var(--ink)}
+.bn .acts{grid-row:1/3;grid-column:3;display:flex;gap:6px;align-self:center}
+.bn.coral{background:var(--coral-wash);border-color:#e0524c33;color:var(--coral-ink)}
+.bn.amber{background:var(--amber-wash);border-color:#e39b2740;color:var(--amber-ink)}
+.bn.blue{background:var(--hex-blue-wash);border-color:#3b63d133;color:var(--hex-blue-ink)}
+.bn .btn.coral-solid{background:var(--coral-ink);border-color:var(--coral-ink);color:#fff}
+.bn-where{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px;grid-column:2}
+
+/* Skeletons */
+@keyframes shimmer{0%{background-position:-320px 0}100%{background-position:320px 0}}
+.sk{display:block;height:10px;border-radius:5px;background:linear-gradient(90deg,var(--sunken) 0,#e6eaf2 40%,var(--sunken) 80%) var(--sunken);background-size:640px 100%;animation:shimmer 1.4s linear infinite}
+.sk.h{height:30px;border-radius:7px}
+.sk.t{height:14px}
+.sk.hex{width:10px;height:11px;border-radius:0;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.sk-brief{display:grid;gap:10px;max-width:62ch}
+.sk-wait{border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface);margin-top:18px}
+.sk-wait div{display:grid;grid-template-columns:110px minmax(0,1fr) 70px;gap:16px;align-items:center;padding:15px 16px;border-top:1px solid var(--line)}
+.sk-wait div:first-child{border-top:0}
+.sk-cap{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:var(--text-sm);color:var(--ink-3)}
+
+/* Toast shown in place */
+.toast-stage{position:relative;height:150px;border-radius:var(--r-panel);border:1px solid var(--line);background:var(--canvas);overflow:hidden}
+.toast-stage .ghost-rows{padding:16px;display:grid;gap:12px;opacity:.6}
+.toast-stage .toast{position:absolute;bottom:20px;white-space:nowrap}
+.toast .ok{color:#7fe0c3}
+.toast .cd{font-size:var(--text-xs);color:#aab3cc;font-variant-numeric:tabular-nums}
+.toast kbd{background:#ffffff1a;border-color:#ffffff30;color:#fff}
+.toast-notes{display:grid;gap:6px;margin-top:12px;font-size:var(--text-sm);color:var(--ink-2)}
+
+@media (max-width:820px){
+  .bn{grid-template-columns:20px minmax(0,1fr)}
+  .bn .acts{grid-column:2;grid-row:auto;align-self:start;margin-top:6px}
+  .ctx{padding:14px 14px 4px}.ctx-top{flex-wrap:wrap}.ctx-top .seg{margin-left:0}
+  .sk-wait div{grid-template-columns:70px minmax(0,1fr) 50px}
+  .toast-stage{height:190px}
+  .toast-stage .toast{left:12px;right:12px;transform:none;white-space:normal}
+}
+</style>
+</head>
+<body data-page="today">
+<div class="app"><main class="main"><div class="page">
+
+<header class="page-head">
+  <div><h1>States</h1><p class="sub">What Devlancer looks like when there is nothing to show, when something breaks, while it loads and right after you act. Every failure says what still works, so you know whether you need to get up.</p></div>
+</header>
+
+<!-- Empty states -->
+<section class="sec">
+  <div class="ref"><h2>Empty states</h2></div>
+  <p class="ref-sub">Say what will appear here and what Devlancer is doing about it, then offer one next step.</p>
+  <div class="grid2">
+    <div>
+      <p class="spec">gigs.html, Today filter, no gigs since midnight</p>
+      <div class="ctx">
+        <div class="ctx-top"><h3>Gigs</h3><div class="seg" role="group" aria-label="Filter"><button aria-pressed="true">Today</button><button aria-pressed="false">This week</button><button aria-pressed="false">Skipped</button></div></div>
+        <div class="empty"><span class="mark blue"></span><h3>No gigs since midnight</h3>
+          <p>Devlancer is reading Kochi Freelancers, Kochi Business Network and Kerala Startups Hub. A gig shows up here within a minute of being posted.</p>
+          <p class="meta">Last one that fit: <b>Wedding photographer portfolio</b>, yesterday 6:40 pm</p>
+          <div class="row-flex"><button class="btn sm" type="button">Show this week</button><a class="small" href="groups.html">Add a marketplace group</a></div></div>
+      </div>
+    </div>
+    <div>
+      <p class="spec">approvals.html, everything handled</p>
+      <div class="ctx">
+        <div class="ctx-top"><h3>Approvals</h3><div class="seg" role="group" aria-label="Filter"><button aria-pressed="true">All <span class="n">0</span></button><button aria-pressed="false">Done <span class="n">4</span></button></div></div>
+        <div class="empty"><span class="mark green"></span><h3>All clear</h3>
+          <p>Nothing is waiting for you. You sent 4 things this morning, and nothing goes out until you see it here first.</p>
+          <p class="meta">Next likely: <b>INV-2026-003 reminder for Lakshmi</b>, due Thu 30 Oct</p>
+          <div class="row-flex"><a class="btn sm" href="today.html">Back to Today</a><button class="btn sm ghost" type="button">Go away until 8:00</button></div></div>
+      </div>
+    </div>
+    <div>
+      <p class="spec">requests.html, nothing running</p>
+      <div class="ctx">
+        <div class="ctx-top"><h3>Requests</h3><div class="seg" role="group" aria-label="Filter"><button aria-pressed="true">Running <span class="n">0</span></button><button aria-pressed="false">Queued for you</button><button aria-pressed="false">Done</button></div></div>
+        <div class="empty"><span class="mark cyan"></span><h3>Devin is idle</h3>
+          <p>When a client asks for a change, it lands here with how it was routed: Devin Cloud, Ask Devin, or the CLI on your laptop.</p>
+          <p class="meta">Last finished: <b>Malayalam language toggle</b>, 2:14 am, PR #14</p>
+          <div class="row-flex"><a class="btn sm" href="requests.html">See finished requests</a></div></div>
+      </div>
+    </div>
+    <div>
+      <p class="spec">invoices.html, new account</p>
+      <div class="ctx">
+        <div class="ctx-top"><h3>Invoices</h3><div class="seg" role="group" aria-label="Filter"><button aria-pressed="true">All</button><button aria-pressed="false">Overdue</button><button aria-pressed="false">Paid</button></div></div>
+        <div class="empty"><span class="mark amber"></span><h3>No invoices yet</h3>
+          <p>When a client accepts a proposal, Devlancer drafts the advance invoice with your UPI QR, and asks you before it goes out.</p>
+          <p class="meta">Paid to <b>jerom@okhdfc</b>, numbered from INV-2026-001</p>
+          <div class="row-flex"><a class="btn sm" href="invoice.html"><svg class="i sm"><use href="#i-plus"/></svg>New invoice</a><a class="small" href="settings.html#business">Check payment details</a></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Banners -->
+<section class="sec">
+  <div class="ref"><h2>Errors and warnings</h2></div>
+  <p class="ref-sub">Banners sit at the top of every page until fixed. Coral means Devlancer has stopped, amber means it is working around a problem, and blue is a pause it chose on purpose.</p>
+  <div class="banners">
+    <div class="bn coral" role="alert"><svg class="i"><use href="#i-alert"/></svg>
+      <p><b>WhatsApp is logged out.</b> Devlancer can't read or send anything since 7:52 am. Your phone removed the linked device, or it was offline for 14 days.</p>
+      <span class="mean">nothing is sent in your name. Any client messages are on your phone only.</span>
+      <div class="acts"><a class="btn sm coral-solid" href="onboarding.html"><svg class="i sm"><use href="#i-qr"/></svg>Relink</a></div></div>
+
+    <div class="bn amber" role="status"><svg class="i"><use href="#i-devin"/></svg>
+      <p><b>Devin is not connected.</b> The API key was revoked at 10:20 pm, so new requests can't start.</p>
+      <span class="mean">requests are still read and priced. 2 are queued and start as soon as you reconnect.</span>
+      <div class="acts"><a class="btn sm" href="settings.html#connections">Connect Devin</a></div></div>
+
+    <div class="bn amber" role="status"><svg class="i"><use href="#i-mail"/></svg>
+      <p><b>Gmail access expired</b> at 6:10 am. Google asks you to sign in again every few months.</p>
+      <span class="mean">proposals and invoices go on WhatsApp only, and UPI credit alerts aren't matched to invoices.</span>
+      <div class="acts"><button class="btn sm" type="button">Reconnect Gmail</button></div></div>
+
+    <div class="bn amber" role="status"><svg class="i"><use href="#i-bolt"/></svg>
+      <p><b>Laya is rate-limited</b> until 8:40 am, so Devlancer is running on fallback rules.</p>
+      <span class="mean">every client message is held for you, gigs are matched on keywords only, and nothing goes out on its own.</span>
+      <div class="acts"><button class="btn sm ghost" type="button">See fallback rules</button></div></div>
+
+    <div class="bn blue" role="status"><svg class="i"><use href="#i-clock"/></svg>
+      <p><b>Sending paused for 38 minutes.</b> 20 messages went out in the last hour, the most Devlancer sends, so WhatsApp doesn't flag your number.</p>
+      <span class="mean">4 approved messages are queued and go from 9:05 am, a few minutes apart.</span>
+      <div class="acts"><a class="btn sm" href="approvals.html">View queue</a></div></div>
+  </div>
+</section>
+
+<!-- Loading -->
+<section class="sec">
+  <div class="ref"><h2>Loading</h2></div>
+  <p class="ref-sub">Skeletons keep the real layout, so nothing jumps when data arrives. Headers and labels render at once; only values shimmer.</p>
+  <div class="grid2">
+    <div>
+      <p class="spec">invoices.html, table</p>
+      <div class="tbl-wrap" aria-busy="true">
+        <table class="tbl"><thead><tr><th>Invoice</th><th>Client</th><th>Status</th><th class="r">Amount</th></tr></thead>
+          <tbody>
+            <tr><td><span class="sk" style="width:96px"></span></td><td><span class="sk" style="width:120px"></span></td><td><span class="row-flex" style="gap:6px"><span class="sk hex"></span><span class="sk" style="width:54px"></span></span></td><td class="r"><span class="sk" style="width:64px;margin-left:auto"></span></td></tr>
+            <tr><td><span class="sk" style="width:96px"></span></td><td><span class="sk" style="width:90px"></span></td><td><span class="row-flex" style="gap:6px"><span class="sk hex"></span><span class="sk" style="width:70px"></span></span></td><td class="r"><span class="sk" style="width:56px;margin-left:auto"></span></td></tr>
+            <tr><td><span class="sk" style="width:96px"></span></td><td><span class="sk" style="width:134px"></span></td><td><span class="row-flex" style="gap:6px"><span class="sk hex"></span><span class="sk" style="width:46px"></span></span></td><td class="r"><span class="sk" style="width:64px;margin-left:auto"></span></td></tr>
+            <tr><td><span class="sk" style="width:96px"></span></td><td><span class="sk" style="width:104px"></span></td><td><span class="row-flex" style="gap:6px"><span class="sk hex"></span><span class="sk" style="width:60px"></span></span></td><td class="r"><span class="sk" style="width:60px;margin-left:auto"></span></td></tr>
+          </tbody></table>
+      </div>
+    </div>
+    <div>
+      <p class="spec">today.html, briefing</p>
+      <div class="sk-brief" aria-busy="true">
+        <span class="sk" style="width:180px"></span>
+        <span class="sk h" style="width:62%"></span>
+        <span class="sk t" style="width:100%;margin-top:6px"></span><span class="sk t" style="width:94%"></span><span class="sk t" style="width:58%"></span>
+      </div>
+      <div class="sk-wait" aria-hidden="true">
+        <div><span class="row-flex" style="gap:6px"><span class="sk hex"></span><span class="sk" style="width:70px"></span></span><span class="sk" style="width:80%"></span><span class="sk" style="width:60px;justify-self:end"></span></div>
+        <div><span class="row-flex" style="gap:6px"><span class="sk hex"></span><span class="sk" style="width:46px"></span></span><span class="sk" style="width:64%"></span><span class="sk" style="width:48px;justify-self:end"></span></div>
+      </div>
+      <p class="sk-cap"><svg class="i sm"><use href="#i-moon"/></svg>Putting together what happened while you were away</p>
+    </div>
+  </div>
+</section>
+
+<!-- Toast -->
+<section class="sec">
+  <div class="ref"><h2>After sending</h2></div>
+  <p class="ref-sub">The action keeps its name in the toast. Undo holds the message back for 10 seconds; after that it has gone to WhatsApp and can't be pulled.</p>
+  <div class="grid2" style="align-items:start">
+    <div class="toast-stage">
+      <div class="ghost-rows"><span class="sk" style="width:70%;animation:none"></span><span class="sk" style="width:52%;animation:none"></span><span class="sk" style="width:62%;animation:none"></span></div>
+      <div class="toast" role="status"><svg class="i sm ok"><use href="#i-check"/></svg><span>Change order sent to Lakshmi.</span><a href="#">Undo</a><span class="cd">8 s</span><kbd>Z</kbd></div>
+    </div>
+    <ul class="toast-notes">
+      <li><b>Where:</b> bottom centre on desktop, above the action bar on the phone.</li>
+      <li><b>Then:</b> the next approval opens, so Jerom can keep going with <kbd>1</kbd> <kbd>2</kbd> <kbd>0</kbd>.</li>
+      <li><b>If sending is paused:</b> "Change order queued for Lakshmi, goes at 9:05 am. Undo".</li>
+    </ul>
+  </div>
+</section>
+
+</div></main></div>
+<script src="shell.js"></script>
+</body>
+</html>

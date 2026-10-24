@@ -1,0 +1,201 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scope ledger | Devlancer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+.hero{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:end;padding-bottom:22px}
+.hero h1{font:700 52px/1 var(--font-display);letter-spacing:-.035em;color:var(--ink)}
+.hero h1 span{color:var(--hex-green-ink)}
+.hero p{font-size:17px;line-height:1.55;color:var(--ink-2);margin-top:12px;max-width:62ch}
+.hero p b{color:var(--ink);font-weight:600}
+.hero p .pend{color:var(--amber-ink);font-weight:600}
+/* Growth chart: original price vs what the project became */
+.growth{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-panel);padding:18px 20px 8px}
+.growth-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.keys{display:flex;gap:14px;flex-wrap:wrap;margin-left:auto;font-size:var(--text-sm);color:var(--ink-2)}
+.keys span{display:inline-flex;align-items:center;gap:6px}
+.keys i{display:inline-block;width:14px;height:10px;border-radius:2px}
+.k-orig{background:#c3cbda}.k-billed{background:var(--hex-green)}
+.k-pend{background:repeating-linear-gradient(-45deg,var(--amber) 0 3px,#f7ddb0 3px 6px)}
+.k-decl{border:1.5px dashed var(--coral);background:none!important}
+.g-row{display:grid;grid-template-columns:200px minmax(0,1fr) 230px;gap:18px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.g-row:first-of-type{border-top:0}
+.g-name b{display:block;font-weight:500}
+.g-name span{font-size:var(--text-sm);color:var(--ink-3)}
+.track{position:relative;height:30px}
+.track .ticks{position:absolute;inset:0;pointer-events:none}
+.track .ticks i{position:absolute;top:-6px;bottom:-6px;width:1px;background:var(--line)}
+.bars{position:absolute;inset:4px 0;display:flex;gap:2px}
+.bars i{display:block;height:100%;border-radius:3px;position:relative}
+.bars .orig{background:#c3cbda}
+.bars .billed{background:var(--hex-green)}
+.bars .pend{background:repeating-linear-gradient(-45deg,var(--amber) 0 4px,#f7ddb0 4px 8px)}
+.bars .decl{border:1.5px dashed var(--coral);background:#e0524c08}
+.bars .orig em{position:absolute;left:10px;top:50%;transform:translateY(-50%);font:500 12px/1 var(--font-ui);font-style:normal;color:var(--ink);font-variant-numeric:tabular-nums}
+.g-res{font-size:var(--text-sm);color:var(--ink-2)}
+.g-res b{display:block;font:600 18px/1.2 var(--font-display);letter-spacing:-.01em;color:var(--hex-green-ink);font-variant-numeric:tabular-nums}
+.g-res b.none{color:var(--ink-3)}
+.axis{display:grid;grid-template-columns:200px minmax(0,1fr) 230px;gap:18px;padding:4px 0 6px}
+.axis div{position:relative;height:16px;font-size:var(--text-xs);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.axis span{position:absolute;transform:translateX(-50%)}
+.axis span:first-child{transform:none}
+.seg button{white-space:nowrap}
+.who-when{flex-wrap:wrap}
+/* Ledger */
+.ledger{border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface)}
+.l-head,.l-row{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) 240px;gap:24px;padding:14px 18px}
+.l-head{padding:10px 18px;border-bottom:1px solid var(--line);font-size:var(--text-sm);color:var(--ink-3);font-weight:500}
+.l-row{border-top:1px solid var(--line)}
+.l-head+.l-row{border-top:0}
+.l-row.pending{box-shadow:inset 3px 0 0 var(--amber);background:#e39b2705}
+.said{font-size:15px;line-height:1.45;color:var(--ink)}
+.said::before{content:"“"}.said::after{content:"”"}
+.who-when{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:var(--text-sm);color:var(--ink-3)}
+.who-when b{color:var(--ink-2);font-weight:500}
+.prop{font-size:var(--text-sm);color:var(--ink-2);border-left:2px solid var(--line-strong);padding-left:12px}
+.prop small{display:block;color:var(--ink-3);font-size:var(--text-xs);margin-bottom:3px}
+.priced{display:grid;gap:4px;align-content:start}
+.priced .amt{font:600 18px/1.2 var(--font-display);letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.priced .amt.struck{color:var(--ink-3);text-decoration:line-through;text-decoration-thickness:1px}
+.priced .co{font-size:var(--text-sm);color:var(--ink-3)}
+.priced .co a{font-weight:500}
+.priced .why{font-size:var(--text-sm);color:var(--ink-2)}
+.ledger-foot{padding:12px 18px;border-top:1px solid var(--line);font-size:var(--text-sm);color:var(--ink-3)}
+@media (max-width:1100px){.g-row,.axis{grid-template-columns:160px minmax(0,1fr) 190px}}
+@media (max-width:820px){
+  .hero{grid-template-columns:1fr}
+  .hero h1{font-size:38px}
+  .hero p{font-size:15px}
+  .growth{padding:14px 14px 6px}
+  .keys{margin-left:0}
+  .g-row{grid-template-columns:1fr;gap:8px}
+  .axis{display:none}
+  .l-head{display:none}
+  .l-row{grid-template-columns:1fr;gap:12px;padding:14px}
+  .facts>div{padding:10px 16px 10px 0;margin-right:16px}
+  .toolbar .seg{overflow-x:auto;max-width:100%}
+}
+</style>
+</head>
+<body data-page="scope">
+<div class="app"><main class="main"><div class="page">
+
+<header class="hero">
+  <div>
+    <h1><span>₹18,000</span> of work you didn't do for free</h1>
+    <p>Every client message is checked against the proposal they accepted. When a request is new work, Devin doesn't build it: Devlancer prices it at your rate and asks you first. Two change orders were billed this month, and <span class="pend">₹10,000 more</span> is waiting on your approval.</p>
+  </div>
+  <a class="btn blue" href="approvals.html"><svg class="i sm"><use href="#i-approvals"/></svg>Review CO-2026-003</a>
+</header>
+
+<dl class="facts" style="margin-bottom:24px">
+  <div><dt>Requests caught</dt><dd>6</dd></div>
+  <div><dt>Billed as change orders</dt><dd class="green">₹18,000</dd></div>
+  <div><dt>Waiting for you</dt><dd class="amber">₹10,000</dd></div>
+  <div><dt>Quoted, declined</dt><dd>₹14,000</dd></div>
+  <div><dt>Given as goodwill</dt><dd>₹1,000</dd></div>
+  <div><dt>Built free by accident</dt><dd>₹0</dd></div>
+</dl>
+
+<section class="growth" aria-label="How much each project grew beyond its price">
+  <div class="growth-head"><h2 class="h2">What each project became</h2><span class="meta">Accepted price, then the extras it earned</span>
+    <div class="keys"><span><i class="k-orig"></i>Accepted price</span><span><i class="k-billed"></i>Change orders billed</span><span><i class="k-pend"></i>Waiting for you</span><span><i class="k-decl"></i>Quoted, declined</span></div></div>
+
+  <div class="g-row">
+    <div class="g-name"><b>Tuition centre app</b><span>Lakshmi R</span></div>
+    <div class="track"><div class="ticks"><i style="left:31.25%"></i><i style="left:62.5%"></i><i style="left:93.75%"></i></div>
+      <div class="bars"><i class="orig" style="width:56.25%"><em>₹36,000</em></i><i class="billed" style="width:12.5%" title="CO-2026-001, ₹8,000"></i><i class="pend" style="width:15.6%" title="CO-2026-003, ₹10,000"></i></div></div>
+    <div class="g-res"><b>+₹8,000, 22%</b>+₹10,000 more if Lakshmi agrees to online fee payments</div>
+  </div>
+  <div class="g-row">
+    <div class="g-name"><b>Boutique catalogue</b><span>Fathima S</span></div>
+    <div class="track"><div class="ticks"><i style="left:31.25%"></i><i style="left:62.5%"></i><i style="left:93.75%"></i></div>
+      <div class="bars"><i class="orig" style="width:68.75%"><em>₹44,000</em></i><i class="billed" style="width:15.6%" title="CO-2026-002, ₹10,000"></i></div></div>
+    <div class="g-res"><b>+₹10,000, 23%</b>Size chart filter, already paid</div>
+  </div>
+  <div class="g-row">
+    <div class="g-name"><b>Homestay booking site</b><span>Thomas K J</span></div>
+    <div class="track"><div class="ticks"><i style="left:31.25%"></i><i style="left:62.5%"></i><i style="left:93.75%"></i></div>
+      <div class="bars"><i class="orig" style="width:75%"><em>₹48,000</em></i><i class="decl" style="width:21.9%" title="Calendar sync, ₹14,000, declined"></i></div></div>
+    <div class="g-res"><b class="none">No extras yet</b>Calendar sync quoted at ₹14,000, he said not now</div>
+  </div>
+  <div class="g-row">
+    <div class="g-name"><b>Restaurant menu site</b><span>Arjun Menon</span></div>
+    <div class="track"><div class="ticks"><i style="left:31.25%"></i><i style="left:62.5%"></i><i style="left:93.75%"></i></div>
+      <div class="bars"><i class="orig" style="width:54.7%"><em>₹35,000</em></i></div></div>
+    <div class="g-res"><b class="none">No extras</b>One Diwali banner done as goodwill</div>
+  </div>
+  <div class="axis"><i></i><div><span style="left:0">₹0</span><span style="left:31.25%">₹20,000</span><span style="left:62.5%">₹40,000</span><span style="left:93.75%">₹60,000</span></div><i></i></div>
+</section>
+
+<section style="margin-top:32px">
+  <div class="sec-head"><h2 class="h2">Every request that went beyond the proposal</h2><span class="meta">Newest first</span></div>
+  <div class="toolbar">
+    <div class="seg" role="group" aria-label="Filter">
+      <button aria-pressed="true">All <span class="n">6</span></button>
+      <button aria-pressed="false">Waiting for you <span class="n">1</span></button>
+      <button aria-pressed="false">Sent <span class="n">0</span></button>
+      <button aria-pressed="false">Accepted <span class="n">2</span></button>
+      <button aria-pressed="false">Declined <span class="n">1</span></button>
+      <button aria-pressed="false">Goodwill <span class="n">2</span></button>
+    </div>
+    <span class="spacer"></span>
+    <div class="seg" role="group" aria-label="Project"><button aria-pressed="true">All projects</button><button aria-pressed="false">Tuition</button><button aria-pressed="false">Boutique</button></div>
+  </div>
+
+  <div class="ledger">
+    <div class="l-head"><span>The client asked</span><span>The accepted proposal says</span><span>Priced as</span></div>
+
+    <div class="l-row pending">
+      <div><p class="said">One more thing. Can students pay fees online through the app? Like GPay or card. Many parents asking</p>
+        <p class="who-when"><span class="avatar sm">L</span><b>Lakshmi R</b>Tuition centre app, yesterday 11:48 pm</p></div>
+      <p class="prop"><small>PR-2026-003, out of scope, item 3</small>Collecting payments online. The app tracks fees due and paid; payment itself stays at the centre.</p>
+      <div class="priced"><span class="amt">₹10,000</span><span class="co"><a href="approvals.html">CO-2026-003</a>, 6.5 hours</span><span class="st amber">Waiting for your approval</span></div>
+    </div>
+
+    <div class="l-row">
+      <div><p class="said">Diwali combo offer banner on top pls, just till 10th Nov 🪔</p>
+        <p class="who-when"><span class="avatar sm green">A</span><b>Arjun Menon</b>Restaurant menu site, 20 Oct</p></div>
+      <p class="prop"><small>Weekly upkeep terms</small>Dependency updates, broken-link and speed checks. Content changes are not included.</p>
+      <div class="priced"><span class="amt struck">₹750</span><span class="co">30 minutes, no change order</span><span class="st hollow">Absorbed as goodwill</span><span class="why">Your call: paid in full, early</span></div>
+    </div>
+
+    <div class="l-row">
+      <div><p class="said">Jerom can the bookings also sync with Booking.com and Airbnb? double booking is a big headache for us</p>
+        <p class="who-when"><span class="avatar sm">T</span><b>Thomas K J</b>Homestay booking site, 17 Oct</p></div>
+      <p class="prop"><small>PR-2026-002, scope, item 4</small>Bookings through the site only, with a screen to block dates by hand.</p>
+      <div class="priced"><span class="amt struck">₹14,000</span><span class="co">Quoted in chat, about 9 hours</span><span class="st coral">Declined</span><span class="why">"Let's do after season" 👍 Saved as a follow-up for January</span></div>
+    </div>
+
+    <div class="l-row">
+      <div><p class="said">Can we get one page for monthly attendance report? Need to print for the PTA meeting</p>
+        <p class="who-when"><span class="avatar sm">L</span><b>Lakshmi R</b>Tuition centre app, 14 Oct</p></div>
+      <p class="prop"><small>PR-2026-003, scope, item 6</small>Reports: one fee collection summary per month.</p>
+      <div class="priced"><span class="amt">₹8,000</span><span class="co">CO-2026-001, about 5 hours</span><span class="st green">Accepted 15 Oct</span><span class="why">Billed on <a href="invoice.html">INV-2026-003</a></span></div>
+    </div>
+
+    <div class="l-row">
+      <div><p class="said">Customers keep asking size on WhatsApp 😅 can we add a size chart filter?</p>
+        <p class="who-when"><span class="avatar sm amber">F</span><b>Fathima S</b>Boutique catalogue, 9 Oct</p></div>
+      <p class="prop"><small>PR-2026-001, scope, item 2</small>Filters by category, colour and price.</p>
+      <div class="priced"><span class="amt">₹10,000</span><span class="co">CO-2026-002, about 6 hours</span><span class="st green">Accepted 10 Oct</span><span class="why">Paid 11 Oct by UPI</span></div>
+    </div>
+
+    <div class="l-row">
+      <div><p class="said">pls add insta link in footer also</p>
+        <p class="who-when"><span class="avatar sm amber">F</span><b>Fathima S</b>Boutique catalogue, 3 Oct</p></div>
+      <p class="prop"><small>PR-2026-001, scope, item 5</small>Footer with address, phone and WhatsApp.</p>
+      <div class="priced"><span class="amt struck">₹250</span><span class="co">10 minutes, no change order</span><span class="st hollow">Absorbed as goodwill</span><span class="why">Under your ₹500 goodwill line</span></div>
+    </div>
+
+    <p class="ledger-foot">Laya reads every client message for intent and checks it against the accepted proposal. Asks under ₹500 can be absorbed without asking you; change it in <a href="settings.html">Settings</a>.</p>
+  </div>
+</section>
+
+</div></main></div>
+<script src="shell.js"></script>
+</body>
+</html>

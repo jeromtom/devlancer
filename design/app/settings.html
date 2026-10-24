@@ -1,0 +1,292 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Settings | Devlancer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+html{scroll-behavior:smooth}
+.set{display:grid;grid-template-columns:190px minmax(0,1fr);gap:40px;align-items:start}
+.snav{position:sticky;top:24px;display:grid;gap:1px}
+.snav a{display:block;padding:7px 10px;border-radius:7px;color:var(--ink-2);font-weight:500;text-decoration:none!important}
+.snav a:hover{background:var(--sunken);color:var(--ink)}
+.snav a[aria-current=true]{background:var(--surface);color:var(--ink);box-shadow:0 0 0 1px var(--line)}
+.snav p{margin-top:14px;padding:0 10px;font-size:var(--text-xs);color:var(--ink-3);line-height:1.5}
+.sx{padding:28px 0;border-top:1px solid var(--line);scroll-margin-top:16px}
+.sx:first-child{border-top:0;padding-top:0}
+.sx>header{display:flex;align-items:flex-end;gap:16px;margin-bottom:16px;flex-wrap:wrap}
+.sx>header h2{font:700 var(--text-xl)/1.2 var(--font-display);letter-spacing:-.015em}
+.sx>header p{color:var(--ink-2);margin-top:3px;max-width:68ch}
+.sx>header .btn{margin-left:auto}
+.rowset{border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface)}
+.r{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:8px 24px;padding:14px 18px;border-top:1px solid var(--line);align-items:start}
+.r:first-child{border-top:0}
+.r>.k b{display:block;font-weight:500}
+.r>.k span{display:block;font-size:var(--text-sm);color:var(--ink-3);margin-top:2px;line-height:1.45}
+.r .v{min-width:0}
+.inline{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.inline .select{width:auto;min-width:110px}
+.locked{display:inline-flex;align-items:center;gap:6px;font-size:var(--text-sm);color:var(--ink-3)}
+
+/* Presence week */
+.wk{padding:16px 18px}
+.wk-now{display:flex;align-items:center;gap:10px;margin-bottom:14px;font-size:var(--text-md)}
+.wk-now .dot{width:9px;height:9px;border-radius:50%;background:var(--hex-cyan);box-shadow:0 0 0 3px #0b96dc33}
+.wk-row{display:grid;grid-template-columns:38px minmax(0,1fr) 108px;gap:10px;align-items:center;margin-top:4px}
+.wk-d{font-size:var(--text-sm);font-weight:500;color:var(--ink-2)}
+.wk-s{font-size:var(--text-xs);color:var(--ink-3);white-space:nowrap}
+.wk-cells{display:grid;grid-template-columns:repeat(24,minmax(0,1fr));gap:2px}
+.wk-cells i{height:22px;border-radius:3px;background:var(--hex-cyan-wash);box-shadow:inset 0 0 0 1px #0b96dc1f;cursor:pointer}
+.wk-cells i.a{background:var(--hex-green);box-shadow:none;opacity:.82}
+.wk-cells i:hover{outline:2px solid var(--ink);outline-offset:-1px}
+.wk-cells i.now{position:relative;box-shadow:inset 0 0 0 2px var(--hex-cyan-ink)}
+.wk-cells i.now::after{content:"Now";position:absolute;bottom:calc(100% + 3px);left:50%;transform:translateX(-50%);font:600 10px/1 var(--font-ui);color:var(--hex-cyan-ink);font-style:normal}
+.wk-scale{display:grid;grid-template-columns:38px minmax(0,1fr) 108px;gap:10px;margin-top:6px}
+.wk-scale div{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.wk-foot{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:14px;font-size:var(--text-sm);color:var(--ink-2)}
+.wk-foot .sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px}
+.wk-foot .btn{margin-left:auto}
+
+/* Voice */
+.mix{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px;max-width:420px}
+.mix-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:var(--text-sm);color:var(--ink-2);margin-top:6px}
+.mix-legend span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--c);margin-right:6px}
+.phr{display:flex;flex-wrap:wrap;gap:6px}
+.phr .tag{white-space:normal;height:auto;min-height:22px;padding-top:2px;padding-bottom:2px}
+.samples .msg{max-width:92%}
+.samples .ctx{justify-self:end;font-size:var(--text-xs);color:var(--ink-3);margin:6px 2px -4px}
+.samples .ctx:first-child{margin-top:0}
+.voice-grid{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+.sx .grid2 .r{grid-template-columns:110px minmax(0,1fr)}
+.tester{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.tester .thread{height:100%;align-content:start}
+
+/* Autopilot and reminders */
+.cad{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.cad>div{border:1px solid var(--line);border-radius:10px;padding:12px 14px;display:grid;gap:8px;align-content:start}
+.cad .when{font-weight:600}
+.cad p{font-size:var(--text-sm);color:var(--ink-2);line-height:1.45}
+.cad .inline{font-size:var(--text-sm)}
+.always{display:grid;grid-template-columns:1fr 1fr;gap:6px 24px;font-size:var(--text-sm)}
+.always li{display:flex;gap:8px;align-items:baseline}
+.always li::before{content:"";flex:none;width:7px;height:8px;background:var(--amber);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+
+/* Connections */
+.conn{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.cn{border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface);padding:16px;display:grid;gap:12px;align-content:start}
+.cn-top{display:flex;align-items:center;gap:10px}
+.cn-top .st{margin-left:auto}
+.cn .dl{grid-template-columns:110px 1fr;font-size:var(--text-sm);gap:7px 12px}
+.cn .acts{display:flex;gap:8px;flex-wrap:wrap}
+.drop{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px dashed var(--line-strong);border-radius:10px;font-size:var(--text-sm);color:var(--ink-2)}
+.drop .btn{margin-left:auto}
+.savebar{position:sticky;bottom:16px;display:flex;align-items:center;gap:10px;margin-top:8px;padding:10px 12px 10px 16px;border-radius:10px;background:var(--ink);color:#fff;box-shadow:var(--shadow-float);font-size:var(--text-sm)}
+.savebar .btn{height:30px}
+.savebar span{margin-right:auto}
+
+@media (max-width:1100px){.conn,.tester,.cad,.voice-grid{grid-template-columns:1fr}}
+@media (max-width:820px){
+  .set{grid-template-columns:1fr;gap:16px}
+  .snav{position:static;display:flex;overflow-x:auto;gap:4px;padding-bottom:4px}
+  .snav a{white-space:nowrap}.snav p{display:none}
+  .r,.sx .grid2 .r{grid-template-columns:1fr}
+  .page-head .actions{flex-wrap:wrap}.page-head .actions .meta{width:100%}
+  .wk{padding:12px;overflow-x:auto}
+  .wk-row,.wk-scale{grid-template-columns:30px minmax(0,1fr);gap:6px}
+  .wk-s,.wk-scale>span:last-child{display:none}
+  .wk-cells{gap:1px}.wk-cells i{height:18px;border-radius:2px}
+  .always{grid-template-columns:1fr}
+  .wk-foot .btn{margin-left:0}
+}
+</style>
+</head>
+<body data-page="settings" data-presence="online">
+<div class="app"><main class="main"><div class="page">
+
+<header class="page-head">
+  <div><h1>Settings</h1><p class="sub">How Devlancer covers for you, sounds like you and gets paid for you.</p></div>
+  <div class="actions"><span class="meta">2 unsaved changes: quiet hours, reminder on due date</span><button class="btn ghost" type="button">Discard</button><button class="btn blue" type="button">Save changes <kbd>⌘S</kbd></button></div>
+</header>
+
+<div class="set">
+  <nav class="snav" aria-label="Settings sections">
+    <a href="#presence" aria-current="true">Presence</a>
+    <a href="#voice">Voice</a>
+    <a href="#rates">Rates and skills</a>
+    <a href="#business">Business and payments</a>
+    <a href="#approvals">Approvals and autopilot</a>
+    <a href="#connections">Connections</a>
+    <p>You can also change most of this from your self-chat, for example <b>/offline</b> or <b>/autopilot off tuition</b>.</p>
+  </nav>
+
+  <div>
+    <!-- Presence -->
+    <section class="sx" id="presence">
+      <header><div><h2>Presence</h2><p>When you are away, Devlancer covers: it replies as you, starts clear work with Devin and holds everything else for the morning.</p></div></header>
+      <div class="rowset">
+        <div class="wk">
+          <p class="wk-now"><span class="dot"></span><span><b>You are online</b> since 8:00 am. Devlancer covers again from 11:00 pm tonight until 8:00 am Monday.</span></p>
+<div class="wk-row"><span class="wk-d">Mon</span><div class="wk-cells"><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="a"></i></div><span class="wk-s">11 pm to 8 am</span></div>
+<div class="wk-row"><span class="wk-d">Tue</span><div class="wk-cells"><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="a"></i></div><span class="wk-s">11 pm to 8 am</span></div>
+<div class="wk-row"><span class="wk-d">Wed</span><div class="wk-cells"><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="a"></i></div><span class="wk-s">11 pm to 8 am</span></div>
+<div class="wk-row"><span class="wk-d">Thu</span><div class="wk-cells"><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="a"></i></div><span class="wk-s">11 pm to 8 am</span></div>
+<div class="wk-row"><span class="wk-d">Fri</span><div class="wk-cells"><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="a"></i></div><span class="wk-s">11 pm to 8 am</span></div>
+<div class="wk-row"><span class="wk-d">Sat</span><div class="wk-cells"><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="o now"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="o"></i><i class="a"></i></div><span class="wk-s">11 pm to 8 am</span></div>
+<div class="wk-row"><span class="wk-d">Sun</span><div class="wk-cells"><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i><i class="a"></i></div><span class="wk-s">All day</span></div>
+          <div class="wk-scale"><span></span><div><span>12 am</span><span>3</span><span>6</span><span>9</span><span>12 pm</span><span>3</span><span>6</span><span>9</span><span>12 am</span></div><span></span></div>
+          <div class="wk-foot">
+            <span><span class="sw" style="background:var(--hex-green);opacity:.82"></span>Away, Devlancer covers</span>
+            <span><span class="sw" style="background:var(--hex-cyan-wash);box-shadow:inset 0 0 0 1px #0b96dc33"></span>Online, drafts wait for you</span>
+            <span class="meta">Drag across hours to change them</span>
+            <button class="btn sm" type="button">Add a holiday</button>
+          </div>
+        </div>
+        <div class="r"><div class="k"><b>Quiet hours for client replies</b><span>Non-urgent replies wait and go out from the end of quiet hours, at a natural pace.</span></div>
+          <div class="v inline"><select class="select" aria-label="Quiet from"><option>10:30 pm</option></select><span class="ink3">to</span><select class="select" aria-label="Quiet until"><option>7:30 am</option></select></div></div>
+        <div class="r"><div class="k"><b>Holding replies at night</b><span>A short "will check and update by morning" so clients aren't left on blue ticks.</span></div>
+          <div class="v inline"><span class="switch"><input type="checkbox" checked aria-label="Holding replies at night"><span></span></span><span class="small">On, sent 6 to 25 minutes after the message</span></div></div>
+        <div class="r"><div class="k"><b>Urgent words</b><span>These get a holding reply even in quiet hours, and a ping to you.</span></div>
+          <div class="v phr"><span class="tag">site down</span><span class="tag">not working</span><span class="tag">urgent</span><span class="tag">payment failed</span><span class="tag">pls call</span><button class="tag" type="button"><svg class="i sm"><use href="#i-plus"/></svg>Add</button></div></div>
+        <div class="r"><div class="k"><b>Go online when you use your phone</b><span>Sending any message yourself switches you to online for an hour.</span></div>
+          <div class="v"><span class="switch"><input type="checkbox" checked aria-label="Go online when you use your phone"><span></span></span></div></div>
+      </div>
+    </section>
+
+    <!-- Voice -->
+    <section class="sx" id="voice">
+      <header><div><h2>Voice</h2><p>Learned from 240 of your sent messages to clients, last updated 18 October. Every draft uses this.</p></div><button class="btn" type="button"><svg class="i sm"><use href="#i-upkeep"/></svg>Relearn from recent messages</button></header>
+      <div class="grid2 voice-grid">
+        <div class="rowset">
+          <div class="r"><div class="k"><b>Language mix</b></div>
+            <div class="v"><div class="mix"><i style="flex:78;background:var(--hex-blue)"></i><i style="flex:19;background:var(--hex-cyan)"></i><i style="flex:3;background:var(--hex-green)"></i></div>
+              <div class="mix-legend"><span style="--c:var(--hex-blue)">English 78%</span><span style="--c:var(--hex-cyan)">Manglish 19%</span><span style="--c:var(--hex-green)">Malayalam script 3%</span></div></div></div>
+          <div class="r"><div class="k"><b>Greetings</b></div><div class="v phr"><span class="tag solid">Hi Thomas</span><span class="tag solid">Morning Lakshmi!</span><span class="tag solid">Hello chechi</span><span class="tag solid">Hey Arjun</span></div></div>
+          <div class="r"><div class="k"><b>Emoji</b></div><div class="v small">About 1 a message, mostly 🙂 👍 🙏. Never 😂 with clients.</div></div>
+          <div class="r"><div class="k"><b>Typical length</b></div><div class="v small">2 to 3 short lines, median 24 words. Splits long news into 2 messages.</div></div>
+          <div class="r"><div class="k"><b>Habits</b></div><div class="v phr"><span class="tag">will check and update</span><span class="tag">no issues</span><span class="tag">shall I go ahead?</span><span class="tag">ok da</span><span class="tag coral">avoids "Dear" and "Kindly" on WhatsApp</span></div></div>
+        </div>
+        <div>
+          <p class="label" style="margin-bottom:8px">Three of your messages it learned from</p>
+          <div class="thread samples">
+            <span class="ctx">To Thomas, 14 Oct</span>
+            <div class="msg out">Hi Thomas, booking page is ready on the preview link. Check from your phone once and tell me if the room photos look ok 👍<span class="time">6:42 pm ✓✓</span></div>
+            <span class="ctx">To Lakshmi, 9 Oct</span>
+            <div class="msg out">Morning Lakshmi! Fee reminder will go at 9 am on the 5th of every month. Parents get it on WhatsApp, no app needed 🙂<span class="time">9:15 am ✓✓</span></div>
+            <span class="ctx">To Arjun, 30 Sep</span>
+            <div class="msg out">Prices updated da. Biryani is 220 now, removed the kappa combo like you said<span class="time">7:58 pm ✓✓</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="box" style="margin-top:16px">
+        <div class="box-head"><h3 class="h3">Test a reply</h3><span class="meta">Nothing is sent</span></div>
+        <div class="box-body tester">
+          <div class="field"><label for="tmsg">A client says</label>
+            <textarea id="tmsg" class="textarea" style="min-height:110px">Hi Jerom, can we make the website colour more like maroon? Customers saying current pink is too bright 😅</textarea>
+            <div class="inline"><select class="select" aria-label="As if from"><option>Fathima, Boutique catalogue</option></select><button class="btn primary" type="button">Draft a reply</button></div></div>
+          <div class="field"><label>Devlancer would reply</label>
+            <div class="thread"><div class="msg out draft"><span class="from">Draft</span>Hi Fathima! Maroon will look classy with the gold logo actually 🙂 Let me try 2 shades on the preview and share by evening, you can pick.<span class="time">31 words, 1 emoji</span></div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rates -->
+    <section class="sx" id="rates">
+      <header><div><h2>Rates and skills</h2><p>Used to score gigs, price proposals and turn out-of-scope requests into change orders.</p></div></header>
+      <div class="rowset">
+        <div class="r"><div class="k"><b>Hourly rate</b><span>Change orders are priced at this rate.</span></div><div class="v"><div class="input-group" style="max-width:220px"><span class="affix">₹</span><input value="1,500" aria-label="Hourly rate"><span class="affix">an hour</span></div></div></div>
+        <div class="r"><div class="k"><b>Smallest project</b><span>Gigs below this are shown but not pitched.</span></div><div class="v"><div class="input-group" style="max-width:220px"><span class="affix">₹</span><input value="10,000" aria-label="Smallest project"></div></div></div>
+        <div class="r"><div class="k"><b>Advance</b><span>Used in proposals and the first invoice.</span></div><div class="v inline"><select class="select" aria-label="Advance"><option>50% advance, 50% on delivery</option></select></div></div>
+        <div class="r"><div class="k"><b>Skills</b><span>Laya scores each gig against these.</span></div><div class="v phr"><span class="tag solid">Web apps</span><span class="tag solid">WhatsApp bots</span><span class="tag solid">Dashboards</span><span class="tag solid">Next.js</span><span class="tag solid">Supabase</span><button class="tag" type="button"><svg class="i sm"><use href="#i-plus"/></svg>Add</button></div></div>
+        <div class="r"><div class="k"><b>Never pitch</b><span>Skipped even if the fit looks good.</span></div><div class="v phr"><span class="tag coral">Needs a payments licence</span><span class="tag coral">Native iOS apps</span><span class="tag coral">Full-time roles</span><button class="tag" type="button"><svg class="i sm"><use href="#i-plus"/></svg>Add</button></div></div>
+        <div class="r"><div class="k"><b>Pitch threshold</b><span>Below this fit, gigs are listed but no pitch is drafted.</span></div><div class="v inline"><span class="fit"><i style="--v:60%"></i>0.60</span><span class="meta">Speed mode uses 0.85, set per group in <a href="groups.html">Groups</a></span></div></div>
+      </div>
+    </section>
+
+    <!-- Business -->
+    <section class="sx" id="business">
+      <header><div><h2>Business and payments</h2><p>Printed on every proposal, invoice and change order.</p></div></header>
+      <div class="rowset">
+        <div class="r"><div class="k"><b>Business name</b></div><div class="v"><input class="input" value="Jerom Tom, Freelance Software Development" aria-label="Business name" style="max-width:420px"></div></div>
+        <div class="r"><div class="k"><b>Address</b></div><div class="v"><textarea class="textarea" style="min-height:64px;max-width:420px" aria-label="Address">Kakkanad, Kochi, Kerala 682030</textarea></div></div>
+        <div class="r"><div class="k"><b>UPI ID</b><span>Every invoice gets a UPI QR code and pay link.</span></div><div class="v inline"><input class="input" value="jerom@okhdfc" aria-label="UPI ID" style="max-width:220px"><span class="st green">Verified, name shows as JEROM TOM</span></div></div>
+        <div class="r"><div class="k"><b>Bank transfer</b></div><div class="v small">HDFC Bank, Kakkanad, account ending 4417, IFSC HDFC0000520 <a href="#" style="margin-left:6px">Edit</a></div></div>
+        <div class="r"><div class="k"><b>GST registered</b><span>GST fields stay off your invoices while this is off.</span></div><div class="v inline"><span class="switch"><input type="checkbox" aria-label="GST registered"><span></span></span><span class="small">No</span></div></div>
+        <div class="r"><div class="k"><b>Numbering</b><span>Next numbers, per year.</span></div><div class="v inline"><span class="tag">Invoices INV-2026-005</span><span class="tag">Proposals PR-2026-006</span><span class="tag">Change orders CO-2026-004</span></div></div>
+        <div class="r"><div class="k"><b>Payment terms</b></div><div class="v inline"><select class="select" aria-label="Due"><option>Due in 7 days</option></select></div></div>
+        <div class="r"><div class="k"><b>Proposal template</b><span>Devlancer copies its layout, tone and sections. Without one it uses the default.</span></div>
+          <div class="v stack" style="gap:8px">
+            <div class="drop"><svg class="i"><use href="#i-file"/></svg><span><b style="color:var(--ink);font-weight:500">Jerom proposal 2025.docx</b><br><span class="meta">Uploaded 2 Oct, 4 pages, cover, scope, timeline, pricing</span></span><button class="btn sm" type="button">Replace</button></div>
+            <div class="drop"><svg class="i"><use href="#i-download"/></svg><span>Logo for proposals and invoices, PNG or SVG</span><button class="btn sm" type="button">Upload</button></div>
+          </div></div>
+      </div>
+    </section>
+
+    <!-- Approvals -->
+    <section class="sx" id="approvals">
+      <header><div><h2>Approvals and autopilot</h2><p>Nothing that commits money, scope or deadlines goes out without you. Everything else you can let go.</p></div></header>
+      <div class="rowset">
+        <div class="r"><div class="k"><b>Always needs your approval</b><span>This list can't be switched off.</span></div>
+          <ul class="v always"><li>Pitches, unless speed mode sends them</li><li>Proposals and their prices</li><li>Change orders</li><li>Invoices, before the first send</li><li>Marking an invoice as paid</li><li>Any reply that mentions a price, date or scope</li></ul></div>
+        <div class="r"><div class="k"><b>Send without asking</b></div>
+          <div class="v stack" style="gap:10px">
+            <label class="inline small"><span class="switch"><input type="checkbox" checked><span></span></span>Holding replies while you are away</label>
+            <label class="inline small"><span class="switch"><input type="checkbox" checked><span></span></span>Clarifying questions on unclear requests</label>
+            <label class="inline small"><span class="switch"><input type="checkbox"><span></span></span>The 👍 and "Check DM 🙂" in marketplace groups</label>
+          </div></div>
+      </div>
+
+      <h3 class="h3" style="margin:22px 0 4px">Autopilot by project</h3>
+      <p class="meta" style="margin-bottom:10px">With autopilot on, Devin's finished work goes to the client as soon as the preview passes its checks. Off, it waits in Approvals.</p>
+      <div class="tbl-wrap">
+        <table class="tbl"><thead><tr><th>Project</th><th>Client</th><th>Autopilot</th><th>Last 30 days</th></tr></thead>
+          <tbody>
+            <tr><td class="strong">Tuition centre app</td><td>Lakshmi R</td><td><span class="switch"><input type="checkbox" checked aria-label="Autopilot for Tuition centre app"><span></span></span></td><td class="small ink2">5 previews shared on their own, last at 2:14 am</td></tr>
+            <tr><td class="strong">Homestay booking site</td><td>Thomas K J</td><td><span class="switch"><input type="checkbox" aria-label="Autopilot for Homestay booking site"><span></span></span></td><td class="small ink2">Thomas is particular about photos, you review each one</td></tr>
+            <tr><td class="strong">Boutique catalogue</td><td>Fathima S</td><td><span class="switch"><input type="checkbox" aria-label="Autopilot for Boutique catalogue"><span></span></span></td><td class="small ink2">Invoice overdue, held until paid</td></tr>
+            <tr><td class="strong">Restaurant menu site</td><td>Arjun Menon</td><td><span class="switch"><input type="checkbox" checked aria-label="Autopilot for Restaurant menu site"><span></span></span></td><td class="small ink2">Weekly upkeep notes go to Arjun on Fridays</td></tr>
+          </tbody></table>
+      </div>
+
+      <h3 class="h3" style="margin:22px 0 4px">Invoice reminders</h3>
+      <p class="meta" style="margin-bottom:10px">Each one in your voice, quoting the invoice and its UPI link. After the third, Devlancer stops and tells you.</p>
+      <div class="cad">
+        <div><span class="when">On the due date</span><p>"Hi Fathima, sharing the invoice again for today 🙂 UPI link inside, no rush if already done."</p><label class="inline"><span class="switch"><input type="checkbox" checked><span></span></span>Send without asking</label></div>
+        <div><span class="when">3 days after</span><p>"Hi Fathima, gentle reminder on INV-2026-004 for ₹22,000. Let me know if anything needs a change."</p><label class="inline"><span class="switch"><input type="checkbox"><span></span></span>Send without asking</label></div>
+        <div><span class="when">7 days after</span><p>A firmer note offering a quick call, and a ping to you to follow up personally.</p><label class="inline"><span class="switch"><input type="checkbox"><span></span></span>Send without asking</label></div>
+      </div>
+    </section>
+
+    <!-- Connections -->
+    <section class="sx" id="connections">
+      <header><div><h2>Connections</h2><p>Everything Devlancer signs in to on your behalf.</p></div></header>
+      <div class="conn">
+        <div class="cn">
+          <div class="cn-top"><svg class="i"><use href="#i-chat"/></svg><h3 class="h3">WhatsApp</h3><span class="st green">Linked</span></div>
+          <dl class="dl"><dt>Number</dt><dd>+91 98470 21436</dd><dt>Device</dt><dd>Devlancer, linked device since 2 Oct</dd><dt>Last message</dt><dd>8:11 am</dd><dt>Sending</dt><dd>3 of 20 this hour, 14 of 150 today</dd></dl>
+          <div class="acts"><button class="btn sm" type="button">Relink</button><button class="btn sm danger" type="button">Unlink</button></div>
+        </div>
+        <div class="cn">
+          <div class="cn-top"><svg class="i"><use href="#i-devin"/></svg><h3 class="h3">Devin</h3><span class="st green">Connected</span></div>
+          <dl class="dl"><dt>Organisation</dt><dd>Jerom Tom</dd><dt>Through</dt><dd>Devin MCP, mcp.devin.ai</dd><dt>Playbooks</dt><dd>Kickoff, ChangeRequest, Upkeep</dd><dt>Knowledge</dt><dd>4 projects, 2 change orders</dd><dt>Devin CLI</dt><dd>Jerom's MacBook Pro, seen 8:09 am</dd></dl>
+          <div class="acts"><button class="btn sm" type="button">Open Devin</button><button class="btn sm ghost" type="button">Change key</button></div>
+        </div>
+        <div class="cn">
+          <div class="cn-top"><svg class="i"><use href="#i-mail"/></svg><h3 class="h3">Gmail</h3><span class="st green">Connected</span></div>
+          <dl class="dl"><dt>Account</dt><dd>jerom.freelance@gmail.com</dd><dt>Can</dt><dd><span class="tag">gmail.send</span> <span class="tag">gmail.readonly</span></dd><dt>Reads</dt><dd>4 client addresses, HDFC and UPI credit alerts</dd><dt>Token</dt><dd>Refreshed 7:30 am</dd></dl>
+          <div class="acts"><button class="btn sm" type="button">Reconnect</button><button class="btn sm danger" type="button">Disconnect</button></div>
+        </div>
+        <div class="cn">
+          <div class="cn-top"><svg class="i"><use href="#i-bolt"/></svg><h3 class="h3">AI models</h3><span class="st green">Working</span></div>
+          <dl class="dl"><dt>Decisions</dt><dd>Laya, reads every message: intent, in scope, fit, clarity, needs a human, size</dd><dt>Writing</dt><dd>Text model through AI Gateway: pitches, proposals, replies in your voice</dd><dt>Today</dt><dd>318 decisions, 22 drafts</dd><dt>If Laya is down</dt><dd>Fallback rules: hold every client message for you</dd></dl>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+</div></main></div>
+<script src="shell.js"></script>
+</body>
+</html>

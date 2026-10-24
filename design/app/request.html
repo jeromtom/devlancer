@@ -1,0 +1,201 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Room gallery request | Devlancer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+.r-head{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;padding-bottom:20px}
+.r-head h1{font:700 28px/1.15 var(--font-display);letter-spacing:-.025em}
+.r-head .sub{color:var(--ink-2);margin-top:6px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.r-head .actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+.label-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:var(--text-sm);font-weight:500;color:var(--ink-2)}
+.label-row .meta{margin-left:auto;font-weight:400}
+.photos{display:grid;grid-template-columns:repeat(2,96px);gap:3px;border-radius:7px;overflow:hidden;margin-bottom:4px}
+.photos i{display:block;height:84px;position:relative}
+.photos i b{position:absolute;inset:0;display:grid;place-items:center;background:#17203699;color:#fff;font:600 20px/1 var(--font-ui)}
+.gap{justify-self:center;font-size:var(--text-xs);color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.thread{align-content:start}
+.msg .tiny{display:block;font-size:var(--text-xs);color:var(--ink-3)}
+
+.session .tl{margin-top:4px}
+.tl .what{display:flex;align-items:center;gap:8px}
+.tl li.todo .what{color:var(--ink-3)}
+.tl li.now .node{animation:blink 1.6s ease-in-out infinite}
+.tl li.now .what{color:var(--hex-cyan-ink)}
+.tl code{white-space:nowrap;font:500 12px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--sunken);padding:1px 5px;border-radius:4px;color:var(--ink-2)}
+.tl .wait::before{background:repeating-linear-gradient(var(--amber) 0 4px,transparent 4px 8px)!important}
+.prog{display:flex;align-items:center;gap:10px;margin:2px 0 16px;font-size:var(--text-sm);color:var(--ink-2)}
+.prog .bar{flex:1;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.prog .bar i{display:block;height:100%;width:70%;background:var(--hex-cyan)}
+
+/* Laya's reading */
+.read{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface);overflow:hidden}
+.read>div{padding:12px 16px;border-left:1px solid var(--line);border-top:1px solid var(--line)}
+.read>div:nth-child(3n+1){border-left:0}
+.read>div:nth-child(-n+3){border-top:0}
+.read dt{font-size:var(--text-xs);color:var(--ink-3)}
+.read dd{font-weight:600;margin-top:2px;display:flex;align-items:baseline;gap:8px}
+.read dd .c{margin-left:auto;font-weight:400;font-size:var(--text-xs);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.read dd+dd{font-weight:400;font-size:var(--text-sm);color:var(--ink-2);margin-top:2px}
+.conf{height:3px;border-radius:2px;background:var(--line);margin-top:8px;overflow:hidden}
+.conf i{display:block;height:100%;background:var(--ink-3)}
+
+/* Routing decision: the request plotted on the 2x2 */
+.route-map{border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface);padding:16px 18px 14px}
+.rm-row{display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;align-items:stretch}
+.rm-row+.rm-row{margin-top:6px}
+.rm-lbl{display:grid;align-content:center;font-size:var(--text-sm);font-weight:500;color:var(--ink-2)}
+.rm-lbl small{font-weight:400;color:var(--ink-3);font-size:var(--text-xs)}
+.rm-row.now .rm-lbl{color:var(--hex-cyan-ink)}
+.rm-track{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.rm-cell{padding:12px 14px;border-radius:8px;background:var(--canvas);font-size:var(--text-sm);color:var(--ink-3);min-height:64px}
+.rm-cell b{display:block;font-weight:500;color:var(--ink-2)}
+.rm-cell.pick{background:var(--hex-cyan-wash);box-shadow:inset 0 0 0 1.5px var(--hex-cyan);color:var(--ink-2)}
+.rm-cell.pick b{color:var(--hex-cyan-ink);font-weight:600}
+.rm-axis{display:grid;grid-template-columns:120px minmax(0,1fr);gap:12px;margin-top:10px;font-size:var(--text-xs);color:var(--ink-3);align-items:start}
+.rm-axis>span{padding-top:4px;font-weight:500;color:var(--ink-2)}
+.rm-scale{position:relative;height:48px}
+.rm-scale .line{position:absolute;left:0;right:0;top:11px;height:2px;background:var(--line-strong);border-radius:1px}
+.rm-scale .th{position:absolute;left:50%;top:4px;height:16px;border-left:2px dashed var(--ink-3)}
+.rm-scale .t0,.rm-scale .t1,.rm-scale .th-l{position:absolute;top:24px}
+.rm-scale .t0{left:0}.rm-scale .t1{right:0}.rm-scale .th-l{left:50%;transform:translateX(-50%)}
+.rm-pin{position:absolute;left:14%;top:2px;display:flex;align-items:center;gap:6px;transform:translateX(-9px)}
+.rm-pin b{font-weight:600;color:var(--hex-cyan-ink);white-space:nowrap}
+.rm-dot{display:block;width:18px;height:20px;background:var(--hex-cyan);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.rm-pin{background:var(--surface);padding-right:6px}
+.ses dl{display:grid;grid-template-columns:96px minmax(0,1fr);gap:7px 12px;font-size:var(--text-sm)}
+.ses dt{color:var(--ink-3)}
+.ses dd{min-width:0;overflow-wrap:anywhere}
+.draft-thread .msg{max-width:100%}
+.draft-thread .msg a{overflow-wrap:anywhere}
+.know li{font-size:var(--text-sm);padding:7px 0;border-top:1px solid var(--line);color:var(--ink-2)}
+.know li:first-child{border-top:0;padding-top:0}
+.know q{quotes:none;color:var(--ink);font-weight:500}
+@media (max-width:1100px){.read{grid-template-columns:repeat(2,minmax(0,1fr))}.read>div{border-left:1px solid var(--line)!important;border-top:1px solid var(--line)!important}.read>div:nth-child(2n+1){border-left:0!important}.read>div:nth-child(-n+2){border-top:0!important}}
+@media (max-width:820px){
+  .r-head .actions{margin-left:0}
+  .sec-head{flex-wrap:wrap;gap:2px 10px}.sec-head .h2{width:100%}
+  .rm-row,.rm-axis{grid-template-columns:64px minmax(0,1fr);gap:8px}
+  .rm-cell{padding:10px;min-height:72px}
+  .rm-scale .th-l{display:none}
+  .msg{max-width:92%}
+}
+</style>
+</head>
+<body data-page="devin">
+<div class="app"><main class="main"><div class="page">
+
+<nav class="crumbs" aria-label="Breadcrumb"><a href="requests.html"><svg class="i sm"><use href="#i-back"/></svg></a><a href="requests.html">Requests</a><span>/</span><a href="project.html">Homestay booking site</a></nav>
+<header class="r-head">
+  <div>
+    <h1>Gallery with all 12 room photos</h1>
+    <p class="sub"><span class="who"><span class="avatar sm">T</span>Thomas K J, Thekkady Hills Homestay</span><span class="st cyan live">Devin Cloud, running 38 min</span></p>
+  </div>
+  <div class="actions">
+    <a class="btn" href="#"><svg class="i sm"><use href="#i-chat"/></svg>Message Devin</a>
+    <a class="btn" href="#"><svg class="i sm"><use href="#i-terminal"/></svg>Take over in CLI</a>
+    <a class="btn primary" href="#"><svg class="i sm"><use href="#i-out"/></svg>Open session <kbd>O</kbd></a>
+  </div>
+</header>
+
+<div class="with-aside">
+<div>
+  <div class="grid2">
+    <section>
+      <div class="label-row">Thomas said<span class="meta">Direct chat</span></div>
+      <div class="thread">
+        <span class="day">Today</span>
+        <div class="msg"><span class="from">Thomas</span>can you add a gallery with all 12 room photos? sending pics now<span class="time">12:20 am</span></div>
+        <div class="msg out"><div class="quote"><b>Thomas</b>can you add a gallery with all 12 room photos?</div>Sure, will share the update by morning.<span class="time">12:26 am ✓✓</span></div>
+        <span class="gap"><svg class="i sm"><use href="#i-clock"/></svg>Photos arrived 7 h later</span>
+        <div class="msg"><span class="from">Thomas</span>
+          <div class="photos" aria-label="12 photos">
+            <i style="background:#9fb39a"></i><i style="background:#c8b79c"></i><i style="background:#8fa5b8"></i><i style="background:#b7a58f"><b>+8</b></i>
+          </div>
+          <span class="tiny">12 photos, 41.6 MB</span><span class="time">7:28 am</span></div>
+        <div class="msg"><span class="from">Thomas</span>rooms 1 to 6 are garden view, 7 to 12 valley view 👍<span class="time">7:29 am</span></div>
+      </div>
+    </section>
+
+    <section class="session">
+      <div class="label-row">Devin Cloud session<span class="meta">devin-4c1e9a</span></div>
+      <div class="prog"><div class="bar"><i></i></div><span class="num">5 of 7 steps</span></div>
+      <ol class="tl">
+        <li class="wait"><span class="node amber"></span><div><p class="what">Waited for the photos</p><p class="detail">"Sending pics now" meant the session held until all 12 arrived, instead of building with placeholders.</p></div><span class="when">12:20 am</span></li>
+        <li><span class="node cyan"></span><div><p class="what">Repo cloned</p><p class="detail"><code>jerom-dev/thekkady-hills</code> on <code>feat/room-gallery</code>, with the proposal and 4 client notes from Knowledge</p></div><span class="when">7:34 am</span></li>
+        <li><span class="node cyan"></span><div><p class="what">Photos optimised</p><p class="detail">41.6 MB of JPEGs to 2.3 MB of WebP in 3 sizes. Grouped as garden view (1 to 6) and valley view (7 to 12).</p></div><span class="when">7:38 am</span></li>
+        <li><span class="node cyan"></span><div><p class="what">Gallery component</p><p class="detail">Room gallery with lightbox and swipe on the rooms page and each room. 5 files, +286 lines.</p></div><span class="when">7:53 am</span></li>
+        <li class="now"><span class="node cyan"></span><div><p class="what">Mobile check</p><p class="detail">At 390 px in Chrome and Safari. Swipe passed, fixing scroll lock in the lightbox on iOS.</p></div><span class="when">8:04 am</span></li>
+        <li class="todo"><span class="node todo"></span><div><p class="what">Pull request opened</p><p class="detail">Devin Review with Auto-Fix runs on it</p></div><span class="when">About 8:18</span></li>
+        <li class="todo"><span class="node todo"></span><div><p class="what">Preview deployed</p><p class="detail">Vercel preview for the branch</p></div><span class="when">About 8:25</span></li>
+      </ol>
+    </section>
+  </div>
+
+  <section class="sec" style="margin-top:12px">
+    <div class="sec-head"><h2 class="h2">Laya's reading</h2><span class="meta">Checked against proposal PR-2026-002, accepted 3 Oct</span></div>
+    <dl class="read">
+      <div><dt>Intent</dt><dd>Change request<span class="c">0.97</span></dd><dd>Wants something added</dd><div class="conf"><i style="width:97%"></i></div></div>
+      <div><dt>In scope</dt><dd style="color:var(--hex-green-ink)">Yes<span class="c">0.91</span></dd><dd>Item 3: room pages with photos</dd><div class="conf"><i style="width:91%"></i></div></div>
+      <div><dt>Clarity</dt><dd>High<span class="c">0.88</span></dd><dd>Count, photos and grouping given</dd><div class="conf"><i style="width:88%"></i></div></div>
+      <div><dt>Checkable</dt><dd>Yes<span class="c">0.93</span></dd><dd>All 12 show and open on a phone</dd><div class="conf"><i style="width:93%"></i></div></div>
+      <div><dt>Needs a human</dt><dd>Low<span class="c">0.14</span></dd><dd>No taste call, follows the site's style</dd><div class="conf"><i style="width:14%;background:var(--hex-cyan)"></i></div></div>
+      <div><dt>Size</dt><dd>About 1.5 hours<span class="c">0.82</span></dd><dd>Under the 3 hour line</dd><div class="conf"><i style="width:82%"></i></div></div>
+    </dl>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><h2 class="h2">Why Devin Cloud</h2><span class="meta">You were away, and it barely needs a human</span></div>
+    <div class="route-map" role="img" aria-label="Away row, needs a human 0.14: Devin Cloud">
+      <div class="rm-row now"><div class="rm-lbl">Away<small>11:00 pm to 8:00 am</small></div>
+        <div class="rm-track">
+          <div class="rm-cell pick"><b>Devin Cloud</b>Runs on its own, holding reply to client</div>
+          <div class="rm-cell"><b>Ask Devin brief</b>Queued for your morning</div>
+        </div></div>
+      <div class="rm-row"><div class="rm-lbl">Online</div>
+        <div class="rm-track">
+          <div class="rm-cell"><b>Devin Cloud</b>Runs in parallel, you review</div>
+          <div class="rm-cell"><b>Devin CLI</b>On your laptop, brief loaded</div>
+        </div></div>
+      <div class="rm-axis"><span>Needs a human</span><div class="rm-scale"><i class="line"></i><i class="th"></i><span class="t0">0</span><span class="th-l">0.5 line</span><span class="t1">1</span><span class="rm-pin"><i class="rm-dot"></i><b>This request, 0.14</b></span></div></div>
+    </div>
+  </section>
+</div>
+
+<aside class="aside">
+  <section class="box ses"><div class="box-head"><h2 class="h3">Session</h2><span class="st cyan live" style="margin-left:auto">38 min</span></div>
+    <div class="box-body">
+      <dl>
+        <dt>Started</dt><dd>7:34 am, when the photos landed</dd>
+        <dt>Expected</dt><dd>Preview by about 8:25 am</dd>
+        <dt>Playbook</dt><dd>ChangeRequest</dd>
+        <dt>Repo</dt><dd><a href="#">jerom-dev/thekkady-hills</a></dd>
+        <dt>Autopilot</dt><dd>Off, so the preview waits for you</dd>
+      </dl>
+    </div></section>
+
+  <section class="box"><div class="box-head"><h2 class="h3">Update for Thomas</h2><span class="st amber" style="margin-left:auto">Drafted</span></div>
+    <div class="box-body">
+      <div class="thread draft-thread">
+        <div class="msg out draft"><span class="from">Draft</span>Morning Thomas! Gallery is done 🙂 All 12 rooms are up, garden view and valley view in separate tabs. Tap any photo to see it full size.<br><br>Have a look here: <a href="#">thekkady-hills-git-feat-room-gallery.vercel.app</a><span class="time">Waits for the preview</span></div>
+      </div>
+      <p class="meta" style="margin-top:10px">Comes to your Approvals with the preview screenshot once Devin finishes. Nothing goes to Thomas before you approve.</p>
+      <div class="row-flex" style="margin-top:12px"><button class="btn sm"><svg class="i sm"><use href="#i-edit"/></svg>Edit</button></div>
+    </div></section>
+
+  <section class="box"><div class="box-head"><h2 class="h3">Devin was given</h2><a class="more" href="project.html">Project</a></div>
+    <div class="box-body"><ul class="know">
+      <li><q>Accepted proposal PR-2026-002</q>, scope baseline</li>
+      <li><q>Keep the green and cream palette</q>, Thomas, 4 Oct</li>
+      <li><q>Most guests book from Instagram on phones</q></li>
+      <li><q>Milestone 2 due Mon 27 Oct</q>, gallery is part of it</li>
+    </ul></div></section>
+</aside>
+</div>
+
+</div></main></div>
+<script src="shell.js"></script>
+</body>
+</html>

@@ -1,0 +1,293 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Set up | Devlancer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+body{background:var(--canvas)}
+.ob-bar{display:flex;align-items:center;gap:14px;height:60px;padding:0 32px;background:var(--surface);border-bottom:1px solid var(--line)}
+.ob-bar .wordmark{color:var(--ink)}
+.ob-bar .who-num{margin-left:auto;font-size:var(--text-sm);color:var(--ink-3)}
+.ob{max-width:1200px;margin:0 auto;padding:28px 40px 64px}
+
+/* Stepper: a real sequence, so numbered */
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-bottom:32px;counter-reset:s}
+.steps li{position:relative;display:grid;grid-template-columns:30px minmax(0,1fr);gap:2px 12px;padding-right:20px}
+.steps li::after{content:"";position:absolute;left:42px;right:16px;top:15px;height:2px;background:var(--line)}
+.steps li.done::after{background:var(--hex-green)}
+.steps li:last-child::after{display:none}
+.steps .hx{grid-row:span 2;display:grid;place-items:center;width:30px;height:33px;background:var(--surface);color:var(--ink-3);font:600 13px/1 var(--font-ui);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);box-shadow:inset 0 0 0 30px var(--sunken)}
+.steps .done .hx{background:var(--hex-green);box-shadow:none;color:#fff}
+.steps .now .hx{background:var(--hex-blue);box-shadow:none;color:#fff}
+.steps b{font-weight:600;position:relative;z-index:1;background:var(--canvas);padding-right:8px;justify-self:start;margin-top:4px}
+.steps .now b{color:var(--hex-blue-ink)}
+.steps .next b{color:var(--ink-2)}
+.steps span.d{font-size:var(--text-sm);color:var(--ink-3);line-height:1.4}
+
+.ob-main{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:40px;align-items:start}
+.ob-head h1{font:700 32px/1.1 var(--font-display);letter-spacing:-.025em}
+.ob-head p{font-size:var(--text-lg);color:var(--ink-2);margin-top:8px;max-width:64ch;line-height:1.55}
+.ob-head{margin-bottom:20px}
+
+.gl{border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface);overflow:hidden}
+.gl>p.grp{padding:10px 18px;font-size:var(--text-sm);font-weight:500;color:var(--ink-2);background:var(--canvas);border-top:1px solid var(--line);display:flex;gap:8px}
+.gl>p.grp:first-child{border-top:0}
+.gl>p.grp .meta{font-weight:400}
+.g{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr) auto;gap:6px 20px;align-items:start;padding:14px 18px;border-top:1px solid var(--line)}
+.g.unsure{background:#e39b270a}
+.g .name b{display:block;font-weight:500}
+.g .name span{font-size:var(--text-sm);color:var(--ink-3)}
+.g .why{font-size:var(--text-sm);color:var(--ink-2);line-height:1.45}
+.g .why strong{color:var(--ink);font-weight:600}
+.g .why .quote{margin:7px 0 0;max-width:52ch}
+.g .seg{margin-top:-2px}
+.g .seg [aria-pressed=true].mk{color:var(--hex-blue-ink)}
+.g .seg [aria-pressed=true].cl{color:var(--hex-cyan-ink)}
+.more-row{display:flex;align-items:center;gap:12px;padding:12px 18px;border-top:1px solid var(--line);font-size:var(--text-sm);color:var(--ink-2)}
+.more-row .btn{margin-left:auto}
+.ob-foot{display:flex;align-items:center;gap:10px;margin-top:20px}
+.ob-foot .meta{margin-right:auto}
+
+.side-stack{position:sticky;top:24px;display:grid;gap:16px}
+.kinds dt{font-weight:600;margin-top:12px;display:flex;align-items:center;gap:8px}
+.kinds dt:first-child{margin-top:0}
+.kinds dd{font-size:var(--text-sm);color:var(--ink-2);margin-top:2px;line-height:1.5}
+.tally{display:grid;gap:10px}
+.tally li{display:flex;justify-content:space-between;gap:12px;font-size:var(--text-sm);color:var(--ink-2)}
+.tally li b{font:600 var(--text-md) var(--font-ui);color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* Other steps, shown as compact previews */
+.others{margin-top:48px;padding-top:24px;border-top:1px solid var(--line)}
+.others>h2{margin-bottom:4px}
+.others>p{color:var(--ink-3);font-size:var(--text-sm);margin-bottom:16px}
+.cards3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:start}
+.sc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-panel);overflow:hidden}
+.sc-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.sc-head .n{display:grid;place-items:center;width:22px;height:24px;font:600 11px/1 var(--font-ui);color:#fff;background:var(--hex-green);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.sc-head .n.next{background:var(--sunken);color:var(--ink-2)}
+.sc-head .st{margin-left:auto}
+.sc-body{padding:16px;display:grid;gap:14px}
+.qr-wrap{display:grid;grid-template-columns:150px minmax(0,1fr);gap:16px;align-items:start}
+.qr{width:150px;height:150px;padding:8px;border:1px solid var(--line);border-radius:10px;background:#fff;position:relative}
+.qr svg{display:block;width:100%;height:100%}
+.qr img{position:absolute;left:50%;top:50%;width:30px;height:30px;transform:translate(-50%,-50%);background:#fff;padding:3px;border-radius:6px}
+.howto{counter-reset:h;display:grid;gap:8px;font-size:var(--text-sm);color:var(--ink-2)}
+.howto li{counter-increment:h;display:grid;grid-template-columns:18px 1fr;gap:6px;line-height:1.4}
+.howto li::before{content:counter(h);font-weight:600;color:var(--ink)}
+.howto b{color:var(--ink);font-weight:500}
+.hours{position:relative;height:28px;border-radius:6px;background:var(--sunken);overflow:hidden}
+.hours i{position:absolute;top:0;bottom:0;background:var(--hex-cyan-wash);border-left:2px solid var(--hex-cyan);border-right:2px solid var(--hex-cyan)}
+.hours-scale{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-3);margin-top:4px;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.gigs-found li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:9px 0;border-top:1px solid var(--line)}
+.gigs-found li:first-child{border-top:0;padding-top:0}
+.gigs-found b{font-weight:500;font-size:var(--text-sm)}
+.gigs-found .meta{font-size:var(--text-xs)}
+.gigs-found .fit{grid-row:span 2}
+.sc .thread{padding:12px}
+.sc .msg{max-width:94%;font-size:var(--text-sm)}
+.voice-facts{display:flex;flex-wrap:wrap;gap:6px}
+.sc .input-group input{width:0}
+
+@media (max-width:1100px){.ob-main{grid-template-columns:1fr}.side-stack{position:static;grid-template-columns:1fr 1fr}.cards3{grid-template-columns:1fr}}
+@media (max-width:820px){
+  .ob-bar{padding:0 16px}.ob-bar .who-num{display:none}.ob-bar .btn{margin-left:auto}
+  .ob{padding:20px 16px 48px}
+  .steps{grid-template-columns:1fr;gap:12px;margin-bottom:24px}
+  .steps li::after{display:none}
+  .steps li:not(.now) span.d{display:none}
+  .ob-head h1{font-size:26px}
+  .g{grid-template-columns:1fr;gap:8px}
+  .side-stack{grid-template-columns:1fr}
+  .ob-foot{flex-wrap:wrap}.ob-foot .meta{width:100%}
+  .qr-wrap{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+<symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 11.5a7.5 7.5 0 0 1-11.2 6.5L4 19.5l1.5-4.6A7.5 7.5 0 1 1 20 11.5z"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/></symbol>
+<symbol id="i-gigs" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/><path d="M11 8v6M8 11h6"/></symbol>
+<symbol id="i-projects" viewBox="0 0 24 24"><path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2z"/></symbol>
+<symbol id="i-skip" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+</defs></svg>
+
+<header class="ob-bar">
+  <a class="wordmark" href="today.html"><img src="brand/mark.svg" alt=""><span>Devlancer</span></a>
+  <span class="who-num">Setting up for Jerom, +91 98470 21436</span>
+  <button class="btn ghost sm" type="button">Finish later</button>
+</header>
+
+<main class="ob">
+  <ol class="steps" aria-label="Setup steps">
+    <li class="done"><span class="hx"><svg class="i sm" style="stroke-width:2.5"><use href="#i-check"/></svg></span><b>Link WhatsApp</b><span class="d">Linked at 8:02 am, 23 groups and 186 chats synced</span></li>
+    <li class="done"><span class="hx"><svg class="i sm" style="stroke-width:2.5"><use href="#i-check"/></svg></span><b>Your work</b><span class="d">5 skills, ₹1,500 an hour, online 9 am to 11 pm</span></li>
+    <li class="now" aria-current="step"><span class="hx">3</span><b>Sort your groups</b><span class="d">Check 2 that Devlancer was unsure about</span></li>
+    <li class="next"><span class="hx">4</span><b>First scan</b><span class="d">Last 7 days of gigs and your voice, about 2 minutes</span></li>
+  </ol>
+
+  <div class="ob-main">
+    <section>
+      <div class="ob-head">
+        <h1>Sort your groups</h1>
+        <p>Your number is in 23 groups. Devlancer read the last 30 days of each and made a suggestion. Two of them it couldn't call, so they are marked. You can change any of this later in Groups.</p>
+      </div>
+
+      <div class="gl" role="list">
+        <p class="grp">Marketplaces <span class="meta">Devlancer looks for gigs here</span></p>
+        <div class="g" role="listitem">
+          <div class="name"><b>Kochi Freelancers</b><span>412 members, you joined 2023</span></div>
+          <div class="why"><strong>128 job posts in 30 days</strong>, 19 of them fit your skills.
+            <div class="quote"><b>Rahul, 2 days ago</b>Need a WhatsApp bot for taking medicine orders, budget around 25k. DM pls</div></div>
+          <div class="seg" role="group" aria-label="Kind for Kochi Freelancers"><button class="mk" aria-pressed="true">Marketplace</button><button aria-pressed="false">Client</button><button aria-pressed="false">Ignore</button></div>
+        </div>
+        <div class="g" role="listitem">
+          <div class="name"><b>Kochi Business Network</b><span>1,180 members</span></div>
+          <div class="why"><strong>74 job posts in 30 days</strong>, mostly websites and logos. 11 fit your skills.
+            <div class="quote"><b>Anu, 4 days ago</b>Anyone who can do a simple website for my home bakery? Want to show menu and take orders 🧁</div></div>
+          <div class="seg" role="group" aria-label="Kind for Kochi Business Network"><button class="mk" aria-pressed="true">Marketplace</button><button aria-pressed="false">Client</button><button aria-pressed="false">Ignore</button></div>
+        </div>
+        <div class="g" role="listitem">
+          <div class="name"><b>Kerala Startups Hub</b><span>860 members</span></div>
+          <div class="why"><strong>41 job posts in 30 days</strong>, 7 fit. Many ask for full-time roles, which Devlancer will skip.</div>
+          <div class="seg" role="group" aria-label="Kind for Kerala Startups Hub"><button class="mk" aria-pressed="true">Marketplace</button><button aria-pressed="false">Client</button><button aria-pressed="false">Ignore</button></div>
+        </div>
+        <div class="g unsure" role="listitem">
+          <div class="name"><b>Kochi Startup Founders</b><span>58 members, you joined last week</span></div>
+          <div class="why"><span class="st amber" style="margin-bottom:4px">Not sure</span><br><strong>6 job posts since you joined</strong>, too few to be certain. Two were for dashboards, which fit you well.</div>
+          <div class="seg" role="group" aria-label="Kind for Kochi Startup Founders"><button class="mk" aria-pressed="true">Marketplace</button><button aria-pressed="false">Client</button><button aria-pressed="false">Ignore</button></div>
+        </div>
+
+        <p class="grp">Clients <span class="meta">Devlancer works here as you</span></p>
+        <div class="g" role="listitem">
+          <div class="name"><b>TCK App Project</b><span>4 members, Lakshmi R and 2 teachers</span></div>
+          <div class="why"><strong>You sent 212 messages here.</strong> Talk is about fee reminders, student login and a Malayalam option.</div>
+          <div class="seg" role="group" aria-label="Kind for TCK App Project"><button aria-pressed="false">Marketplace</button><button class="cl" aria-pressed="true">Client</button><button aria-pressed="false">Ignore</button></div>
+        </div>
+        <div class="g" role="listitem">
+          <div class="name"><b>Thekkady Hills x Jerom</b><span>3 members, Thomas K J</span></div>
+          <div class="why"><strong>You sent 96 messages here.</strong> A booking site, room photos and an advance payment.</div>
+          <div class="seg" role="group" aria-label="Kind for Thekkady Hills x Jerom"><button aria-pressed="false">Marketplace</button><button class="cl" aria-pressed="true">Client</button><button aria-pressed="false">Ignore</button></div>
+        </div>
+        <div class="g" role="listitem">
+          <div class="name"><b>Fab by Fathima Website</b><span>3 members, Fathima S</span></div>
+          <div class="why"><strong>You sent 141 messages here.</strong> Catalogue, size charts and colours for a boutique.</div>
+          <div class="seg" role="group" aria-label="Kind for Fab by Fathima Website"><button aria-pressed="false">Marketplace</button><button class="cl" aria-pressed="true">Client</button><button aria-pressed="false">Ignore</button></div>
+        </div>
+        <div class="g" role="listitem">
+          <div class="name"><b>Malabar Kitchen Online</b><span>5 members, Arjun Menon</span></div>
+          <div class="why"><strong>You sent 78 messages here.</strong> A menu site, now mostly monthly price updates.</div>
+          <div class="seg" role="group" aria-label="Kind for Malabar Kitchen Online"><button aria-pressed="false">Marketplace</button><button class="cl" aria-pressed="true">Client</button><button aria-pressed="false">Ignore</button></div>
+        </div>
+
+        <p class="grp">Ignore <span class="meta">Not read at all</span></p>
+        <div class="g" role="listitem">
+          <div class="name"><b>Ernakulam Traders Circle</b><span>240 members</span></div>
+          <div class="why">Mostly wholesale offers. <strong>3 job posts in 30 days</strong>, none for developers.</div>
+          <div class="seg" role="group" aria-label="Kind for Ernakulam Traders Circle"><button aria-pressed="false">Marketplace</button><button aria-pressed="false">Client</button><button aria-pressed="true">Ignore</button></div>
+        </div>
+        <div class="g unsure" role="listitem">
+          <div class="name"><b>MEC Batch of 2019</b><span>92 members</span></div>
+          <div class="why"><span class="st amber" style="margin-bottom:4px">Not sure</span><br><strong>2 job posts in 30 days</strong>, both full-time roles in Bengaluru. Classmates sometimes refer freelance work here.</div>
+          <div class="seg" role="group" aria-label="Kind for MEC Batch of 2019"><button aria-pressed="false">Marketplace</button><button aria-pressed="false">Client</button><button aria-pressed="true">Ignore</button></div>
+        </div>
+        <div class="g" role="listitem">
+          <div class="name"><b>Family ❤️</b><span>14 members</span></div>
+          <div class="why">Family chat. No work talk.</div>
+          <div class="seg" role="group" aria-label="Kind for Family"><button aria-pressed="false">Marketplace</button><button aria-pressed="false">Client</button><button aria-pressed="true">Ignore</button></div>
+        </div>
+        <div class="more-row"><span>12 more set to ignore: no job posts and no work messages from you in 30 days, for example St. Antony's Parish Youth and Kakkanad Flat Owners.</span><button class="btn sm" type="button">Show all 12</button></div>
+      </div>
+
+      <div class="ob-foot">
+        <span class="meta">Nothing is posted anywhere during setup.</span>
+        <button class="btn" type="button"><svg class="i sm"><use href="#i-back"/></svg>Back</button>
+        <button class="btn blue lg" type="button">Continue to first scan</button>
+      </div>
+    </section>
+
+    <aside class="side-stack">
+      <section class="box"><div class="box-head"><h2 class="h3">What each choice does</h2></div>
+        <dl class="box-body kinds">
+          <dt><span class="st blue">Marketplace</span></dt>
+          <dd>Devlancer reads every post, scores it against your skills and pitches the poster privately. In the group itself it only reacts 👍 or replies "Check DM 🙂". It never posts a pitch there.</dd>
+          <dt><span class="st cyan">Client</span></dt>
+          <dd>Devlancer replies as you, sends clear requests to Devin and prices anything outside the agreed scope. Money, scope and deadlines always wait for you.</dd>
+          <dt><span class="st">Ignore</span></dt>
+          <dd>Not read, not stored. These chats stay on your phone only.</dd>
+        </dl></section>
+      <section class="box"><div class="box-head"><h2 class="h3">With these choices</h2></div>
+        <ul class="box-body tally">
+          <li>Marketplaces watched <b>4</b></li>
+          <li>Job posts a month, about <b>249</b></li>
+          <li>Likely to fit you <b>39</b></li>
+          <li>Client groups <b>4</b></li>
+          <li>Ignored <b>15</b></li>
+        </ul></section>
+    </aside>
+  </div>
+
+  <section class="others" aria-label="Other steps">
+    <h2 class="h2">The other steps</h2>
+    <p>Steps 1 and 2 are done and can be reopened. Step 4 runs on its own once you continue.</p>
+    <div class="cards3">
+      <article class="sc">
+        <div class="sc-head"><span class="n">1</span><h3 class="h3">Link WhatsApp</h3><span class="st green">Done 8:02 am</span></div>
+        <div class="sc-body">
+          <div class="qr-wrap">
+            <div class="qr"><svg viewBox="0 0 29 29" shape-rendering="crispEdges"><path fill="#172036" d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM4 0h1v1h-1zM5 0h1v1h-1zM6 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM10 0h1v1h-1zM11 0h1v1h-1zM12 0h1v1h-1zM14 0h1v1h-1zM15 0h1v1h-1zM19 0h1v1h-1zM22 0h1v1h-1zM23 0h1v1h-1zM24 0h1v1h-1zM25 0h1v1h-1zM26 0h1v1h-1zM27 0h1v1h-1zM28 0h1v1h-1zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h1v1h-1zM9 1h1v1h-1zM11 1h1v1h-1zM12 1h1v1h-1zM15 1h1v1h-1zM20 1h1v1h-1zM22 1h1v1h-1zM28 1h1v1h-1zM0 2h1v1h-1zM2 2h1v1h-1zM3 2h1v1h-1zM4 2h1v1h-1zM6 2h1v1h-1zM10 2h1v1h-1zM12 2h1v1h-1zM17 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM22 2h1v1h-1zM24 2h1v1h-1zM25 2h1v1h-1zM26 2h1v1h-1zM28 2h1v1h-1zM0 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM4 3h1v1h-1zM6 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM12 3h1v1h-1zM13 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM18 3h1v1h-1zM19 3h1v1h-1zM20 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM25 3h1v1h-1zM26 3h1v1h-1zM28 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM3 4h1v1h-1zM4 4h1v1h-1zM6 4h1v1h-1zM8 4h1v1h-1zM9 4h1v1h-1zM10 4h1v1h-1zM11 4h1v1h-1zM12 4h1v1h-1zM13 4h1v1h-1zM14 4h1v1h-1zM15 4h1v1h-1zM16 4h1v1h-1zM17 4h1v1h-1zM18 4h1v1h-1zM22 4h1v1h-1zM24 4h1v1h-1zM25 4h1v1h-1zM26 4h1v1h-1zM28 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM10 5h1v1h-1zM12 5h1v1h-1zM17 5h1v1h-1zM18 5h1v1h-1zM19 5h1v1h-1zM22 5h1v1h-1zM28 5h1v1h-1zM0 6h1v1h-1zM1 6h1v1h-1zM2 6h1v1h-1zM3 6h1v1h-1zM4 6h1v1h-1zM5 6h1v1h-1zM6 6h1v1h-1zM8 6h1v1h-1zM11 6h1v1h-1zM15 6h1v1h-1zM16 6h1v1h-1zM17 6h1v1h-1zM18 6h1v1h-1zM19 6h1v1h-1zM22 6h1v1h-1zM23 6h1v1h-1zM24 6h1v1h-1zM25 6h1v1h-1zM26 6h1v1h-1zM27 6h1v1h-1zM28 6h1v1h-1zM8 7h1v1h-1zM9 7h1v1h-1zM12 7h1v1h-1zM13 7h1v1h-1zM14 7h1v1h-1zM17 7h1v1h-1zM0 8h1v1h-1zM3 8h1v1h-1zM4 8h1v1h-1zM5 8h1v1h-1zM6 8h1v1h-1zM8 8h1v1h-1zM9 8h1v1h-1zM10 8h1v1h-1zM12 8h1v1h-1zM13 8h1v1h-1zM16 8h1v1h-1zM21 8h1v1h-1zM22 8h1v1h-1zM23 8h1v1h-1zM24 8h1v1h-1zM26 8h1v1h-1zM27 8h1v1h-1zM1 9h1v1h-1zM5 9h1v1h-1zM7 9h1v1h-1zM8 9h1v1h-1zM14 9h1v1h-1zM19 9h1v1h-1zM21 9h1v1h-1zM26 9h1v1h-1zM1 10h1v1h-1zM2 10h1v1h-1zM3 10h1v1h-1zM4 10h1v1h-1zM5 10h1v1h-1zM6 10h1v1h-1zM10 10h1v1h-1zM13 10h1v1h-1zM16 10h1v1h-1zM18 10h1v1h-1zM22 10h1v1h-1zM23 10h1v1h-1zM25 10h1v1h-1zM26 10h1v1h-1zM27 10h1v1h-1zM0 11h1v1h-1zM2 11h1v1h-1zM3 11h1v1h-1zM4 11h1v1h-1zM7 11h1v1h-1zM20 11h1v1h-1zM21 11h1v1h-1zM25 11h1v1h-1zM26 11h1v1h-1zM28 11h1v1h-1zM0 12h1v1h-1zM4 12h1v1h-1zM6 12h1v1h-1zM8 12h1v1h-1zM9 12h1v1h-1zM18 12h1v1h-1zM19 12h1v1h-1zM20 12h1v1h-1zM21 12h1v1h-1zM23 12h1v1h-1zM25 12h1v1h-1zM26 12h1v1h-1zM27 12h1v1h-1zM28 12h1v1h-1zM0 13h1v1h-1zM3 13h1v1h-1zM4 13h1v1h-1zM6 13h1v1h-1zM8 13h1v1h-1zM19 13h1v1h-1zM20 13h1v1h-1zM21 13h1v1h-1zM22 13h1v1h-1zM23 13h1v1h-1zM25 13h1v1h-1zM26 13h1v1h-1zM27 13h1v1h-1zM2 14h1v1h-1zM3 14h1v1h-1zM4 14h1v1h-1zM5 14h1v1h-1zM6 14h1v1h-1zM7 14h1v1h-1zM8 14h1v1h-1zM18 14h1v1h-1zM20 14h1v1h-1zM22 14h1v1h-1zM23 14h1v1h-1zM24 14h1v1h-1zM25 14h1v1h-1zM26 14h1v1h-1zM27 14h1v1h-1zM28 14h1v1h-1zM0 15h1v1h-1zM7 15h1v1h-1zM8 15h1v1h-1zM10 15h1v1h-1zM19 15h1v1h-1zM0 16h1v1h-1zM1 16h1v1h-1zM2 16h1v1h-1zM3 16h1v1h-1zM4 16h1v1h-1zM19 16h1v1h-1zM20 16h1v1h-1zM21 16h1v1h-1zM23 16h1v1h-1zM27 16h1v1h-1zM28 16h1v1h-1zM4 17h1v1h-1zM5 17h1v1h-1zM6 17h1v1h-1zM8 17h1v1h-1zM10 17h1v1h-1zM18 17h1v1h-1zM19 17h1v1h-1zM20 17h1v1h-1zM22 17h1v1h-1zM25 17h1v1h-1zM26 17h1v1h-1zM0 18h1v1h-1zM1 18h1v1h-1zM2 18h1v1h-1zM4 18h1v1h-1zM6 18h1v1h-1zM9 18h1v1h-1zM14 18h1v1h-1zM17 18h1v1h-1zM18 18h1v1h-1zM20 18h1v1h-1zM21 18h1v1h-1zM22 18h1v1h-1zM23 18h1v1h-1zM24 18h1v1h-1zM26 18h1v1h-1zM0 19h1v1h-1zM4 19h1v1h-1zM5 19h1v1h-1zM6 19h1v1h-1zM9 19h1v1h-1zM10 19h1v1h-1zM11 19h1v1h-1zM12 19h1v1h-1zM13 19h1v1h-1zM15 19h1v1h-1zM17 19h1v1h-1zM18 19h1v1h-1zM20 19h1v1h-1zM21 19h1v1h-1zM1 20h1v1h-1zM3 20h1v1h-1zM6 20h1v1h-1zM7 20h1v1h-1zM9 20h1v1h-1zM10 20h1v1h-1zM11 20h1v1h-1zM12 20h1v1h-1zM15 20h1v1h-1zM17 20h1v1h-1zM19 20h1v1h-1zM20 20h1v1h-1zM21 20h1v1h-1zM22 20h1v1h-1zM25 20h1v1h-1zM28 20h1v1h-1zM10 21h1v1h-1zM11 21h1v1h-1zM13 21h1v1h-1zM14 21h1v1h-1zM15 21h1v1h-1zM16 21h1v1h-1zM18 21h1v1h-1zM22 21h1v1h-1zM23 21h1v1h-1zM24 21h1v1h-1zM25 21h1v1h-1zM26 21h1v1h-1zM0 22h1v1h-1zM1 22h1v1h-1zM2 22h1v1h-1zM3 22h1v1h-1zM4 22h1v1h-1zM5 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM13 22h1v1h-1zM14 22h1v1h-1zM15 22h1v1h-1zM22 22h1v1h-1zM24 22h1v1h-1zM26 22h1v1h-1zM0 23h1v1h-1zM6 23h1v1h-1zM9 23h1v1h-1zM10 23h1v1h-1zM12 23h1v1h-1zM13 23h1v1h-1zM14 23h1v1h-1zM18 23h1v1h-1zM19 23h1v1h-1zM20 23h1v1h-1zM23 23h1v1h-1zM24 23h1v1h-1zM27 23h1v1h-1zM28 23h1v1h-1zM0 24h1v1h-1zM2 24h1v1h-1zM3 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM11 24h1v1h-1zM13 24h1v1h-1zM15 24h1v1h-1zM16 24h1v1h-1zM18 24h1v1h-1zM21 24h1v1h-1zM22 24h1v1h-1zM23 24h1v1h-1zM26 24h1v1h-1zM27 24h1v1h-1zM28 24h1v1h-1zM0 25h1v1h-1zM2 25h1v1h-1zM3 25h1v1h-1zM4 25h1v1h-1zM6 25h1v1h-1zM10 25h1v1h-1zM11 25h1v1h-1zM14 25h1v1h-1zM16 25h1v1h-1zM17 25h1v1h-1zM18 25h1v1h-1zM19 25h1v1h-1zM20 25h1v1h-1zM21 25h1v1h-1zM22 25h1v1h-1zM24 25h1v1h-1zM26 25h1v1h-1zM27 25h1v1h-1zM0 26h1v1h-1zM2 26h1v1h-1zM3 26h1v1h-1zM4 26h1v1h-1zM6 26h1v1h-1zM9 26h1v1h-1zM10 26h1v1h-1zM13 26h1v1h-1zM14 26h1v1h-1zM15 26h1v1h-1zM17 26h1v1h-1zM20 26h1v1h-1zM21 26h1v1h-1zM24 26h1v1h-1zM26 26h1v1h-1zM27 26h1v1h-1zM28 26h1v1h-1zM0 27h1v1h-1zM6 27h1v1h-1zM9 27h1v1h-1zM10 27h1v1h-1zM11 27h1v1h-1zM14 27h1v1h-1zM20 27h1v1h-1zM21 27h1v1h-1zM22 27h1v1h-1zM24 27h1v1h-1zM25 27h1v1h-1zM27 27h1v1h-1zM28 27h1v1h-1zM0 28h1v1h-1zM1 28h1v1h-1zM2 28h1v1h-1zM3 28h1v1h-1zM4 28h1v1h-1zM5 28h1v1h-1zM6 28h1v1h-1zM8 28h1v1h-1zM11 28h1v1h-1zM12 28h1v1h-1zM13 28h1v1h-1zM19 28h1v1h-1zM21 28h1v1h-1zM23 28h1v1h-1zM25 28h1v1h-1zM26 28h1v1h-1zM27 28h1v1h-1zM28 28h1v1h-1z"/></svg><img src="brand/mark.svg" alt=""></div>
+            <ol class="howto">
+              <li><span>Open <b>WhatsApp</b> on your phone</span></li>
+              <li><span>Tap <b>Settings</b>, then <b>Linked devices</b></span></li>
+              <li><span>Tap <b>Link a device</b> and point your phone at this code</span></li>
+            </ol>
+          </div>
+          <div class="note green"><svg class="i sm"><use href="#i-check"/></svg><span><b>Your phone keeps working normally.</b> Devlancer joins as a linked device, like WhatsApp Web. Remove it any time from Linked devices.</span></div>
+        </div>
+      </article>
+
+      <article class="sc">
+        <div class="sc-head"><span class="n">2</span><h3 class="h3">Tell Devlancer about your work</h3><span class="st green">Done</span></div>
+        <div class="sc-body">
+          <div class="field"><label>Skills</label>
+            <div class="chips"><span class="tag solid">Web apps</span><span class="tag solid">WhatsApp bots</span><span class="tag solid">Dashboards</span><span class="tag solid">Next.js</span><span class="tag solid">Supabase</span><button class="tag" type="button"><svg class="i sm"><use href="#i-plus"/></svg>Add</button></div></div>
+          <div class="grid2" style="gap:12px">
+            <div class="field"><label for="rate">Hourly rate</label><div class="input-group"><span class="affix">₹</span><input id="rate" value="1,500"><span class="affix">an hour</span></div></div>
+            <div class="field"><label for="minp">Smallest project</label><div class="input-group"><span class="affix">₹</span><input id="minp" value="10,000"></div></div>
+          </div>
+          <div class="field"><label>Hours you are usually online</label>
+            <div class="hours" aria-label="Online 9:00 am to 11:00 pm"><i style="left:37.5%;width:58.33%"></i></div>
+            <div class="hours-scale"><span>12 am</span><span>6 am</span><span>12 pm</span><span>6 pm</span><span>12 am</span></div>
+            <span class="hint">9:00 am to 11:00 pm. Outside these hours Devlancer covers for you.</span></div>
+        </div>
+      </article>
+
+      <article class="sc">
+        <div class="sc-head"><span class="n next">4</span><h3 class="h3">First scan</h3><span class="st hollow">Up next</span></div>
+        <div class="sc-body">
+          <div>
+            <p class="h3" style="margin-bottom:8px">Found 3 gigs in the last 7 days that fit</p>
+            <ul class="gigs-found">
+              <li><b>Inventory dashboard for a spice exporter</b><span class="fit hi"><i style="--v:83%"></i>0.83</span><span class="meta">Joseph, Kochi Freelancers, ₹60,000</span></li>
+              <li><b>Clinic appointment booking site</b><span class="fit"><i style="--v:79%"></i>0.79</span><span class="meta">Dr Meera, Kochi Business Network, ₹30,000</span></li>
+              <li><b>Wedding photographer portfolio</b><span class="fit"><i style="--v:71%"></i>0.71</span><span class="meta">Nikhil, Kerala Startups Hub, ₹12,000</span></li>
+            </ul>
+          </div>
+          <div>
+            <p class="h3">Your voice, learned from 240 sent messages</p>
+            <div class="voice-facts" style="margin:8px 0 10px"><span class="tag">English with light Manglish</span><span class="tag">1 emoji, usually 🙂</span><span class="tag">2 to 3 short lines</span></div>
+            <div class="thread"><div class="msg out"><span class="from" style="color:var(--hex-green-ink)">Sample pitch in your voice</span>Hi Joseph, saw your post in Kochi Freelancers 🙂 I've built stock dashboards on Supabase before, can share a demo. Shall we get on a quick call today?<span class="time">Draft</span></div></div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+</main>
+</body>
+</html>

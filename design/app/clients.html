@@ -1,0 +1,203 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Clients | Devlancer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+.toolbar .seg{max-width:100%;overflow-x:auto;scrollbar-width:none}.seg button{white-space:nowrap}
+.people{border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface);overflow:hidden}
+.prow{display:grid;grid-template-columns:minmax(220px,1.3fr) minmax(200px,1.2fr) 150px 170px minmax(220px,1.5fr);gap:16px;align-items:start;padding:12px 16px;border-top:1px solid var(--line)}
+.prow:first-child{border-top:0}
+.phead{padding:9px 16px;font-size:var(--text-sm);font-weight:500;color:var(--ink-3)}
+a.prow{color:inherit;text-decoration:none!important}
+a.prow:hover{background:#f8f9fc}
+.pgrp{padding:7px 16px;background:var(--canvas);border-top:1px solid var(--line);font-size:var(--text-sm);font-weight:500;color:var(--ink-2)}
+.prow .who{align-items:flex-start}
+.prow .who .avatar{margin-top:1px}
+.prow .who b{display:block}
+.sub{display:block;font-size:var(--text-sm);color:var(--ink-3)}
+.chat{display:flex;align-items:center;gap:6px;font-size:var(--text-sm)}
+.chat .i{color:var(--ink-3)}
+.amt{font-variant-numeric:tabular-nums;font-size:var(--text-sm)}
+.amt b{font-weight:500;color:var(--hex-green-ink)}
+.last{font-size:var(--text-sm);color:var(--ink-2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.last time{color:var(--ink-3);margin-right:4px}
+.prow.open{background:#3b63d10a;box-shadow:inset 3px 0 0 var(--hex-blue)}
+
+.expand{border-top:1px solid var(--line);background:var(--surface);padding:18px 16px 20px 16px;box-shadow:inset 3px 0 0 var(--hex-blue)}
+.ex-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.ex-top h2{font:700 22px/1.2 var(--font-display);letter-spacing:-.02em}
+.ex-top .actions{margin-left:auto;display:flex;gap:8px}
+.ex-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) minmax(0,1fr);gap:28px}
+.label-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:var(--text-sm);font-weight:500;color:var(--ink-2)}
+.label-row .meta{margin-left:auto;font-weight:400}
+.paylog{display:grid;gap:0}
+.paylog li{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;padding:10px 0;border-top:1px solid var(--line);font-size:var(--text-sm)}
+.paylog li:first-child{border-top:0;padding-top:0}
+.paylog .st{grid-row:span 2;align-self:start;margin-top:2px}
+.paylog b{font-weight:500}
+.paylog .amt{text-align:right}
+.paylog .when{grid-column:2/4;color:var(--ink-3)}
+.late{display:flex;align-items:baseline;gap:10px;margin:2px 0 12px}
+.late b{white-space:nowrap;font:700 24px/1 var(--font-display);letter-spacing:-.02em;color:var(--amber-ink)}
+.late span{font-size:var(--text-sm);color:var(--ink-2)}
+.prefs{display:grid}
+.prefs li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 12px;padding:11px 0;border-top:1px solid var(--line)}
+.prefs li:first-child{border-top:0;padding-top:0}
+.prefs p{font-weight:500;line-height:1.4}
+.prefs .src{grid-column:1;font-size:var(--text-sm);color:var(--ink-3);line-height:1.4}
+.prefs .src q{color:var(--ink-2);font-style:normal}
+.prefs .src q::before{content:"\201C"}.prefs .src q::after{content:"\201D"}
+.prefs .switch{grid-row:1/3;grid-column:2;align-self:start;margin-top:2px}
+.prefs .used{grid-column:1;display:flex;gap:6px;flex-wrap:wrap;margin-top:3px}
+.teach{display:flex;gap:8px;margin-top:12px}
+.teach .input{flex:1;min-width:0}
+.ex-grid .thread{padding:12px}
+.ex-grid .msg{max-width:92%}
+.open-items{display:grid;gap:8px;margin-top:14px}
+.open-items a{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:var(--r-control);color:inherit;text-decoration:none!important;font-size:var(--text-sm)}
+.open-items a:hover{border-color:var(--line-strong)}
+.open-items a .grow{flex:1;min-width:0}
+.contact{display:flex;gap:16px;flex-wrap:wrap;font-size:var(--text-sm);color:var(--ink-2)}
+.contact span{display:inline-flex;align-items:center;gap:6px}
+.contact .i{color:var(--ink-3)}
+
+@media (max-width:1180px){.ex-grid{grid-template-columns:1fr 1fr}.ex-grid>:last-child{grid-column:1/-1}}
+@media (max-width:1100px){.prow{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 140px 150px}.prow>:nth-child(5){display:none}}
+@media (max-width:820px){
+  .phead{display:none}
+  .prow{grid-template-columns:1fr auto;gap:6px 12px}
+  .prow>:nth-child(2){grid-column:1/-1;grid-row:2}
+  .prow>:nth-child(3){grid-column:2;grid-row:1;text-align:right}
+  .prow>:nth-child(4){grid-column:1/-1}
+  .prow>:nth-child(5){display:block;grid-column:1/-1}
+  .ex-grid{grid-template-columns:1fr}
+  .ex-top .actions{margin-left:0}
+  .search{min-width:0;flex:1}
+}
+</style>
+</head>
+<body data-page="clients">
+<div class="app"><main class="main"><div class="page wide">
+
+<header class="page-head">
+  <div>
+    <h1>Clients</h1>
+    <p class="sub">The people behind your projects, and what Devlancer has learned about each of them so replies, reminders and timing feel like you. Lifetime ₹1,15,000 billed, ₹73,000 paid.</p>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filter clients">
+    <button aria-pressed="true">All <span class="n">6</span></button>
+    <button aria-pressed="false">Owe you money <span class="n">3</span></button>
+    <button aria-pressed="false">Pay late <span class="n">2</span></button>
+    <button aria-pressed="false">Prospects <span class="n">2</span></button>
+  </div>
+  <label class="search"><svg class="i sm"><use href="#i-search"/></svg><input placeholder="Search people, businesses, chats" aria-label="Search clients"></label>
+</div>
+
+<div class="people">
+  <div class="prow phead"><span>Client</span><span>Chat and email</span><span>Billed and paid</span><span>How they pay</span><span>Last message</span></div>
+
+  <a class="prow" href="#">
+    <span class="who"><span class="avatar cyan">LR</span><span><b>Lakshmi R</b><span class="sub">Tuition Centre Kakkanad</span><span class="tag solid" style="margin-top:5px">Wants Malayalam for anything parents see</span></span></span>
+    <span><span class="chat"><svg class="i sm"><use href="#i-groups"/></svg>TCK App Build (group)</span><span class="sub">lakshmi.tck@gmail.com</span></span>
+    <span class="amt"><b>₹8,000</b> of ₹20,000<span class="sub">₹12,000 due 30 Oct</span></span>
+    <span><span class="st green">On time</span><span class="sub">Paid CO-2026-001 in 2 days</span></span>
+    <span class="last"><time>11:48 pm</time>One more thing. Can students pay fees online through the app? Like GPay or card. Many parents asking</span>
+  </a>
+
+  <a class="prow" href="#">
+    <span class="who"><span class="avatar cyan">TK</span><span><b>Thomas K J</b><span class="sub">Thekkady Hills Homestay</span><span class="tag solid" style="margin-top:5px">Prefers voice notes in the evening</span></span></span>
+    <span><span class="chat"><svg class="i sm"><use href="#i-chat"/></svg>Direct message</span><span class="sub">thomas.thekkadyhills@gmail.com</span></span>
+    <span class="amt"><b>₹8,000</b> of ₹16,000<span class="sub" style="color:var(--hex-green-ink)">₹8,000 matched, confirm</span></span>
+    <span><span class="st amber">2 days late on average</span><span class="sub">Pays in parts by UPI</span></span>
+    <span class="last"><time>12:18 am</time>🎤 Voice note, 0:48. Asked for a gallery with all 12 room photos</span>
+  </a>
+
+  <div class="prow open">
+    <span class="who"><span class="avatar amber">FS</span><span><b>Fathima S</b><span class="sub">Fab by Fathima</span></span></span>
+    <span><span class="chat"><svg class="i sm"><use href="#i-groups"/></svg>Fab by Fathima x Jerom (group)</span><span class="sub">fabbyfathima@gmail.com</span></span>
+    <span class="amt"><b>₹22,000</b> of ₹44,000<span class="sub" style="color:var(--coral-ink)">₹22,000 overdue 6 days</span></span>
+    <span><span class="st coral">5 days late on average</span><span class="sub">Pays on Mondays</span></span>
+    <span class="last"><time>3:05 am</time>Jerom can we change the main colour to that maroon from my insta? 😅 beige looks dull on phone</span>
+  </div>
+
+  <section class="expand" aria-label="Fathima S">
+    <div class="ex-top">
+      <span class="avatar lg amber">FS</span>
+      <div><h2>Fathima S</h2>
+        <div class="contact"><span><svg class="i sm"><use href="#i-groups"/></svg>Fab by Fathima x Jerom</span><span><svg class="i sm"><use href="#i-mail"/></svg>fabbyfathima@gmail.com</span><span><svg class="i sm"><use href="#i-projects"/></svg><a href="project.html">Boutique catalogue</a></span><span><svg class="i sm"><use href="#i-clock"/></svg>Client since 4 Sep</span></div></div>
+      <div class="actions"><button class="btn"><svg class="i sm"><use href="#i-chat"/></svg>Open chat</button><a class="btn primary" href="project.html">Open project</a></div>
+    </div>
+
+    <div class="ex-grid">
+      <div>
+        <div class="label-row">How Fathima pays<span class="meta">From UPI alerts in Gmail</span></div>
+        <div class="late"><b>5 days</b><span>late on average, always by UPI, always on a Monday</span></div>
+        <ul class="paylog">
+          <li><span class="st green"></span><b>Advance, 50%</b><span class="amt num">₹22,000</span><span class="when">Due Wed 16 Sep, paid Mon 21 Sep, 5 days late</span></li>
+          <li><span class="st coral"></span><b>INV-2026-004, final 50%</b><span class="amt num">₹22,000</span><span class="when">Due Mon 19 Oct, 6 days overdue. Reminder sent Thu 22 Oct, read, no reply.</span></li>
+        </ul>
+        <p class="note amber" style="margin-top:12px"><span>Second reminder is waiting for you. Devlancer will send it Mon 27 Oct at 10:00 am, when she usually pays. <a href="approvals.html">Review the reminder</a></span></p>
+      </div>
+
+      <div>
+        <div class="label-row">What Devlancer has learned<span class="meta">Used in every draft to her</span></div>
+        <ul class="prefs">
+          <li><p>Writes in Manglish. Reply the same way, short and warm.</p><span class="switch"><input type="checkbox" checked aria-label="Use this"><span></span></span><span class="src">From 46 messages since September</span></li>
+          <li><p>Pays after the weekend sales rush, on Monday.</p><span class="switch"><input type="checkbox" checked aria-label="Use this"><span></span></span><span class="src">She said <q>will clear by Monday da, weekend rush</q> on 18 Sep</span><span class="used"><span class="tag amber">Times reminders</span></span></li>
+          <li><p>Shares Instagram screenshots as design references.</p><span class="switch"><input type="checkbox" checked aria-label="Use this"><span></span></span><span class="src">9 screenshots, last one at 3:05 am today</span><span class="used"><span class="tag cyan">In Devin knowledge</span></span></li>
+          <li><p>Checks colours with her sister Noora. Send two options, not one.</p><span class="switch"><input type="checkbox" checked aria-label="Use this"><span></span></span><span class="src">She said <q>let me show Noora and tell</q> twice in October</span><span class="used"><span class="tag cyan">In the brand colour brief</span></span></li>
+          <li><p>No messages before 10 am. She opens the shop at 11.</p><span class="switch"><input type="checkbox" aria-label="Use this"><span></span></span><span class="src">Guessed from when she reads messages. Off until you confirm.</span></li>
+        </ul>
+        <div class="teach"><input class="input" placeholder="Teach Devlancer something about Fathima" aria-label="Add a preference"><button class="btn">Add</button></div>
+      </div>
+
+      <div>
+        <div class="label-row">Latest in the group<span class="meta">Today</span></div>
+        <div class="thread">
+          <div class="msg"><span class="from">Fathima</span>Jerom can we change the main colour to that maroon from my insta? 😅 beige looks dull on phone<span class="time">3:05 am</span></div>
+          <div class="msg"><span class="from">Fathima</span><span style="display:flex;align-items:center;gap:8px;color:var(--ink-2)"><svg class="i sm"><use href="#i-file"/></svg>Screenshot, @fabbyfathima post</span><span class="time">3:05 am</span></div>
+          <div class="msg out">Haha sure, maroon will look rich 👌 I'll share 2 options by today evening so you can check with Noora also<span class="time">8:40 am, queued ✓</span></div>
+        </div>
+        <div class="open-items">
+          <a href="request.html"><span class="st amber">Queued</span><span class="grow">Brand colour brief from Ask Devin</span><span class="meta">3:05 am</span></a>
+          <a href="approvals.html"><span class="st amber">Approval</span><span class="grow">Second reminder for INV-2026-004</span><span class="meta num">₹22,000</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <a class="prow" href="#">
+    <span class="who"><span class="avatar green">AM</span><span><b>Arjun Menon</b><span class="sub">Malabar Kitchen</span><span class="tag solid" style="margin-top:5px">Short replies, English only</span></span></span>
+    <span><span class="chat"><svg class="i sm"><use href="#i-chat"/></svg>Direct message</span><span class="sub">arjun@malabarkitchen.in</span></span>
+    <span class="amt"><b>₹35,000</b> of ₹35,000<span class="sub">Paid in full</span></span>
+    <span><span class="st green">On time</span><span class="sub">Paid a day early</span></span>
+    <span class="last"><time>Thu</time>Diwali offer banner from 1st Nov ok? Will send the poster</span>
+  </a>
+
+  <div class="pgrp">Prospects</div>
+  <a class="prow" href="#">
+    <span class="who"><span class="avatar blue">J</span><span><b>Joseph</b><span class="sub">Malabar Spice Exports</span></span></span>
+    <span><span class="chat"><svg class="i sm"><use href="#i-chat"/></svg>Direct message</span><span class="sub">Met in Kerala Startups Hub</span></span>
+    <span class="amt">₹60,000 proposed<span class="sub">PR-2026-005</span></span>
+    <span><span class="st">No history yet</span></span>
+    <span class="last"><time>Mon</time>Ok will go through and revert</span>
+  </a>
+  <a class="prow" href="#">
+    <span class="who"><span class="avatar blue">M</span><span><b>Dr Meera</b><span class="sub">Meera's Dental Care</span></span></span>
+    <span><span class="chat"><svg class="i sm"><use href="#i-chat"/></svg>Direct message</span><span class="sub">Met in Kochi Business Network</span></span>
+    <span class="amt">₹30,000 pitched<span class="sub">No proposal yet</span></span>
+    <span><span class="st">No history yet</span></span>
+    <span class="last"><time>Thu</time>You: Hi Dr Meera, saw your post about online appointments… <span class="ink3">Seen</span></span>
+  </a>
+</div>
+
+</div></main></div>
+<script src="shell.js"></script>
+</body>
+</html>

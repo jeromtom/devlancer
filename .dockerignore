@@ -2,7 +2,9 @@ node_modules
 auth
 data
 out
-design
+# The dashboard needs design/ (tokens, fonts, components, brand) but not the mockups
+design/app
+design/cards
 .env
 .git
 *.log

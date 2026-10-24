@@ -1,0 +1,182 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Invoices | Devlancer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+.facts dd small{display:block;font:400 var(--text-sm)/1.4 var(--font-ui);color:var(--ink-3);letter-spacing:0;margin-top:1px}
+.facts dd small a{font-weight:500}
+.aging{margin:18px 0 26px}
+.aging-head{display:flex;align-items:baseline;gap:10px;font-size:var(--text-sm);color:var(--ink-3);margin-bottom:8px}
+.aging-head b{color:var(--ink);font-weight:500}
+.aging-bar{display:flex;gap:3px;height:10px}
+.aging-bar i{display:block;border-radius:3px}
+.aging-keys{display:flex;gap:3px;margin-top:8px;font-size:var(--text-sm)}
+.aging-keys>div{min-width:0}
+.aging-keys b{display:block;font-weight:600;font-variant-numeric:tabular-nums}
+.aging-keys span{color:var(--ink-3);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aging-keys .c b{color:var(--coral-ink)}
+.tbl td{white-space:nowrap}
+.tbl th,.tbl td{padding-left:12px;padding-right:12px}
+.paidbar{width:56px!important}
+.tbl td.inv a{font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.tbl tr.late td{background:#e0524c06}
+.tbl tr.late td:first-child{box-shadow:inset 3px 0 0 var(--coral)}
+.tbl tr.late:hover td{background:#e0524c0d}
+.due-late{color:var(--coral-ink)!important;font-weight:500}
+.tbl tr.draft td{color:var(--ink-2)}
+.tbl tr.draft td.inv a{color:var(--ink-2);font-weight:500}
+.via{display:inline-flex;gap:6px;color:var(--ink-3)}
+.via svg{color:var(--ink-2)}
+.paidbar{display:block;width:72px;height:3px;border-radius:2px;background:var(--line);margin:5px 0 0 auto;overflow:hidden}
+.paidbar i{display:block;height:100%;background:var(--hex-green)}
+.rem a{font-weight:500}
+.coming li,.received li{display:grid;grid-template-columns:72px minmax(0,1fr) auto;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:var(--text-sm);align-items:baseline}
+.coming li:first-child,.received li:first-child{border-top:0;padding-top:0}
+.coming time,.received time{color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.received .amt{font-weight:600;color:var(--hex-green-ink);font-variant-numeric:tabular-nums}
+.tbl-foot{display:flex;gap:16px;flex-wrap:wrap;padding:10px 2px 0;font-size:var(--text-sm);color:var(--ink-3)}
+@media (max-width:820px){
+  .facts>div{padding:10px 16px 10px 0;margin-right:16px}
+  .facts>div:nth-child(2n){border-right:0}
+  .aging-keys span{white-space:normal}
+  .page-head .actions .btn.ghost{display:none}
+  .toolbar .search{min-width:0;flex:1 1 100%}
+  .toolbar .seg{overflow-x:auto;max-width:100%}
+}
+</style>
+</head>
+<body data-page="invoices">
+<div class="app"><main class="main"><div class="page">
+
+<header class="page-head">
+  <div>
+    <h1>Invoices</h1>
+    <p class="sub">₹42,000 is out with 3 clients. Only Fathima's is late, and a second reminder is ready for you to approve.</p>
+  </div>
+  <div class="actions">
+    <button class="btn ghost"><svg class="i sm"><use href="#i-download"/></svg>Export for CA</button>
+    <a class="btn blue" href="invoice.html"><svg class="i sm"><use href="#i-plus"/></svg>New invoice <kbd>N</kbd> <kbd>I</kbd></a>
+  </div>
+</header>
+
+<dl class="facts">
+  <div><dt>Outstanding</dt><dd>₹42,000<small>3 invoices, 3 clients</small></dd></div>
+  <div><dt>Overdue</dt><dd class="coral">₹22,000<small>Fathima, 6 days late</small></dd></div>
+  <div><dt>Collected in October</dt><dd class="green">₹65,000<small>4 payments, all matched</small></dd></div>
+  <div><dt>Average days to pay</dt><dd>8 days<small>From sending to money in, this year</small></dd></div>
+</dl>
+
+<section class="aging" aria-label="Outstanding by due date">
+  <div class="aging-head"><b>Where the ₹42,000 sits</b><span>by due date, drafts not counted</span></div>
+  <div class="aging-bar"><i style="flex:12;background:var(--hex-blue)"></i><i style="flex:8;background:var(--amber)"></i><i style="flex:22;background:var(--coral)"></i></div>
+  <div class="aging-keys">
+    <div style="flex:12"><b>₹12,000</b><span>Not due yet, Lakshmi</span></div>
+    <div style="flex:8"><b>₹8,000</b><span>Due Mon, Thomas</span></div>
+    <div class="c" style="flex:22"><b>₹22,000</b><span>Overdue, Fathima</span></div>
+  </div>
+</section>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filter invoices">
+    <button aria-pressed="true">All <span class="n">5</span></button>
+    <button aria-pressed="false">Unpaid <span class="n">3</span></button>
+    <button aria-pressed="false">Overdue <span class="n">1</span></button>
+    <button aria-pressed="false">Paid <span class="n">1</span></button>
+    <button aria-pressed="false">Drafts <span class="n">1</span></button>
+  </div>
+  <span class="spacer"></span>
+  <label class="search"><svg class="i sm"><use href="#i-search"/></svg><input placeholder="Invoice, client or amount" aria-label="Search invoices"></label>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>Invoice</th><th>Client and project</th><th>Type</th><th class="r">Amount</th><th class="r">Paid</th><th>Due</th><th>Status</th><th>Last reminder</th><th>Via</th></tr></thead>
+  <tbody>
+    <tr class="late">
+      <td class="inv"><a href="invoice.html">INV-2026-004</a><span class="sub">Sent 12 Oct</span></td>
+      <td><span class="who"><span class="avatar sm amber">F</span><span><b>Fathima S</b><span class="sub">Boutique catalogue</span></span></span></td>
+      <td>Final</td>
+      <td class="r num strong">₹22,000</td>
+      <td class="r num ink3">₹0<span class="paidbar"><i style="width:0"></i></span></td>
+      <td class="nowrap">19 Oct<span class="sub due-late">6 days overdue</span></td>
+      <td><span class="st coral">Overdue</span></td>
+      <td class="rem nowrap">22 Oct, read<span class="sub"><a href="approvals.html">2nd reminder waiting for you</a></span></td>
+      <td><span class="via" title="WhatsApp and Gmail"><svg class="i sm"><use href="#i-chat"/></svg><svg class="i sm"><use href="#i-mail"/></svg></span></td>
+    </tr>
+    <tr>
+      <td class="inv"><a href="invoice.html">INV-2026-002</a><span class="sub">Sent 13 Oct</span></td>
+      <td><span class="who"><span class="avatar sm">T</span><span><b>Thomas K J</b><span class="sub">Homestay booking site</span></span></span></td>
+      <td>Milestone</td>
+      <td class="r num strong">₹16,000</td>
+      <td class="r num">₹8,000<span class="paidbar"><i style="width:50%"></i></span></td>
+      <td class="nowrap">Mon 27 Oct<span class="sub">in 2 days</span></td>
+      <td><span class="st amber">Part paid</span></td>
+      <td class="rem nowrap"><span class="ink3">Not due yet</span><span class="sub"><a href="approvals.html">₹8,000 UPI match to approve</a></span></td>
+      <td><span class="via" title="WhatsApp and Gmail"><svg class="i sm"><use href="#i-chat"/></svg><svg class="i sm"><use href="#i-mail"/></svg></span></td>
+    </tr>
+    <tr>
+      <td class="inv"><a href="invoice.html">INV-2026-003</a><span class="sub">Sent 23 Oct</span></td>
+      <td><span class="who"><span class="avatar sm">L</span><span><b>Lakshmi R</b><span class="sub">Tuition centre app</span></span></span></td>
+      <td>Milestone<span class="sub">with CO-2026-001</span></td>
+      <td class="r num strong">₹12,000</td>
+      <td class="r num ink3">₹0<span class="paidbar"><i style="width:0"></i></span></td>
+      <td class="nowrap">Thu 30 Oct<span class="sub">in 5 days</span></td>
+      <td><span class="st blue">Sent</span></td>
+      <td class="nowrap ink3">Not yet<span class="sub">Due-date nudge on 30 Oct</span></td>
+      <td><span class="via" title="WhatsApp"><svg class="i sm"><use href="#i-chat"/></svg></span></td>
+    </tr>
+    <tr class="draft">
+      <td class="inv"><a href="invoice.html">INV-2026-005</a><span class="sub">Drafted today</span></td>
+      <td><span class="who"><span class="avatar sm">L</span><span><b>Lakshmi R</b><span class="sub">Tuition centre app</span></span></span></td>
+      <td>Change order<span class="sub">CO-2026-003</span></td>
+      <td class="r num">₹10,000</td>
+      <td class="r num ink3">&nbsp;</td>
+      <td class="nowrap ink3">Not sent</td>
+      <td><span class="st hollow">Draft</span></td>
+      <td class="nowrap ink3">Waits for Lakshmi<span class="sub">to accept the change order</span></td>
+      <td class="ink3">&nbsp;</td>
+    </tr>
+    <tr>
+      <td class="inv"><a href="invoice.html">INV-2026-001</a><span class="sub">Sent 6 Oct</span></td>
+      <td><span class="who"><span class="avatar sm green">A</span><span><b>Arjun Menon</b><span class="sub">Restaurant menu site</span></span></span></td>
+      <td>Final</td>
+      <td class="r num strong">₹35,000</td>
+      <td class="r num" style="color:var(--hex-green-ink)">₹35,000<span class="paidbar"><i style="width:100%"></i></span></td>
+      <td class="nowrap ink3">13 Oct<span class="sub">Paid 14 Oct by UPI</span></td>
+      <td><span class="st green">Paid</span></td>
+      <td class="nowrap ink3">1 on 13 Oct</td>
+      <td><span class="via" title="WhatsApp and Gmail"><svg class="i sm"><use href="#i-chat"/></svg><svg class="i sm"><use href="#i-mail"/></svg></span></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div class="tbl-foot"><span>Reminders go out at the due date, then 3 and 7 days after, and each one waits for your approval.</span><a href="settings.html">Change reminder rules</a></div>
+
+<div class="grid2" style="margin-top:32px">
+  <section>
+    <div class="sec-head"><h2 class="h2">Coming up</h2><span class="meta">Drafted for you to approve</span></div>
+    <ul class="coming">
+      <li><time>Today</time><span>Second reminder to Fathima for INV-2026-004, in your voice</span><span class="st amber">Waiting</span></li>
+      <li><time>Mon 27 Oct</time><span>Due-date nudge to Thomas, only if the ₹8,000 match is not approved</span><span class="st hollow">Scheduled</span></li>
+      <li><time>Thu 30 Oct</time><span>Due-date nudge to Lakshmi for INV-2026-003</span><span class="st hollow">Scheduled</span></li>
+      <li><time>Sat 1 Nov</time><span>Monthly upkeep retainer for Malabar Kitchen will be drafted</span><span class="st hollow">Scheduled</span></li>
+    </ul>
+  </section>
+  <section>
+    <div class="sec-head"><h2 class="h2">Received in October</h2><span class="meta">Matched from UPI alerts in Gmail</span></div>
+    <ul class="received">
+      <li><time>20 Oct</time><span>Thomas K J, first half of INV-2026-002</span><span class="amt">₹8,000</span></li>
+      <li><time>14 Oct</time><span>Arjun Menon, INV-2026-001 in full</span><span class="amt">₹35,000</span></li>
+      <li><time>12 Oct</time><span>Lakshmi R, advance on accepting PR-2026-003</span><span class="amt">₹12,000</span></li>
+      <li><time>11 Oct</time><span>Fathima S, change order CO-2026-002 on acceptance</span><span class="amt">₹10,000</span></li>
+    </ul>
+  </section>
+</div>
+
+</div></main></div>
+<script src="shell.js"></script>
+</body>
+</html>
