@@ -75,7 +75,7 @@ npm start               # scan the QR (terminal or http://localhost:4000/qr) wit
 
 Then send `/groups` in your "Message yourself" chat. The live dashboard is at http://localhost:4000.
 
-To work on the dashboard UI alone (no WhatsApp, Devin or database), run `npm run preview` and open http://localhost:4100/?demo. The brand and design system live in `design/` (see `design/DESIGN.md`) and are synced to Claude Design.
+To work on the dashboard UI without starting WhatsApp or Devin, run `npm run preview` and open http://localhost:4100. It reads the real database and never sends anything. The brand and design system live in `design/` (see `design/DESIGN.md`) and are synced to Claude Design.
 
 For Devin to deploy previews, add a `VERCEL_TOKEN` secret in Devin (Settings > Secrets).
 

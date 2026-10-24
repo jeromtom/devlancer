@@ -18,6 +18,9 @@ COPY package.json package-lock.json ./
 RUN npm ci --include=dev && npx playwright install --with-deps chromium && rm -rf /root/.npm
 COPY tsconfig.json ./
 COPY src ./src
+# Dashboard: page and script in web/, tokens, fonts, components and brand in design/
+COPY web ./web
+COPY design ./design
 
 VOLUME ["/data"]
 HEALTHCHECK --interval=60s --timeout=5s CMD curl -fs http://127.0.0.1:4000/healthz -u "$DASHBOARD_USER:$DASHBOARD_PASSWORD" || exit 1
