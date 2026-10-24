@@ -27,7 +27,7 @@ export async function scoutMessage(m: InMsg, opts: { fromHistory?: boolean } = {
 
   const d = await extract(
     z.object({
-      title: z.string().describe('short gig title, e.g. "Bakery website"'),
+      title: z.string().describe('short gig title using the client business name when given, e.g. "Sweet Crumbs website" or "Brew Theory website"'),
       budget: z.string().describe('budget as stated, or empty'),
       deadline: z.string().describe('deadline as stated, or empty'),
     }),
