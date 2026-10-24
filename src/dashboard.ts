@@ -29,8 +29,16 @@ export function stats() {
   }
 }
 
+/** Local-only test hook: lets a script drive the self-chat control panel (set by index.ts). */
+export const devHooks: { self?: (text: string) => void } = {}
+
 export function startDashboard() {
   const app = new Hono()
+  app.post('/dev/self', async c => {
+    const { text } = await c.req.json<{ text: string }>()
+    devHooks.self?.(text)
+    return c.json({ ok: true })
+  })
   app.get('/', c => c.html(PAGE))
   app.get('/api/state', c => c.json({ stats: stats(), feed: recentFeed() }))
   app.get('/events', c =>
@@ -47,7 +55,7 @@ export function startDashboard() {
     await gmailCallback(c.req.query('code') ?? '')
     return c.html('<p style="font-family:system-ui">Gmail connected. You can close this tab.</p>')
   })
-  serve({ fetch: app.fetch, port: config.port })
+  serve({ fetch: app.fetch, port: config.port, hostname: '127.0.0.1' })
   console.log(`Dashboard on http://localhost:${config.port}`)
 }
 

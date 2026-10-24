@@ -59,6 +59,15 @@ export async function startProject(leadId: number, chatJid: string) {
   }
   if (total > 0) await draftInvoice(project, 'advance', [{ description: `Advance (50%) for ${project.name}`, qty: 1, rate: Math.round(total / 2) }])
   await kickoff(project)
+  // Weekly upkeep on Devin Schedules: dependency updates, broken links, Lighthouse, client-ready summary
+  devin
+    .createSchedule(
+      `Weekly upkeep: ${project.name}`,
+      `Weekly maintenance for client project ${project.name} (repo ${GITHUB_OWNER}/${project.slug}). Update dependencies safely, check for broken links and console errors, run Lighthouse on the deployed site, fix anything small, open a PR if there are changes, and write a 3-line client-friendly summary of the site's health in your structured output summary.`,
+      '0 9 * * 1',
+    )
+    .then(() => feed('devin', `Weekly upkeep scheduled on Devin for ${project.name} (Mondays 9 AM)`, { route: 'Devin Schedule' }))
+    .catch(e => console.error('[devin] schedule failed:', e.message))
 }
 
 async function kickoff(project: Project) {

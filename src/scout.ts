@@ -147,12 +147,15 @@ onApproval('start_project', async (p: { leadId: number; chat: string }, choice) 
 export async function scanHistory() {
   const markets = db.prepare(`select jid from chats where kind = 'marketplace'`).pluck().all() as string[]
   if (!markets.length) return
-  const rows = (db
-    .prepare(
-      `select * from messages where chat_jid in (${markets.map(() => '?').join(',')}) and from_me = 0 and length(text) > 30
-       and ts > ? order by ts desc limit 150`,
-    )
-    .all(...markets, now() - 7 * 864e5) as any[]).filter(r => GIG_HINT.test(r.text)).slice(0, 25)
+  // Newest likely gig posts, at most 8 per group so busy groups cannot crowd out the rest
+  const rows: any[] = []
+  for (const jid of markets) {
+    const recent = db
+      .prepare(`select * from messages where chat_jid = ? and from_me = 0 and length(text) > 25 and ts > ? order by ts desc limit 60`)
+      .all(jid, now() - 7 * 864e5) as any[]
+    rows.push(...recent.filter(r => GIG_HINT.test(r.text) && !db.prepare(`select 1 from leads where src_msg_id = ?`).get(r.ext_id)).slice(0, 8))
+  }
+  rows.sort((a, b) => b.ts - a.ts).splice(25)
   await notify(`🔎 Checking ${rows.length} likely gig posts from the last 7 days...`)
   const found: number[] = []
   const one = async (r: any) => {

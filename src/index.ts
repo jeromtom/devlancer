@@ -1,5 +1,5 @@
 import { db, getSetting, setSetting, type Chat, type Lead, type Project } from './db.js'
-import { connect, notify, type InMsg } from './wa.js'
+import { connect, notify, selfJid, type InMsg } from './wa.js'
 import { feed } from './bus.js'
 import { handleSelfMessage, onCommand } from './control.js'
 import { scoutMessage, handleLeadDm, scanHistory } from './scout.js'
@@ -8,7 +8,7 @@ import { proposePayment, chaseOverdue } from './billing.js'
 import { connectDevin } from './devin.js'
 import { fetchNewMail, gmailReady } from './gmail.js'
 import { classifyEmail, write } from './ai.js'
-import { startDashboard } from './dashboard.js'
+import { startDashboard, devHooks } from './dashboard.js'
 import { config } from './config.js'
 
 // Serialise message handling so approvals and classifications never interleave
@@ -106,6 +106,14 @@ onCommand('project', async args => {
 
 async function main() {
   startDashboard()
+  devHooks.self = text =>
+    queue(() =>
+      handleSelfMessage({
+        raw: { key: { remoteJid: selfJid(), id: `dev-${Date.now()}`, fromMe: true }, message: { conversation: text } } as any,
+        id: `dev-${Date.now()}`, chat: selfJid(), sender: selfJid(), senderAlt: '', senderName: 'me', fromMe: true,
+        text, ts: Date.now(), isGroup: false, isSelfChat: true,
+      }),
+    )
   await connectDevin().catch(e => console.error('Devin MCP connect failed:', e.message))
   await connect(route, () => queue(onReady), onHistory)
   setInterval(() => void watchSessions().catch(e => console.error('watch', e)), 45_000) // own loop: never blocks messages
