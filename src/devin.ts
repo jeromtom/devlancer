@@ -60,9 +60,21 @@ function enumValue(schema: Schema | undefined, key: string | undefined, ...hints
   return hints[0]
 }
 
-export async function call(name: string, args: Record<string, unknown>): Promise<string> {
+export async function call(name: string, args: Record<string, unknown>, retried = false): Promise<string> {
+  if (!client) await connectDevin().catch(() => {})
   if (!client) throw new Error('Devin MCP not connected')
-  const res = (await client.callTool({ name, arguments: args })) as any
+  let res: any
+  try {
+    res = await client.callTool({ name, arguments: args })
+  } catch (e: any) {
+    // Transport dropped (sleep, network blip): reconnect once and retry
+    if (retried) throw e
+    console.log(`[devin] ${name} transport error, reconnecting: ${String(e.message).slice(0, 80)}`)
+    await client.close().catch(() => {})
+    client = null
+    await connectDevin().catch(() => {})
+    return call(name, args, true)
+  }
   const text = (res.content ?? []).map((c: any) => (c.type === 'text' ? c.text : JSON.stringify(c))).join('\n')
   if (res.isError) throw new Error(`${name}: ${text}`)
   return text

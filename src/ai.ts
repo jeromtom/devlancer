@@ -20,22 +20,59 @@ function takeLaya() {
   return true
 }
 
-async function decideOr<T>(name: string, laya: () => Promise<T>, fallback: () => Promise<T>, opts: { preferFallback?: boolean } = {}): Promise<T> {
+async function decideOr<T>(
+  name: string,
+  laya: () => Promise<T>,
+  fallback: () => Promise<T>,
+  opts: { preferFallback?: boolean; rules?: () => T; merge?: (laya: T, other: T) => T } = {},
+): Promise<T> {
   if (!opts.preferFallback && takeLaya()) {
     try {
-      const r = await laya()
+      // Ensemble: Laya and the text model vote in parallel; if the text model fails, Laya alone decides
+      const [r, other] = await Promise.all([laya(), opts.merge ? fallback().catch(() => null) : Promise.resolve(null)])
       engineStats.laya++
-      console.log(`[laya] ${name}`)
-      return r
+      console.log(`[laya${other ? '+text' : ''}] ${name}`)
+      return other && opts.merge ? opts.merge(r, other) : r
     } catch (e: any) {
       console.log(`[laya] ${name} failed (${String(e.message).slice(0, 80)}), falling back`)
     }
   }
-  const r = await fallback()
-  engineStats.fallback++
-  console.log(`[fallback] ${name}`)
-  return r
+  try {
+    const r = await fallback()
+    engineStats.fallback++
+    console.log(`[fallback] ${name}`)
+    return r
+  } catch (e: any) {
+    if (!opts.rules) throw e
+    console.log(`[rules] ${name} (${String(e.message).slice(0, 60)})`)
+    return opts.rules()
+  }
 }
+
+// ---------- Last-resort rules (no AI) ----------
+
+const has = (re: RegExp, t: string) => re.test(t)
+export function gigRules(text: string) {
+  const t = text.toLowerCase()
+  const isGig = has(/\b(need|looking for|require|hiring|anyone|want (a|someone))\b/, t) && has(/\b(website|app|developer|automation|bot|landing|design|freelanc|build|project)\b/, t) ? 0.75 : 0.2
+  const category = has(/website|landing|web/, t) ? 'website' : has(/\bapp\b|android|ios/, t) ? 'mobile_app' : has(/automation|bot|whatsapp|integration|script/, t) ? 'automation' : has(/design|logo|ui|video/, t) ? 'design' : 'other'
+  return { isGig, fit: category === 'design' || category === 'other' ? 0.4 : 0.7, category }
+}
+function clientRules(input: ClientInput) {
+  const t = input.message.toLowerCase()
+  const intent = has(/\b(paid|sent the|transferred|payment done|gpay|upi|utr)\b/, t) ? 'payment_claim'
+    : has(/^(ok|okay|done|approved|go ahead|looks good|perfect|great|confirmed)\b/, t) ? 'approval'
+    : has(/\b(not working|broken|error|bug|issue|crash)\b/, t) ? 'bug_report'
+    : has(/\b(change|add|make|update|remove|replace|fix|can you|could you|please)\b/, t) ? 'change_request'
+    : t.includes('?') ? 'question' : 'chatter'
+  const tasteful = has(/\b(feel|premium|look|vibe|design|logo|brand|colou?r scheme|password|login|credentials|payment gateway)\b/, t)
+  return {
+    project: input.projects[0]?.slug ?? 'none', projectConfidence: input.projects.length === 1 ? 1 : 0.4, intent,
+    inScope: has(/\b(payment|app|login|delivery|tracking|booking system|admin panel)\b/, t) ? 0.3 : 0.7,
+    clarity: t.length > 15 ? 0.6 : 0.3, verifiable: 0.6, humanDependence: tasteful ? 0.7 : 0.3, sizeOk: 0.8,
+  }
+}
+
 
 const LEVELS = ['none', 'low', 'medium', 'high', 'very high']
 const norm = (a: { type: string; score?: number } | undefined) =>
@@ -53,7 +90,11 @@ export async function classifyGig(text: string, opts: { preferFallback?: boolean
       }),
       'Classify this WhatsApp group message. Ads, offers of services, greetings and news are not gigs.',
       `Freelancer skills: ${config.freelancer.skills}\n\nMessage:\n${text}`,
-    ), opts)
+    ), {
+      ...opts,
+      rules: () => gigRules(text),
+      merge: (l, o) => ({ isGig: (l.isGig + o.isGig) / 2, fit: (l.fit + o.fit) / 2, category: l.category }),
+    })
 }
 
 async function classifyGigLaya(text: string) {
@@ -106,6 +147,17 @@ export async function classifyClientMessage(input: ClientInput) {
       `Projects: ${input.projects.map(p => `${p.slug} (${p.name})`).join(', ')}\n\nAgreed scope:\n${input.spec.slice(0, 2500)}\n\nRecent conversation:\n${input.recent.slice(-2500)}\n\nNew client message:\n${input.message}`,
     )
     return r
+  }, {
+    rules: () => clientRules(input),
+    // Laya picks the choices (intent, project); calibrated scores are averaged with the text model
+    merge: (l, o) => ({
+      ...l,
+      inScope: (l.inScope + o.inScope) / 2,
+      clarity: (l.clarity + o.clarity) / 2,
+      verifiable: (l.verifiable + o.verifiable) / 2,
+      humanDependence: (l.humanDependence + o.humanDependence) / 2,
+      sizeOk: (l.sizeOk + o.sizeOk) / 2,
+    }),
   })
 }
 
@@ -160,7 +212,10 @@ export async function classifyLeadReply(context: string, message: string) {
       z.object({ accepted: z.number().describe('0-1 client accepted or agreed to start'), wantsProposal: z.number().describe('0-1 client asks for quote, proposal, details or pricing') }),
       'Classify the new client message.',
       `Conversation:\n${context.slice(-3000)}\n\nNew client message:\n${message}`,
-    ))
+    ), { rules: () => ({
+      accepted: /\b(let'?s (do|start|go)|go ahead|confirmed|deal|approved|sending (the )?advance|ok let'?s)\b/i.test(message) ? 0.8 : 0.1,
+      wantsProposal: /\b(quote|proposal|details|price|pricing|cost|how much|charges)\b/i.test(message) ? 0.8 : 0.1,
+    }) })
 }
 
 async function classifyLeadReplyLaya(context: string, message: string) {
@@ -178,7 +233,7 @@ async function classifyLeadReplyLaya(context: string, message: string) {
 
 export async function classifyEmail(subject: string, body: string) {
   return decideOr('email', () => classifyEmailLaya(subject, body), async () =>
-    (await extract(z.object({ kind: z.enum(['payment_alert', 'client_message', 'gig_lead', 'other']) }), 'Classify this email.', `${subject}\n${body.slice(0, 3000)}`)).kind)
+    (await extract(z.object({ kind: z.enum(['payment_alert', 'client_message', 'gig_lead', 'other']) }), 'Classify this email.', `${subject}\n${body.slice(0, 3000)}`)).kind, { rules: () => (/credited|received|payment|upi|imps|neft/i.test(subject + body) ? 'payment_alert' : 'other') })
 }
 
 async function classifyEmailLaya(subject: string, body: string) {
@@ -202,13 +257,39 @@ async function classifyEmailLaya(subject: string, body: string) {
   return r.answers.kind.choice
 }
 
-// ---------- Text model: writing ----------
+// ---------- Text model: writing (with a fallback chain, then templates) ----------
 
-// Use the Anthropic key directly when present (the gateway free tier blocks Claude models)
-const textModel = () =>
-  process.env.ANTHROPIC_API_KEY && config.textModel.startsWith('anthropic/')
-    ? anthropic(config.textModel.replace('anthropic/', ''))
-    : config.textModel
+const CHAIN = [
+  ...new Set([
+    config.textModel,
+    'openai/gpt-4.1-mini',
+    'google/gemini-2.5-flash-lite',
+    'openai/gpt-5-mini',
+    'openai/gpt-4o-mini',
+    'meta/llama-3.3-70b',
+    'mistral/mistral-small',
+  ]),
+]
+const resolveModel = (id: string) =>
+  process.env.ANTHROPIC_API_KEY && id.startsWith('anthropic/') && process.env.USE_ANTHROPIC_DIRECT ? anthropic(id.replace('anthropic/', '')) : id
+const down = new Map<string, number>() // model -> retry-after epoch ms
+
+async function withChain<T>(what: string, fn: (model: any) => Promise<T>): Promise<T> {
+  let last: unknown
+  for (const id of CHAIN) {
+    if ((down.get(id) ?? 0) > Date.now()) continue
+    try {
+      return await fn(resolveModel(id))
+    } catch (e: any) {
+      last = e
+      const msg = String(e?.message ?? e)
+      // Park models that are rate limited or not allowed, for a while
+      if (/rate limit|429|free tier|credit|not found|403|401/i.test(msg)) down.set(id, Date.now() + (/rate/i.test(msg) ? 60_000 : 30 * 60_000))
+      console.log(`[text] ${what} failed on ${id}: ${msg.slice(0, 90)}`)
+    }
+  }
+  throw last ?? new Error('all text models failed')
+}
 
 function voiceGuide(): string {
   const rows = db
@@ -221,21 +302,46 @@ function voiceGuide(): string {
   }`
 }
 
-export async function write(task: string, context = ''): Promise<string> {
-  const { text } = await generateText({
-    model: textModel(),
-    system: voiceGuide(),
-    prompt: `${context ? `Context:\n${context}\n\n` : ''}Task: ${task}\n\nReply with only the message text.`,
-  })
-  return text.trim().replace(/—/g, ', ')
+const clean = (t: string) => t.trim().replace(/^["']|["']$/g, '').replace(/\u2014/g, ', ')
+
+/** Write a message in the freelancer's voice. Never throws: falls back to `fallback` (or a safe generic line). */
+export async function write(task: string, context = '', fallback = 'Sure, noted. Will get back to you shortly 🙂'): Promise<string> {
+  try {
+    const { text } = await withChain('write', model =>
+      generateText({
+        model,
+        maxRetries: 0,
+        abortSignal: AbortSignal.timeout(25_000),
+        system: voiceGuide(),
+        prompt: `${context ? `Context:\n${context}\n\n` : ''}Task: ${task}\n\nReply with only the message text.`,
+      }),
+    )
+    return clean(text) || fallback
+  } catch {
+    console.log('[template] write')
+    return fallback
+  }
 }
 
-export async function extract<T>(schema: z.ZodType<T>, task: string, context: string): Promise<T> {
-  const { object } = await generateObject({
-    model: textModel(),
-    schema,
-    system: `You help ${config.freelancer.name} (${config.freelancer.business}), a freelance developer in Kerala, India. Skills: ${config.freelancer.skills}. Hourly rate INR ${config.freelancer.hourlyRate}. Prices in INR. Never use em dashes.`,
-    prompt: `${task}\n\n${context}`,
-  })
-  return object as T
+/** Structured extraction. Falls back through the model chain, then to `fallback` if given. */
+export async function extract<T>(schema: z.ZodType<T>, task: string, context: string, fallback?: T): Promise<T> {
+  try {
+    const { object } = await withChain('extract', model =>
+      generateObject({
+        model,
+        schema,
+        maxRetries: 0,
+        abortSignal: AbortSignal.timeout(40_000),
+        system: `You help ${config.freelancer.name} (${config.freelancer.business}), a freelance developer in Kerala, India. Skills: ${config.freelancer.skills}. Hourly rate INR ${config.freelancer.hourlyRate}. Prices in INR. Never use em dashes.`,
+        prompt: `${task}\n\n${context}`,
+      }),
+    )
+    return object as T
+  } catch (e) {
+    if (fallback !== undefined) {
+      console.log('[template] extract')
+      return fallback
+    }
+    throw e
+  }
 }

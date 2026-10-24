@@ -9,6 +9,16 @@ import { gmailReady, sendEmail } from './gmail.js'
 import { renderProposal, renderInvoice, renderChangeOrder, totals, inr } from './docs/pdf.js'
 import type { InvoiceData, LineItem, Party, ProposalData } from './docs/types.js'
 
+/** Render a PDF, or return '' so callers fall back to sending text. */
+async function safePdf<D>(render: (d: D) => Promise<string>, data: D): Promise<string> {
+  try {
+    return await render(data)
+  } catch (e: any) {
+    console.error('[pdf] render failed, sending text instead:', e.message)
+    return ''
+  }
+}
+
 const today = (plusDays = 0) =>
   new Date(Date.now() + plusDays * 864e5).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
 
@@ -33,6 +43,30 @@ function conversation(chatJids: string[], limit = 40) {
 
 // ---------- Proposal ----------
 
+const budgetOf = (b: string) => {
+  const m = b.replace(/,/g, '').match(/(\d+(?:\.\d+)?)\s*(k)?/i)
+  return m ? Number(m[1]) * (m[2] ? 1000 : 1) : 15000
+}
+
+function defaultProposal(lead: Lead) {
+  const total = budgetOf(lead.budget || '')
+  return {
+    title: lead.title,
+    summary: `A focused, professional ${lead.title.toLowerCase()} delivered quickly, built to be fast on mobile and easy to update.`,
+    understanding: [lead.summary.slice(0, 200)],
+    scope: ['Discovery call and requirements', 'Design and build', 'Testing on mobile and desktop', 'Launch and handover'],
+    deliverables: ['Working, deployed solution', 'Source code', 'Short handover guide'],
+    outOfScope: ['Hosting and domain fees', 'Content writing and photography', 'Features not listed above'],
+    milestones: [
+      { name: 'Kickoff and first version', due: 'Day 3', amountPct: 50 },
+      { name: 'Final delivery', due: lead.deadline || 'Day 7', amountPct: 50 },
+    ],
+    items: [{ description: lead.title, qty: 1, rate: total }],
+    paymentTerms: ['50% advance to start', '50% on delivery', 'One round of revisions included'],
+    clientBusiness: '',
+  }
+}
+
 export async function makeProposal(lead: Lead) {
   const ctx = `Original gig post by ${lead.poster_name}:\n${lead.summary}\nBudget mentioned: ${lead.budget || 'not stated'}\nDeadline: ${lead.deadline || 'not stated'}\n\nPrivate chat so far:\n${conversation([lead.poster_jid])}`
   const p = await extract(
@@ -50,6 +84,7 @@ export async function makeProposal(lead: Lead) {
     }),
     'Write a professional, realistic project proposal for this gig. Keep it tight and specific to the client. Default terms: 50% advance, 50% on delivery, 1 round of revisions included, hosting and domain billed separately.',
     ctx,
+    defaultProposal(lead),
   )
   const data: ProposalData = {
     number: nextNumber('PR'),
@@ -67,7 +102,7 @@ export async function makeProposal(lead: Lead) {
     items: p.items,
     paymentTerms: p.paymentTerms,
   }
-  const pdf = await renderProposal(data)
+  const pdf = await safePdf(renderProposal, data)
   const docId = Number(
     db.prepare(`insert into documents (lead_id, kind, number, data_json, pdf_path, created_at) values (?, 'proposal', ?, ?, ?, ?)`)
       .run(lead.id, data.number, JSON.stringify(data), pdf, now()).lastInsertRowid,
@@ -83,7 +118,8 @@ export async function sendDocument(docId: number, jid: string, email?: string) {
   const caption = await write(
     `Write a one or two line WhatsApp caption to send with the attached ${label} (${data.title ?? data.projectName}). Friendly, no pressure.`,
   )
-  await sendPdf(jid, doc.pdf_path, `${doc.number}.pdf`, caption)
+  if (doc.pdf_path) await sendPdf(jid, doc.pdf_path, `${doc.number}.pdf`, caption)
+  else await sendText(jid, `${caption}\n\n${textSummary(doc.kind, data)}`)
   const via = ['whatsapp']
   if (email && gmailReady()) {
     const body = await write(
@@ -97,6 +133,15 @@ export async function sendDocument(docId: number, jid: string, email?: string) {
   db.prepare(`update documents set status = 'sent', sent_via = ? where id = ?`).run(via.join(','), docId)
   db.prepare(`update invoices set status = 'sent' where document_id = ? and status = 'draft'`).run(docId)
   feed(doc.kind === 'invoice' ? 'invoice' : 'proposal', `Sent ${doc.number} via ${via.join(' + ')}`)
+}
+
+function textSummary(kind: string, d: any) {
+  const lines = (d.items ?? []).map((i: LineItem) => `• ${i.description}: ${inr(i.qty * i.rate)}`).join('\n')
+  const total = inr(totals(d.items ?? []))
+  if (kind === 'invoice')
+    return `*Invoice ${d.number}*\n${d.projectName}\n${lines}\n*Total: ${total}*\nDue ${d.dueDate}${d.upiId ? `\nUPI: ${d.upiId}` : ''}`
+  if (kind === 'change_order') return `*Change order ${d.number}*\n"${d.request}"\n${lines}\n*Total: ${total}*\n${d.timelineImpact}`
+  return `*Proposal ${d.number}: ${d.title}*\n${d.summary}\n\nScope:\n• ${d.scope.join('\n• ')}\n\n${lines}\n*Total: ${total}*\n${d.paymentTerms.join('. ')}`
 }
 
 // ---------- Invoices ----------
@@ -115,7 +160,7 @@ export async function draftInvoice(project: Project, kind: InvoiceData['kind'], 
     upiId: config.freelancer.upiId || undefined,
     notes,
   }
-  const pdf = await renderInvoice(data)
+  const pdf = await safePdf(renderInvoice, data)
   const docId = Number(
     db.prepare(`insert into documents (project_id, kind, number, data_json, pdf_path, created_at) values (?, 'invoice', ?, ?, ?, ?)`)
       .run(project.id, data.number, JSON.stringify(data), pdf, now()).lastInsertRowid,
@@ -131,7 +176,7 @@ export async function draftInvoice(project: Project, kind: InvoiceData['kind'], 
       { key: '1', label: 'send to client' },
       { key: '0', label: 'keep as draft' },
     ],
-    { path: pdf, name: `${data.number}.pdf` },
+    pdf ? { path: pdf, name: `${data.number}.pdf` } : undefined,
   )
   return docId
 }
@@ -151,6 +196,11 @@ export async function draftChangeOrder(project: Project, request: string, msgId:
     }),
     'The client asked for something outside the agreed scope. Estimate it honestly as a change order.',
     `Agreed scope:\n${project.spec}\n\nClient request:\n${request}`,
+    {
+      reason: 'This was not part of the agreed scope of work.',
+      items: [{ description: request.slice(0, 80), qty: 6, rate: config.freelancer.hourlyRate }],
+      timelineImpact: 'Adds about 2 working days.',
+    },
   )
   const data = {
     number: nextNumber('CO'),
@@ -163,7 +213,7 @@ export async function draftChangeOrder(project: Project, request: string, msgId:
     items: est.items,
     timelineImpact: est.timelineImpact,
   }
-  const pdf = await renderChangeOrder(data)
+  const pdf = await safePdf(renderChangeOrder, data)
   const docId = Number(
     db.prepare(`insert into documents (project_id, kind, number, data_json, pdf_path, created_at) values (?, 'change_order', ?, ?, ?, ?)`)
       .run(project.id, data.number, JSON.stringify(data), pdf, now()).lastInsertRowid,
@@ -180,7 +230,7 @@ export async function draftChangeOrder(project: Project, request: string, msgId:
       { key: '1', label: 'send change order' },
       { key: '0', label: 'do it free / ignore' },
     ],
-    { path: pdf, name: `${data.number}.pdf` },
+    pdf ? { path: pdf, name: `${data.number}.pdf` } : undefined,
   )
   return docId
 }

@@ -47,6 +47,13 @@ create table if not exists approvals (
 create table if not exists settings (key text primary key, value text);
 `)
 
+// Lightweight migrations
+for (const sql of [`alter table tasks add column prompt text`, `alter table tasks add column attempts integer default 0`]) {
+  try {
+    db.exec(sql)
+  } catch {}
+}
+
 export function getSetting(key: string, fallback = ''): string {
   const row = db.prepare('select value from settings where key = ?').get(key) as { value: string } | undefined
   return row?.value ?? fallback

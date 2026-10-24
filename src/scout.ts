@@ -33,10 +33,16 @@ export async function scoutMessage(m: InMsg, opts: { fromHistory?: boolean } = {
     }),
     'Extract the gig details.',
     m.text,
+    {
+      title: m.text.split(/[.\n]/)[0].slice(0, 50),
+      budget: m.text.match(/(₹|rs\.?|inr)\s?[\d,]+k?|\b\d+\s?k\b/i)?.[0] ?? '',
+      deadline: m.text.match(/\b\d+\s?(days?|weeks?|months?)\b/i)?.[0] ?? '',
+    },
   )
   const pitch = await write(
     `Write a private WhatsApp reply to ${m.senderName || 'this person'} who posted this requirement in a business group. Mention one specific detail of their need, say briefly why you are a good fit (skills: ${config.freelancer.skills}), suggest a quick call or offer to send a proposal. 3-5 short lines.`,
     `Their post:\n${m.text}`,
+    `Hi ${m.senderName || ''}, saw your post about this. I build exactly this kind of thing (${config.freelancer.skills.split(',').slice(0, 3).join(', ')}). Happy to share a quick proposal and timeline, or jump on a short call. When suits you?`,
   )
   const chat = db.prepare(`select * from chats where jid = ?`).get(m.chat) as Chat | undefined
   const leadId = Number(
@@ -78,7 +84,7 @@ export async function gigCard(leadId: number) {
 export async function pitchLead(leadId: number, withProposal: boolean, editedPitch?: string) {
   const l = db.prepare(`select * from leads where id = ?`).get(leadId) as Lead
   const src = JSON.parse(l.src_msg_json) as WAMessage
-  await react(src, '👍')
+  await react(src, '👍').catch(e => console.log('[wa] react failed', e.message))
   await sendText(l.chat_jid, 'Check DM 🙂', { quoted: src })
   const pitch = editedPitch ?? l.pitch
   await sendText(l.poster_jid, pitch, { quoted: src }) // private reply: DM quoting the group post
@@ -116,7 +122,7 @@ export async function handleLeadDm(m: InMsg, lead: Lead) {
     await ask('send_proposal', { docId, leadId: lead.id, jid: m.chat }, `📄 ${lead.poster_name || 'Client'} wants details on *${lead.title}*. Proposal ${data.number} ready.`, [
       { key: '1', label: 'send proposal' },
       { key: '0', label: 'skip' },
-    ], { path: pdf, name: `${data.number}.pdf` })
+    ], pdf ? { path: pdf, name: `${data.number}.pdf` } : undefined)
     return
   }
   const reply = await write('Reply naturally to the latest client message in this conversation.', ctx)

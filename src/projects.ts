@@ -36,6 +36,7 @@ export async function startProject(leadId: number, chatJid: string) {
       z.object({ spec: z.string().describe('scope, features and acceptance criteria as bullet points'), price: z.number().describe('agreed or budgeted INR total, 0 if unknown') }),
       'Write the agreed project spec from this gig and conversation.',
       `Gig: ${lead.summary}\nBudget: ${lead.budget}\n\n${chat}`,
+      { spec: `${lead.title}\n${lead.summary}`, price: Number((lead.budget || '').replace(/,/g, '').match(/\d+/)?.[0] ?? 0) * (/k\b/i.test(lead.budget || '') ? 1000 : 1) },
     )
     spec = s.spec
     total = s.price
@@ -79,22 +80,39 @@ async function kickoff(project: Project) {
 
 async function startDevinTask(project: Project, kind: string, request: string, prompt: string, msgId: string, route = 'cloud') {
   const taskId = Number(
-    db.prepare(`insert into tasks (project_id, source_msg_id, kind, request, in_scope, route, status, created_at) values (?,?,?,?,1,?,?,?)`)
-      .run(project.id, msgId, kind, request, route, devin.devinReady() ? 'running' : 'queued', now()).lastInsertRowid,
+    db.prepare(`insert into tasks (project_id, source_msg_id, kind, request, in_scope, route, status, prompt, created_at) values (?,?,?,?,1,?,'queued',?,?)`)
+      .run(project.id, msgId, kind, request, route, prompt, now()).lastInsertRowid,
   )
-  if (!devin.devinReady()) {
-    feed('devin', `Devin not connected; queued "${request}" for ${project.name}`, { route: 'queued' })
-    return taskId
-  }
-  const s = await devin.createSession({ prompt, title: `${project.slug}: ${request}`.slice(0, 80), tags: ['devlancer', project.slug, kind] })
-  db.prepare(`update tasks set devin_session_id = ?, devin_url = ? where id = ?`).run(s.id, s.url, taskId)
-  feed('devin', `Devin Cloud session started for ${project.name}: ${request}`, { route: 'Devin Cloud', url: s.url })
+  await launchQueued(taskId)
   return taskId
+}
+
+/** Try to start a queued cloud task on Devin. On failure it stays queued and is retried by the watcher. */
+async function launchQueued(taskId: number) {
+  const t = db.prepare(`select * from tasks where id = ?`).get(taskId) as Task & { prompt: string; attempts: number }
+  const project = db.prepare(`select * from projects where id = ?`).get(t.project_id) as Project
+  db.prepare(`update tasks set attempts = attempts + 1 where id = ?`).run(taskId)
+  try {
+    const s = await devin.createSession({ prompt: t.prompt, title: `${project.slug}: ${t.request}`.slice(0, 80), tags: ['devlancer', project.slug, t.kind] })
+    if (!s.id) throw new Error('no session id returned')
+    db.prepare(`update tasks set status = 'running', devin_session_id = ?, devin_url = ? where id = ?`).run(s.id, s.url, taskId)
+    feed('devin', `Devin Cloud session started for ${project.name}: ${t.request}`, { route: 'Devin Cloud', url: s.url })
+  } catch (e: any) {
+    console.error('[devin] start failed:', e.message)
+    if (t.attempts === 0) {
+      feed('devin', `Devin unavailable, queued "${t.request}" for ${project.name}. Retrying automatically`, { route: 'Queued' })
+      await notify(`⏳ Devin could not start *${t.request.slice(0, 60)}* (${project.name}) right now. I queued it and will retry every minute.`)
+    }
+  }
 }
 
 // ---------- Session watcher ----------
 
 export async function watchSessions() {
+  // Retry queued cloud tasks (Devin was down, or the key was missing at the time)
+  const queued = db.prepare(`select id from tasks where status = 'queued' and route = 'cloud' and prompt is not null and attempts < 30`).pluck().all() as number[]
+  for (const id of queued) await launchQueued(id)
+
   const running = db.prepare(`select * from tasks where status = 'running' and devin_session_id != ''`).all() as Task[]
   for (const t of running) {
     try {
@@ -312,6 +330,7 @@ async function makeBrief(project: Project, request: string) {
     z.object({ brief: z.string() }),
     'Write a high-context engineering brief (markdown) for this client request: goal, what the client actually wants, open questions that need human judgement, files likely involved, acceptance criteria. Keep it under 300 words.',
     `Project: ${project.name}\nRepo: ${project.repo_url}\nSpec:\n${project.spec}\n\nRequest: ${request}\n\n${repoContext ? `Codebase notes from Devin:\n${repoContext.slice(0, 3000)}` : ''}`,
+    { brief: `# ${project.name}: ${request}\n\nClient asked: "${request}"\n\nRepo: ${project.repo_url || 'n/a'}\n\nNeeds your judgement before building.\n\n${repoContext.slice(0, 1500)}` },
   ).then(r => r.brief)
 }
 

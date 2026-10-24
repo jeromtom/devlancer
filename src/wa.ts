@@ -189,7 +189,14 @@ export async function send(jid: string, content: AnyMessageContent, opts: { quot
     await sleep(Math.min(6000, 1200 + len * 25))
     await sock.sendPresenceUpdate('paused', jid).catch(() => {})
   }
-  const sent = await sock.sendMessage(jid, content, opts.quoted ? { quoted: opts.quoted } : undefined)
+  let sent
+  try {
+    sent = await sock.sendMessage(jid, content, opts.quoted ? { quoted: opts.quoted } : undefined)
+  } catch (e: any) {
+    console.log(`[wa] send failed (${String(e.message).slice(0, 60)}), retrying${opts.quoted ? ' without quote' : ''}`)
+    await sleep(2000)
+    sent = await sock.sendMessage(jid, content) // quoted messages from history can fail; plain send is the fallback
+  }
   lastSend = Date.now()
   if (sent?.key.id) sentByMe.add(sent.key.id)
   if (sent) {

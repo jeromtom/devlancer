@@ -5,7 +5,7 @@ import { handleSelfMessage, onCommand } from './control.js'
 import { scoutMessage, handleLeadDm, scanHistory } from './scout.js'
 import { handleClientMessage, projectsForChat, watchSessions } from './projects.js'
 import { proposePayment, chaseOverdue } from './billing.js'
-import { connectDevin, devinReady } from './devin.js'
+import { connectDevin } from './devin.js'
 import { fetchNewMail, gmailReady } from './gmail.js'
 import { classifyEmail, write } from './ai.js'
 import { startDashboard } from './dashboard.js'
@@ -13,7 +13,11 @@ import { config } from './config.js'
 
 // Serialise message handling so approvals and classifications never interleave
 let chain = Promise.resolve()
-const queue = (fn: () => Promise<unknown>) => (chain = chain.then(fn).catch(e => console.error(e)) as Promise<void>)
+// Each job gets at most 2 minutes so one hung call can never freeze Devlancer
+const withTimeout = (p: Promise<unknown>, ms = 120_000) =>
+  Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('job timed out')), ms))])
+const queue = (fn: () => Promise<unknown>) =>
+  (chain = chain.then(() => withTimeout(fn())).catch(e => console.error('[job]', e?.message ?? e)) as Promise<void>)
 
 function route(m: InMsg) {
   if (m.isSelfChat) return queue(() => handleSelfMessage(m))
@@ -104,10 +108,11 @@ async function main() {
   startDashboard()
   await connectDevin().catch(e => console.error('Devin MCP connect failed:', e.message))
   await connect(route, () => queue(onReady), onHistory)
-  setInterval(() => devinReady() && queue(watchSessions), 30_000)
+  setInterval(() => void watchSessions().catch(e => console.error('watch', e)), 45_000) // own loop: never blocks messages
   setInterval(() => queue(pollMail), 60_000)
   setInterval(() => queue(chaseOverdue), 6 * 36e5)
 }
 
 main()
 process.on('unhandledRejection', e => console.error('unhandled', e))
+process.on('uncaughtException', e => console.error('uncaught', e)) // stay up no matter what
