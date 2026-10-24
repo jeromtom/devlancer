@@ -1,6 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { Hono } from 'hono'
+import { basicAuth } from 'hono/basic-auth'
 import { serve } from '@hono/node-server'
 import { streamSSE } from 'hono/streaming'
 import { db, getSetting } from './db.js'
@@ -82,7 +83,17 @@ export const devHooks: { self?: (text: string) => void } = {}
 
 export function startDashboard() {
   const app = new Hono()
+  // Public deployment: everything except the OAuth callback sits behind basic auth
+  if (config.dashboardPassword)
+    app.use('*', async (c, next) => {
+      if (c.req.path === '/healthz' || c.req.path.startsWith('/auth/google/callback')) return next()
+      return basicAuth({ username: config.dashboardUser, password: config.dashboardPassword })(c, next)
+    })
+  app.get('/healthz', c => c.json({ ok: true, whatsapp: !lastQr, devin: devinReady() }))
   app.post('/dev/self', async c => {
+    // Test hook: needs DEV_TOKEN in production (every tunnel request looks local)
+    if (config.devToken && c.req.header('x-dev-token') !== config.devToken) return c.json({ error: 'forbidden' }, 403)
+    if (!config.devToken && config.dashboardPassword) return c.json({ error: 'disabled' }, 403)
     const { text } = await c.req.json<{ text: string }>()
     devHooks.self?.(text)
     return c.json({ ok: true })
@@ -109,7 +120,7 @@ export function startDashboard() {
     await gmailCallback(c.req.query('code') ?? '')
     return c.html('<p style="font-family:system-ui">Gmail connected. You can close this tab.</p>')
   })
-  serve({ fetch: app.fetch, port: config.port, hostname: '127.0.0.1' })
+  serve({ fetch: app.fetch, port: config.port, hostname: config.host })
   console.log(`Dashboard on http://localhost:${config.port}`)
 }
 

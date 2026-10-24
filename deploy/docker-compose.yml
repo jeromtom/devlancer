@@ -1,0 +1,19 @@
+# Runs on the VM. Both containers share the host network: the app listens on 127.0.0.1:4000
+# and cloudflared publishes it at https://devlancer.rexindynamics.com (no open ports).
+services:
+  devlancer:
+    build: ..
+    image: devlancer:latest
+    restart: always
+    network_mode: host
+    env_file: ../.env
+    volumes:
+      - /var/lib/devlancer:/data
+    mem_limit: 900m
+    logging: { driver: json-file, options: { max-size: 10m, max-file: "3" } }
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    restart: always
+    network_mode: host
+    command: tunnel --no-autoupdate --url http://127.0.0.1:4000 run   # token comes from TUNNEL_TOKEN in .env
+    env_file: ../.env

@@ -1,0 +1,9 @@
+node_modules
+auth
+data
+out
+design
+.env
+.git
+*.log
+._*

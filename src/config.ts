@@ -5,10 +5,15 @@ const root = path.resolve(import.meta.dirname, '..')
 
 export const config = {
   root,
-  dataDir: path.join(root, 'data'),
-  authDir: path.join(root, 'auth'),
-  outDir: path.join(root, 'out'),
+  dataDir: process.env.DATA_DIR ?? path.join(root, 'data'),
+  authDir: process.env.AUTH_DIR ?? path.join(root, 'auth'),
+  outDir: process.env.OUT_DIR ?? path.join(root, 'out'),
   port: Number(process.env.PORT ?? 4000),
+  host: process.env.HOST ?? '127.0.0.1',
+  publicUrl: process.env.PUBLIC_URL ?? '',
+  dashboardUser: process.env.DASHBOARD_USER ?? 'jerom',
+  dashboardPassword: process.env.DASHBOARD_PASSWORD ?? '',
+  devToken: process.env.DEV_TOKEN ?? '',
   decideModel: process.env.DECIDE_MODEL ?? 'convaiinnovations/laya',
   textModel: process.env.TEXT_MODEL ?? 'anthropic/claude-sonnet-5-5',
   devinApiKey: process.env.DEVIN_API_KEY ?? '',

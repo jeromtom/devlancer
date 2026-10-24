@@ -397,9 +397,16 @@ async function makeBrief(project: Project, request: string) {
 }
 
 function launchCli(project: Project, briefPath: string, brief: string) {
+  // On a server there is no Terminal to open: send a ready-to-paste Devin CLI command instead
+  if (process.platform !== 'darwin') {
+    const short = brief.replace(/\s+/g, ' ').slice(0, 600).replace(/"/g, "'")
+    void notify(`💻 Paste this on your laptop to pair with Devin CLI (then /handoff to cloud when the direction is set):\n\n\`\`\`devin "${short}"\`\`\``)
+    return
+  }
   const dir = path.join(config.root, '..', project.slug)
   const cd = fs.existsSync(dir) ? `cd ${JSON.stringify(dir)} && ` : ''
   const p = execFile('pbcopy')
+  p.on('error', () => {})
   p.stdin?.end(brief)
   const script = `tell application "Terminal" to do script "${cd.replace(/"/g, '\\"')}echo 'Brief: ${briefPath}' && (command -v devin >/dev/null && devin || cat ${JSON.stringify(briefPath).replace(/"/g, '\\"')})"`
   execFile('osascript', ['-e', script, '-e', 'tell application "Terminal" to activate'], err => err && console.error('cli launch', err.message))
