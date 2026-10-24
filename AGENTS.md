@@ -13,7 +13,7 @@ Several agents work on this repo at once before the 06:00 deadline. One **main a
 
 ## Production
 
-- Runs on GCP VM `devlancer` (project `devlancer-rexin`, us-central1-a, e2-micro always-free) with Docker Compose (`deploy/docker-compose.yml`).
-- Public URL: https://devlancer.rexindynamics.com via Cloudflare Tunnel `devlancer` (no open ports). Dashboard behind basic auth.
+- Runs on GCP VM `devlancer` (project `devlancer-rexin`, us-central1-a, e2-micro always-free) as systemd services `devlancer` and `devlancer-tunnel` (set up by `deploy/provision.sh`). Docker is not used on the VM (layer export is too slow on the throttled e2-micro); the Dockerfile is kept for other hosts.
+- Public URL: https://devlancer.rexindynamics.com, a Cloudflare Worker (`deploy/edge`) proxying to the tunnel origin https://devlancer-origin.jeromtom.com (Cloudflare Tunnel `devlancer`, no open ports). Dashboard behind basic auth.
 - State lives on the VM in `/var/lib/devlancer` (`auth/` WhatsApp session, `db/` SQLite, `out/` PDFs).
-- Deploy: the main agent merges to `main`, then runs `deploy/deploy.sh` (pull, rebuild, restart). Health: `/healthz`.
+- Deploy: the main agent merges to `main`, then runs `deploy/deploy.sh` (pull, `npm ci` if the lockfile changed, restart). Health: `/healthz`. Logs: `journalctl -u devlancer -f` on the VM.
