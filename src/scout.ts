@@ -5,7 +5,7 @@ import { classifyGig, classifyLeadReply, extract, write } from './ai.js'
 import { config } from './config.js'
 import { feed } from './bus.js'
 import { ask, onApproval, onCommand } from './control.js'
-import { notify, react, sendText, syncGroups, type InMsg } from './wa.js'
+import { notify, react, sendText, syncGroups, fillGroupNames, type InMsg } from './wa.js'
 import { makeProposal, sendDocument } from './billing.js'
 import { startProject } from './projects.js'
 
@@ -175,6 +175,8 @@ onCommand('groups', async args => {
           )
           .all(now() - 7 * 864e5)
   ) as Chat[]
+  await fillGroupNames(chats.map(c => c.jid))
+  for (const c of chats) c.name = (db.prepare(`select name from chats where jid = ?`).pluck().get(c.jid) as string) || '(unnamed group)'
   setSetting('group_list', JSON.stringify(chats.map(c => c.jid)))
   await notify(
     `*${q ? `Groups matching "${q}"` : 'Your 30 most active groups'}*\n` +

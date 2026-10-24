@@ -126,7 +126,15 @@ export async function connect(onMessage: (m: InMsg) => void, onReady: () => void
     }
   })
 
-  sock.ev.on('messaging-history.set', ({ messages, isLatest }) => {
+  const nameChats = (chats: { id?: string | null; name?: string | null; subject?: string | null }[]) => {
+    const up = db.prepare(`insert into chats (jid, name) values (?, ?) on conflict(jid) do update set name = coalesce(nullif(excluded.name, ''), chats.name)`)
+    for (const c of chats) if (c.id && isJidGroup(c.id) && (c.name || c.subject)) up.run(c.id, c.name || c.subject)
+  }
+  sock.ev.on('chats.upsert', chats => nameChats(chats as any))
+  sock.ev.on('groups.update', groups => nameChats(groups as any))
+
+  sock.ev.on('messaging-history.set', ({ messages, chats, isLatest }) => {
+    nameChats(chats as any)
     let n = 0
     for (const raw of messages) {
       const m = toIn(raw)
@@ -150,10 +158,19 @@ export async function connect(onMessage: (m: InMsg) => void, onReady: () => void
 export async function syncGroups() {
   const groups = await sock.groupFetchAllParticipating()
   const up = db.prepare(
-    `insert into chats (jid, name) values (?, ?) on conflict(jid) do update set name = excluded.name`,
+    `insert into chats (jid, name) values (?, ?) on conflict(jid) do update set name = coalesce(excluded.name, chats.name)`,
   )
-  for (const g of Object.values(groups)) up.run(g.id, g.subject)
+  for (const g of Object.values(groups)) up.run(g.id, g.subject || null)
   return Object.values(groups)
+}
+
+/** Some groups come back without a subject in the bulk fetch; look those up one by one. */
+export async function fillGroupNames(jids: string[]) {
+  const missing = db.prepare(`select jid from chats where jid in (${jids.map(() => '?').join(',') || "''"}) and (name is null or name = '')`).pluck().all(...jids) as string[]
+  for (const jid of missing) {
+    const meta = await sock.groupMetadata(jid).catch(() => null)
+    if (meta?.subject) db.prepare(`update chats set name = ? where jid = ?`).run(meta.subject, jid)
+  }
 }
 
 // ---------- Sending ----------
