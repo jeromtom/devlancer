@@ -18,8 +18,11 @@ const pct = (n: number) => `${Math.round(n * 100)}%`
 // Cheap prefilter so the model budget is only spent on messages that could be gigs
 const GIG_HINT = /\b(need|needed|looking for|require|requirement|hiring|hire|freelanc|anyone|budget|developer|website|web ?site|app|automation|bot|landing|build|dm me|quote|project|work)\b|₹|\brs\.?\s?\d|\d+\s?k\b/i
 
+// People offering their own services or help are not gigs
+const OFFER = /\b(happy to help|available for (work|projects|freelance)|i can (build|help|do)|we (build|offer|provide)|hire me|my services|open to work|dm me for (your|any))\b/i
+
 export async function scoutMessage(m: InMsg, opts: { fromHistory?: boolean } = {}) {
-  if (m.fromMe || m.text.length < 20 || !GIG_HINT.test(m.text)) return null
+  if (m.fromMe || m.text.length < 20 || !GIG_HINT.test(m.text) || OFFER.test(m.text)) return null
   if (db.prepare(`select 1 from leads where src_msg_id = ?`).get(m.id)) return null
   // Live messages get Laya first; the history scan uses the fallback so it never starves live traffic
   const c = await classifyGig(m.text, { preferFallback: opts.fromHistory })
@@ -39,6 +42,7 @@ export async function scoutMessage(m: InMsg, opts: { fromHistory?: boolean } = {
       deadline: m.text.match(/\b\d+\s?(days?|weeks?|months?)\b/i)?.[0] ?? '',
     },
   )
+  if (!d.title.trim()) return null // nothing concrete to pitch on
   const pitch = await write(
     `Write a private WhatsApp reply to ${m.senderName || 'this person'} who posted this requirement in a business group. Mention one specific detail of their need, say briefly why you are a good fit (skills: ${config.freelancer.skills}), suggest a quick call or offer to send a proposal. 3-5 short lines.`,
     `Their post:\n${m.text}`,
