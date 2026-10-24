@@ -84,7 +84,7 @@ Names only. Values live in `/opt/devlancer/.env` on the VM and in a local `.env`
 | `DASHBOARD_USER`, `DASHBOARD_PASSWORD` | Basic auth for the dashboard |
 | `DEV_TOKEN` | Protects the `/dev/self` test hook in production |
 | `DATA_DIR`, `AUTH_DIR`, `OUT_DIR` | State locations (set by the systemd unit) |
-| Tunnel token for `cloudflared` | [confirm variable name, e.g. `TUNNEL_TOKEN`] read by `devlancer-tunnel.service` from `.env` |
+| Tunnel token for `cloudflared` | `TUNNEL_TOKEN` read by `devlancer-tunnel.service` from `.env` |
 
 Devin itself also needs a `VERCEL_TOKEN` secret in the Devin organisation so sessions can deploy to Vercel. That lives in Devin, not in Devlancer's `.env`.
 
