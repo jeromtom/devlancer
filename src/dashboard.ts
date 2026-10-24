@@ -107,12 +107,24 @@ export function startDashboard() {
       while (!s.aborted) await s.sleep(15000).then(() => s.writeSSE({ event: 'ping', data: '' }))
     }),
   )
-  app.get('/qr', c => c.html(lastQr ? `<body style="display:grid;place-items:center;height:100vh;font-family:system-ui"><div><h2>Link WhatsApp</h2><img src="${lastQr}" width=320><p>WhatsApp > Linked devices > Link a device</p><script>setTimeout(()=>location.reload(),15000)</script></div></body>` : '<p style="font-family:system-ui">Already linked (or waiting for QR). <a href="/">Dashboard</a></p>'))
+  app.get('/qr', c =>
+    c.html(
+      lastQr
+        ? notice('Link WhatsApp', `<img class="qr" src="${lastQr}" width="280" height="280" alt="WhatsApp link code"><p>On your phone, open WhatsApp, go to Linked devices, tap Link a device and scan this code. It refreshes every 15 seconds.</p>`, '<meta http-equiv="refresh" content="15">')
+        : notice('WhatsApp is linked', '<p>No code to scan. Devlancer is already linked to your number, or a fresh code is on its way. This page shows it as soon as it arrives.</p><a class="btn primary" href="/">Open dashboard</a>', '<meta http-equiv="refresh" content="10">'),
+    ),
+  )
   app.get('/auth/google', c => (config.googleClientId ? c.redirect(gmailAuthUrl()) : c.text('Set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env first')))
   app.get('/auth/google/callback', async c => {
     await gmailCallback(c.req.query('code') ?? '')
-    return c.html('<p style="font-family:system-ui">Gmail connected. You can close this tab.</p>')
+    return c.html(notice('Gmail connected', '<p>Devlancer can now read client emails and payment receipts. You can close this tab.</p><a class="btn primary" href="/#/connections">Back to connections</a>'))
   })
   serve({ fetch: app.fetch, port: config.port, hostname: config.host })
   console.log(`Dashboard on http://localhost:${config.port}`)
 }
+
+/** Small branded page for one-off screens (WhatsApp linking, OAuth return). */
+const notice = (title: string, body: string, head = '') => `<!doctype html><html lang="en-IN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${head}
+<title>Devlancer: ${title}</title><link rel="icon" href="/brand/mark.svg"><link rel="stylesheet" href="/tokens.css"><link rel="stylesheet" href="/fonts.css"><link rel="stylesheet" href="/components.css">
+<style>body{min-height:100vh;display:grid;place-items:center;padding:24px}.box{max-width:420px;display:grid;gap:16px;justify-items:start;padding:32px}.box h1{font:700 var(--text-2xl)/1.15 var(--font-display);letter-spacing:-.02em}.box p{color:var(--ink-2)}.qr{border-radius:var(--r-control);border:1px solid var(--line)}</style></head>
+<body><main class="panel box"><img src="/brand/mark.svg" width="36" height="36" alt="Devlancer"><h1>${title}</h1>${body}</main></body></html>`
