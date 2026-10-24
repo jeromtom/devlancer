@@ -1,3 +1,5 @@
+import fs from 'node:fs'
+import path from 'node:path'
 import { db, getSetting, setSetting, type Chat, type Lead, type Project } from './db.js'
 import { connect, notify, selfJid, type InMsg } from './wa.js'
 import { feed } from './bus.js'
@@ -104,7 +106,21 @@ onCommand('project', async args => {
 
 // ---------- Boot ----------
 
+/** Single instance: two processes on the same WhatsApp credentials kick each other off (error 440). */
+function takeOver() {
+  const pidFile = path.join(config.dataDir, 'devlancer.pid')
+  try {
+    const old = Number(fs.readFileSync(pidFile, 'utf8'))
+    if (old && old !== process.pid) {
+      process.kill(old, 'SIGTERM')
+      console.log(`Stopped previous Devlancer (pid ${old})`)
+    }
+  } catch {}
+  fs.writeFileSync(pidFile, String(process.pid))
+}
+
 async function main() {
+  takeOver()
   startDashboard()
   devHooks.self = text =>
     queue(() =>

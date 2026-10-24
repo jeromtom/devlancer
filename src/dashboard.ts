@@ -129,7 +129,7 @@ ${FONT_FACES}
 --lead:#7dd3fc;--build:#2dd4bf;--owed:#f5b342;--paid:#86efac;--alert:#fb7185;color-scheme:dark}
 *{box-sizing:border-box}
 html{font-size:16px;scrollbar-color:var(--line) transparent;scrollbar-width:thin}
-body{margin:0;min-height:100vh;display:grid;grid-template-rows:auto auto auto minmax(0,1fr);background:var(--ground);color:var(--ink);
+body{margin:0;min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto minmax(0,1fr);background:var(--ground);color:var(--ink);
 font:400 1rem/1.5 Plex,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;caret-color:var(--build)}
 ::selection{background:#2dd4bf55;color:#fff}
 :focus-visible{outline:2px solid var(--build);outline-offset:2px;border-radius:4px}
@@ -142,7 +142,7 @@ h1,h2{margin:0;font-weight:600;letter-spacing:-.01em}
 header{display:flex;align-items:center;flex-wrap:wrap;gap:6px 18px;padding:14px 28px;border-bottom:1px solid var(--line)}
 h1{font-size:1.44rem}
 .tagline{color:var(--mute);font-size:.94rem}
-.status{margin-left:auto;display:flex;gap:18px;list-style:none;padding:0;margin-block:0;font-size:.875rem;color:var(--mute)}
+.status{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px 18px;list-style:none;padding:0;margin-block:0;font-size:.875rem;color:var(--mute)}
 .status li{display:flex;align-items:center;gap:7px}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--dim);flex:none}
 .on .dot{background:var(--build)}.off-warn .dot{background:var(--owed)}
@@ -151,14 +151,14 @@ h1{font-size:1.44rem}
 
 .top{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:20px;padding:20px 28px 0}
 .bottom{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;padding:20px 28px 24px;min-height:0}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;min-height:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;min-height:0;min-width:0}
 .phead{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
 .phead h2{font-size:1rem}
 .meta{color:var(--mute);font-size:.875rem}
 .phead .meta{margin-left:auto}
 
 /* Pipeline: the deal track */
-.track{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(7,minmax(128px,1fr));gap:12px;overflow-x:auto}
+.track{list-style:none;margin:0;padding:0 0 4px;display:grid;grid-template-columns:repeat(7,minmax(132px,1fr));gap:12px;overflow-x:auto}
 .stage{position:relative;min-width:0;--c:var(--lead)}
 .stage[data-stage=building],.stage[data-stage=live]{--c:var(--build)}
 .stage[data-stage=invoiced]{--c:var(--owed)}.stage[data-stage=paid]{--c:var(--paid)}
@@ -167,13 +167,13 @@ h1{font-size:1.44rem}
 .stage.has::before{background:linear-gradient(90deg,var(--c) 0 12px,var(--line) 12px)}
 .node{position:relative;display:block;width:12px;height:12px;border-radius:50%;background:var(--ground);border:2px solid var(--line)}
 .stage.has .node{background:var(--c);border-color:var(--c)}
-.sh{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin:10px 0 10px}
+.sh{display:flex;align-items:baseline;gap:8px;margin:10px 0}
 .sh .name{color:var(--mute);font-size:.875rem}
 .sh .count{font-size:1.44rem;font-weight:600;line-height:1}
 .stage.has .count{color:var(--c)}
 .deals{list-style:none;margin:0;padding:0;display:grid;gap:8px;max-height:24vh;overflow:auto}
 .deal{background:var(--raise);border-radius:8px;padding:8px 10px;min-width:0}
-.deal b{display:block;font-weight:500;font-size:.875rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.deal b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:500;font-size:.875rem;line-height:1.35}
 .deal span{display:block;color:var(--mute);font-size:.8125rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .deal .late{color:var(--alert)}
 .deal.moved{animation:moved 1.8s cubic-bezier(.16,1,.3,1)}
@@ -198,6 +198,7 @@ h1{font-size:1.44rem}
 #feed{list-style:none;margin:0;padding:0;overflow:auto;flex:1;min-height:0}
 #feed li{display:grid;grid-template-columns:4.6rem 6.2rem minmax(0,1fr);gap:10px;padding:10px 0;border-top:1px solid var(--line);align-items:baseline}
 #feed li:first-child{border-top:0}
+#feed li.none{display:block}
 #feed li.fresh{animation:fresh 1.2s cubic-bezier(.16,1,.3,1)}
 @keyframes fresh{from{background:#2dd4bf1f}to{background:transparent}}
 .t{color:var(--dim);font-size:.8125rem}
@@ -213,7 +214,8 @@ h1{font-size:1.44rem}
 .empty a{white-space:nowrap}
 
 /* Side column */
-.side{display:grid;gap:20px;align-content:start;overflow:auto;min-height:0}
+.side{display:grid;gap:20px;align-content:start;overflow:auto;min-height:0;min-width:0}
+.side>.panel{min-height:auto}
 .sessions{list-style:none;margin:0;padding:0}
 .sessions li{padding:10px 0;border-top:1px solid var(--line)}
 .sessions li:first-child{border-top:0;padding-top:0}
@@ -225,7 +227,8 @@ table{width:100%;border-collapse:collapse;font-size:.875rem}
 th{text-align:left;font-weight:500;color:var(--mute);font-size:.8125rem;padding:0 6px 6px 0;border-bottom:1px solid var(--line)}
 td{padding:8px 6px 8px 0;border-bottom:1px solid var(--line)}
 tr:last-child td{border-bottom:0}
-th.n,td.n{text-align:right;padding-right:0}
+td.num{white-space:nowrap}
+th.n,td.n{text-align:right;padding-right:16px}
 .auto{color:var(--build);font-size:.75rem;margin-left:6px}
 .s-paid{color:var(--paid)}.s-overdue{color:var(--alert)}.s-sent,.s-part_paid{color:var(--owed)}.s-draft{color:var(--dim)}
 
@@ -331,7 +334,7 @@ return '<li'+(fresh?' class="fresh"':'')+'><span class="t num">'+new Date(e.ts).
 (e.route?'<span class="tag '+routeClass(e.route)+'">'+esc(e.route)+'</span>':'')+(proj?'<span class="tag">#'+esc(proj.slug)+'</span>':'')+link(e.url,'Open')+'</span></li>'}
 
 function renderFeed(freshTs){const shown=feed.filter(e=>filter==='all'||(KINDS[e.kind]||[,,'note'])[2]===filter);
-$('feed').innerHTML=shown.length?shown.map(e=>feedItem(e,e.ts===freshTs)).join(''):'<li><p class="empty">'+(feed.length?'Nothing in this filter yet.':'Activity from WhatsApp, Gmail and Devin shows up here as it happens.')+'</p></li>'}
+$('feed').innerHTML=shown.length?shown.map(e=>feedItem(e,e.ts===freshTs)).join(''):'<li class="none"><p class="empty">'+(feed.length?'Nothing in this filter yet.':'Activity from WhatsApp, Gmail and Devin shows up here as it happens.')+'</p></li>'}
 
 document.querySelector('.filters').addEventListener('click',ev=>{const b=ev.target.closest('button');if(!b)return;filter=b.dataset.f;
 document.querySelectorAll('.filters button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));renderFeed()});
