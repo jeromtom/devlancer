@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import type { WAMessage } from 'baileys'
-import { db, now, type Chat, type Lead } from './db.js'
+import { db, now, getSetting, setSetting, type Chat, type Lead } from './db.js'
 import { classifyGig, classifyLeadReply, extract, write } from './ai.js'
 import { config } from './config.js'
 import { feed } from './bus.js'
@@ -161,19 +161,38 @@ export async function scanHistory() {
 
 // ---------- Group setup ----------
 
-onCommand('groups', async () => {
+/** /groups [search]: most active groups (last 7 days), or name matches. Numbers refer to this listing. */
+onCommand('groups', async args => {
   await syncGroups()
-  const chats = db.prepare(`select * from chats where jid like '%@g.us' order by name`).all() as Chat[]
+  const q = args.trim()
+  const chats = (
+    q
+      ? db.prepare(`select c.* from chats c where c.jid like '%@g.us' and c.name like ? order by c.name limit 30`).all(`%${q}%`)
+      : db
+          .prepare(
+            `select c.*, count(m.id) as n from chats c left join messages m on m.chat_jid = c.jid and m.ts > ?
+             where c.jid like '%@g.us' group by c.jid order by (c.kind != 'unknown') desc, n desc limit 30`,
+          )
+          .all(now() - 7 * 864e5)
+  ) as Chat[]
+  setSetting('group_list', JSON.stringify(chats.map(c => c.jid)))
   await notify(
-    `*Your groups*\n` +
+    `*${q ? `Groups matching "${q}"` : 'Your 30 most active groups'}*\n` +
       chats.map((c, i) => `${i + 1}. ${c.name} ${c.kind === 'marketplace' ? '🛒' : c.kind === 'client' ? '🤝' : ''}${c.speed_mode ? '⚡' : ''}`).join('\n') +
-      `\n\nReply */m 1,4* to mark marketplaces (where gigs are posted), */c 2* for client groups.`,
+      `\n\nReply */m 1,4* to mark marketplaces (where gigs are posted), */c 2* for client groups. Search with */groups kochi*.`,
   )
 })
 
-function pickGroups(args: string) {
-  const chats = db.prepare(`select * from chats where jid like '%@g.us' order by name`).all() as Chat[]
-  return args.split(/[\s,]+/).map(Number).filter(Boolean).map(n => chats[n - 1]).filter(Boolean)
+export function pickGroups(args: string) {
+  const list = JSON.parse(getSetting('group_list', '[]')) as string[]
+  return args
+    .split(/[\s,]+/)
+    .map(Number)
+    .filter(Boolean)
+    .map(n => list[n - 1])
+    .filter(Boolean)
+    .map(jid => db.prepare(`select * from chats where jid = ?`).get(jid) as Chat)
+    .filter(Boolean)
 }
 
 onCommand('m', async args => {

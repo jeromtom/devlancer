@@ -11,6 +11,7 @@ import { send, sendText, notify, type InMsg } from './wa.js'
 import * as devin from './devin.js'
 import { draftInvoice, draftChangeOrder, acceptPendingChangeOrder, proposePayment } from './billing.js'
 import { getBrowser } from './docs/pdf.js'
+import { pickGroups } from './scout.js'
 
 const GITHUB_OWNER = process.env.GITHUB_OWNER ?? 'jeromtom'
 
@@ -338,9 +339,8 @@ onCommand('autopilot', async args => {
 
 onCommand('link', async args => {
   const [slug, n] = args.split(/\s+/)
-  const groups = db.prepare(`select * from chats where jid like '%@g.us' order by name`).all() as any[]
-  const g = groups[Number(n) - 1]
-  if (!g) return void (await notify('Usage: /link <slug> <group#> (see /groups)'))
+  const [g] = pickGroups(n ?? '')
+  if (!g) return void (await notify('Usage: /link <slug> <group#> (numbers from /groups)'))
   db.prepare(`update projects set chat_jid = ? where slug = ?`).run(g.jid, slug)
   db.prepare(`update chats set kind = 'client' where jid = ?`).run(g.jid)
   await notify(`🔗 #${slug} now lives in ${g.name}`)
