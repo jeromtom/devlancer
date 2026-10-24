@@ -59,15 +59,30 @@ export async function startProject(leadId: number, chatJid: string) {
   }
   if (total > 0) await draftInvoice(project, 'advance', [{ description: `Advance (50%) for ${project.name}`, qty: 1, rate: Math.round(total / 2) }])
   await kickoff(project)
-  // Weekly upkeep on Devin Schedules: dependency updates, broken links, Lighthouse, client-ready summary
+  // Weekly upkeep on Devin Schedules; if the key lacks schedule permission, Devlancer runs it locally
   devin
-    .createSchedule(
-      `Weekly upkeep: ${project.name}`,
-      `Weekly maintenance for client project ${project.name} (repo ${GITHUB_OWNER}/${project.slug}). Update dependencies safely, check for broken links and console errors, run Lighthouse on the deployed site, fix anything small, open a PR if there are changes, and write a 3-line client-friendly summary of the site's health in your structured output summary.`,
-      '0 9 * * 1',
-    )
+    .createSchedule(`Weekly upkeep: ${project.name}`, upkeepPrompt(project), '0 9 * * 1')
     .then(() => feed('devin', `Weekly upkeep scheduled on Devin for ${project.name} (Mondays 9 AM)`, { route: 'Devin Schedule' }))
-    .catch(e => console.error('[devin] schedule failed:', e.message))
+    .catch(e => {
+      console.error('[devin] schedule failed, using local scheduler:', e.message)
+      db.prepare(`update projects set upkeep_local = 1 where id = ?`).run(project.id)
+      feed('devin', `Weekly upkeep for ${project.name} scheduled locally (Mondays 9 AM), runs as a Devin Cloud session`, { route: 'Local schedule' })
+    })
+}
+
+const upkeepPrompt = (project: Project) =>
+  `Weekly maintenance for client project ${project.name} (repo ${project.repo_url || `${GITHUB_OWNER}/${project.slug}`}). Update dependencies safely, check for broken links and console errors, run Lighthouse on the deployed site, fix anything small, open a PR if there are changes, and write a 3-line client-friendly summary of the site's health in your structured output summary.`
+
+/** Local fallback for Devin Schedules: Mondays 9 AM, once per week per project. */
+export async function runLocalUpkeep() {
+  const d = new Date()
+  if (d.getDay() !== 1 || d.getHours() !== 9) return
+  const week = `${d.getFullYear()}-${Math.floor(d.getTime() / 6048e5)}`
+  const due = db.prepare(`select * from projects where upkeep_local = 1 and status = 'active' and coalesce(upkeep_week, '') != ?`).all(week) as Project[]
+  for (const p of due) {
+    db.prepare(`update projects set upkeep_week = ? where id = ?`).run(week, p.id)
+    await startDevinTask(p, 'upkeep', 'Weekly upkeep', upkeepPrompt(p), '')
+  }
 }
 
 async function kickoff(project: Project) {

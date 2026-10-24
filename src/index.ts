@@ -3,7 +3,7 @@ import { connect, notify, selfJid, type InMsg } from './wa.js'
 import { feed } from './bus.js'
 import { handleSelfMessage, onCommand } from './control.js'
 import { scoutMessage, handleLeadDm, scanHistory } from './scout.js'
-import { handleClientMessage, projectsForChat, watchSessions } from './projects.js'
+import { handleClientMessage, projectsForChat, watchSessions, runLocalUpkeep } from './projects.js'
 import { proposePayment, chaseOverdue } from './billing.js'
 import { connectDevin } from './devin.js'
 import { fetchNewMail, gmailReady } from './gmail.js'
@@ -119,6 +119,7 @@ async function main() {
   setInterval(() => void watchSessions().catch(e => console.error('watch', e)), 45_000) // own loop: never blocks messages
   setInterval(() => queue(pollMail), 60_000)
   setInterval(() => queue(chaseOverdue), 6 * 36e5)
+  setInterval(() => void runLocalUpkeep().catch(e => console.error('upkeep', e)), 15 * 60_000)
 }
 
 main()

@@ -48,7 +48,12 @@ create table if not exists settings (key text primary key, value text);
 `)
 
 // Lightweight migrations
-for (const sql of [`alter table tasks add column prompt text`, `alter table tasks add column attempts integer default 0`]) {
+for (const sql of [
+  `alter table tasks add column prompt text`,
+  `alter table tasks add column attempts integer default 0`,
+  `alter table projects add column upkeep_local integer default 0`,
+  `alter table projects add column upkeep_week text`,
+]) {
   try {
     db.exec(sql)
   } catch {}
