@@ -8,6 +8,7 @@ gcloud compute ssh devlancer --project=devlancer-rexin --zone=us-central1-a --ac
   sudo git fetch -q origin main && sudo git reset -q --hard origin/main
   [ "$before" = "$(sudo git rev-parse HEAD:package-lock.json)" ] || sudo npm ci --include=dev --no-audit --no-fund
   sudo systemctl restart devlancer
-  sleep 8; systemctl is-active devlancer devlancer-tunnel; git log --oneline -1
-  curl -fs http://127.0.0.1:4000/healthz || true
+  sudo git log --oneline -1
+  for i in $(seq 1 30); do curl -fs http://127.0.0.1:4000/healthz && break; sleep 3; done
+  echo; systemctl is-active devlancer devlancer-tunnel
 '
