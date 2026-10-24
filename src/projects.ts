@@ -12,7 +12,6 @@ import * as devin from './devin.js'
 import { draftInvoice, draftChangeOrder, acceptPendingChangeOrder, proposePayment } from './billing.js'
 import { getBrowser } from './docs/pdf.js'
 import { pickGroups } from './scout.js'
-import * as shopify from './shopify.js'
 
 const GITHUB_OWNER = process.env.GITHUB_OWNER ?? 'jeromtom'
 
@@ -50,24 +49,16 @@ export async function startProject(leadId: number, chatJid: string) {
     ).run(chatJid, leadId, slug, lead.title, lead.poster_name, lead.poster_jid, spec, now()).lastInsertRowid,
   )
   db.prepare(`update leads set status = 'won' where id = ?`).run(leadId)
-  if (lead.category === 'shopify') {
-    const s = await shopify.classifyShopify(`${lead.summary}\n\n${spec}`)
-    db.prepare(`update projects set platform = 'shopify', shopify_kind = ?, store_new = ?, store_domain = ? where id = ?`)
-      .run(s.kind, s.newStore ? 1 : 0, s.storeDomain, projectId)
-  }
   const project = db.prepare(`select * from projects where id = ?`).get(projectId) as Project
   feed('task', `Project started: ${project.name} (#${slug})`)
   await notify(`🚀 Project *${project.name}* created as #${slug}.`)
 
   if (devin.devinReady()) {
-    const platform = shopify.isShopify(project) ? `\nPlatform: Shopify ${project.shopify_kind}${project.store_domain ? ` on ${project.store_domain}` : ''}` : ''
-    devin.saveKnowledge(`Client project: ${project.name} (${slug})`, `Client: ${project.client_name}\nRepo: ${GITHUB_OWNER}/${slug}${platform}\n\nAgreed spec:\n${spec}`, `When working on the ${slug} repo or the ${project.name} project`)
+    devin.saveKnowledge(`Client project: ${project.name} (${slug})`, `Client: ${project.client_name}\nRepo: ${GITHUB_OWNER}/${slug}\n\nAgreed spec:\n${spec}`, `When working on the ${slug} repo or the ${project.name} project`)
       .catch(e => console.error('knowledge', e))
   }
   if (total > 0) await draftInvoice(project, 'advance', [{ description: `Advance (50%) for ${project.name}`, qty: 1, rate: Math.round(total / 2) }])
-  // Shopify work waits for store access; Devin starts on /shopify ready
-  if (shopify.isShopify(project)) await requestShopifyAccess(project)
-  else await kickoff(project)
+  await kickoff(project)
   // Weekly upkeep on Devin Schedules; if the key lacks schedule permission, Devlancer runs it locally
   devin
     .createSchedule(`Weekly upkeep: ${project.name}`, upkeepPrompt(project), '0 9 * * 1')
@@ -80,7 +71,7 @@ export async function startProject(leadId: number, chatJid: string) {
 }
 
 const upkeepPrompt = (project: Project) =>
-  shopify.isShopify(project) ? shopify.shopifyUpkeepPrompt(project) : `Weekly maintenance for client project ${project.name} (repo ${project.repo_url || `${GITHUB_OWNER}/${project.slug}`}). Update dependencies safely, check for broken links and console errors, run Lighthouse on the deployed site, fix anything small, open a PR if there are changes, and write a 3-line client-friendly summary of the site's health in your structured output summary.`
+  `Weekly maintenance for client project ${project.name} (repo ${project.repo_url || `${GITHUB_OWNER}/${project.slug}`}). Update dependencies safely, check for broken links and console errors, run Lighthouse on the deployed site, fix anything small, open a PR if there are changes, and write a 3-line client-friendly summary of the site's health in your structured output summary.`
 
 /** Local fallback for Devin Schedules: Mondays 9 AM, once per week per project. */
 export async function runLocalUpkeep() {
@@ -117,10 +108,6 @@ async function ensureRepo(project: Project): Promise<string> {
 
 async function kickoff(project: Project) {
   const repoUrl = await ensureRepo(project)
-  if (shopify.isShopify(project)) {
-    await shopify.ensureShopifyPlaybook().catch(e => console.error('playbook', e.message))
-    return void (await startDevinTask(project, 'kickoff', `Build first version (Shopify ${project.shopify_kind})`, shopify.shopifyKickoffPrompt(project, repoUrl), ''))
-  }
   const prompt = [
     `You are the engineer for a freelance client project: "${project.name}".`,
     `Agreed spec:\n${project.spec}`,
@@ -198,7 +185,6 @@ export async function watchSessions() {
       const project = db.prepare(`select * from projects where id = ?`).get(t.project_id) as Project
       if (preview) db.prepare(`update projects set preview_url = ? where id = ?`).run(preview, project.id)
       if (repo) db.prepare(`update projects set repo_url = ? where id = ?`).run(repo, project.id)
-      if (shopify.isShopify(project)) shopify.recordShopifyOutput(project.id, out)
       feed('devin', `Devin finished "${t.request}" for ${project.name}`, { route: 'Devin Cloud', url: preview || pr || t.devin_url })
       await deliver(project, t, preview, pr)
     } catch (e) {
@@ -224,8 +210,7 @@ async function deliver(project: Project, t: Task, preview: string, pr: string) {
   const msg = await write(
     t.kind === 'kickoff'
       ? `Tell the client the first version of ${project.name} is ready to look at, share the link ${preview}, ask for feedback.`
-      : `Tell the client their request "${t.request}" is done and they can check it at ${preview || project.preview_url}.`) +
-      (shopify.isShopify(project) && project.shopify_kind !== 'app' ? ' Mention it is a private preview of their store and nothing is live until they approve.' : ''),
+      : `Tell the client their request "${t.request}" is done and they can check it at ${preview || project.preview_url}.`,
   )
   const shot = preview ? await screenshot(preview) : null
   const payload = { projectId: project.id, text: msg, shot: shot ? shot.toString('base64') : '' }
@@ -308,13 +293,6 @@ async function holding(project: Project, m: InMsg, why: string) {
 async function act(project: Project, m: InMsg, c: Cls) {
   c = { ...c }
   db.prepare(`update messages set project_id = ? where ext_id = ?`).run(project.id, m.id)
-  const domain = shopify.isShopify(project) && !project.store_domain ? shopify.storeDomainIn(m.text) : ''
-  if (domain) {
-    db.prepare(`update projects set store_domain = ? where id = ?`).run(domain, project.id)
-    feed('task', `Store for ${project.name}: ${domain}`)
-    await notify(`🛍️ ${project.client_name || 'Client'} shared their store: *${domain}* (#${project.slug}).`)
-    if (c.intent === 'chatter' || c.intent === 'question') return
-  }
   const scores = `clarity ${c.clarity.toFixed(2)}, verifiable ${c.verifiable.toFixed(2)}, human ${c.humanDependence.toFixed(2)}, in-scope ${c.inScope.toFixed(2)}`
 
   if (c.intent === 'payment_claim') {
@@ -365,17 +343,9 @@ async function route(project: Project, m: InMsg, request: string, c: Cls) {
   const off = presence() === 'offline'
   const scores = `human ${c.humanDependence.toFixed(2)}, verifiable ${c.verifiable.toFixed(2)}, size ok ${c.sizeOk.toFixed(2)}`
 
-  if (shopify.isShopify(project) && !project.access_ready) {
-    db.prepare(`insert into tasks (project_id, source_msg_id, kind, request, in_scope, route, status, created_at) values (?,?,?,?,1,'queued','queued',?)`)
-      .run(project.id, m.id, 'change', request, now())
-    feed('task', `Waiting on store access: "${request.slice(0, 60)}" on ${project.name}`, { route: 'Queued: access' })
-    await holding(project, m, 'saying you will do it as soon as store access is set up')
-    return notify(`⏳ Noted for #${project.slug}, but Devin cannot touch the store until access is set up:\n*${request}*\n\n${shopify.accessChecklist(project)}`)
-  }
-
   if (!high) {
     if (off) await holding(project, m, 'saying you are on it')
-    const prompt = shopify.isShopify(project) ? shopify.shopifyChangePrompt(project, request) : changePrompt(project, request)
+    const prompt = changePrompt(project, request)
     await startDevinTask(project, 'change', request, prompt, m.id, 'cloud')
     if (!off) await notify(`☁️ Devin Cloud is on *${request.slice(0, 80)}* (${project.name}). ${scores}`)
     return
@@ -434,80 +404,6 @@ function launchCli(project: Project, briefPath: string, brief: string) {
   const script = `tell application "Terminal" to do script "${cd.replace(/"/g, '\\"')}echo 'Brief: ${briefPath}' && (command -v devin >/dev/null && devin || cat ${JSON.stringify(briefPath).replace(/"/g, '\\"')})"`
   execFile('osascript', ['-e', script, '-e', 'tell application "Terminal" to activate'], err => err && console.error('cli launch', err.message))
 }
-
-// ---------- Shopify access ----------
-
-async function requestShopifyAccess(project: shopify.ShopifyProject) {
-  const missing = shopify.missingAccess(project)
-  feed('task', `Shopify ${project.shopify_kind} for ${project.name}: waiting on store access`, { route: 'Queued: access' })
-  await notify(`${shopify.accessChecklist(project)}${missing.length ? `\n\n_Still missing: ${missing.join(', ')}_` : ''}`)
-  const msg = await shopify.accessRequest(project)
-  if (msg) {
-    await ask('send_text', { jid: project.chat_jid, text: msg },
-      `🔑 Access request for ${project.name}\n\n*Draft to client:*\n${msg}`,
-      [{ key: '1', label: 'send' }, { key: '2', label: 'edit' }, { key: '0', label: 'skip' }])
-  }
-}
-
-const shopifyProject = (slug: string) => {
-  const p = db.prepare(`select * from projects where slug = ?`).get(slug) as Project | undefined
-  return p && shopify.isShopify(p) ? p : undefined
-}
-
-const SHOPIFY_USAGE = [
-  '/shopify  list Shopify projects',
-  '/shopify <slug>  access checklist',
-  '/shopify store <slug> <store>.myshopify.com',
-  '/shopify app <slug> <client_id>',
-  '/shopify kind <slug> theme|store_setup|app [new]',
-  '/shopify ready <slug>  secrets added, start Devin',
-].join('\n')
-
-onCommand('shopify', async args => {
-  const [sub, slug, value, extra] = args.split(/\s+/).filter(Boolean)
-  if (!sub) {
-    const rows = (db.prepare(`select * from projects where platform = 'shopify' order by id desc`).all() as Project[]).filter(shopify.isShopify)
-    return void (await notify(rows.length
-      ? rows.map(p => `#${p.slug}  ${p.shopify_kind}${p.store_new ? ' (new store)' : ''}  ${p.store_domain || 'no store yet'}  ${p.access_ready ? '✅ ready' : '🔑 waiting on access'}`).join('\n')
-      : `No Shopify projects yet.\n\n${SHOPIFY_USAGE}`))
-  }
-  const target = shopifyProject(['store', 'app', 'kind', 'ready'].includes(sub) ? slug ?? '' : sub)
-  if (!target) return void (await notify(`No Shopify project with that slug.\n\n${SHOPIFY_USAGE}`))
-  const p = target
-
-  if (sub === 'store') {
-    const domain = shopify.storeDomainIn(value ?? '')
-    if (!domain) return void (await notify('Usage: /shopify store <slug> <store>.myshopify.com'))
-    db.prepare(`update projects set store_domain = ? where id = ?`).run(domain, p.id)
-    return void (await notify(`🛍️ #${p.slug} store set to ${domain}.`))
-  }
-  if (sub === 'app') {
-    if (!value) return void (await notify('Usage: /shopify app <slug> <client_id>'))
-    db.prepare(`update projects set app_client_id = ? where id = ?`).run(value, p.id)
-    return void (await notify(`🧩 #${p.slug} app client ID saved.`))
-  }
-  if (sub === 'kind') {
-    if (!['theme', 'store_setup', 'app'].includes(value ?? '')) return void (await notify('Usage: /shopify kind <slug> theme|store_setup|app [new]'))
-    db.prepare(`update projects set shopify_kind = ?, store_new = ? where id = ?`).run(value, extra === 'new' ? 1 : 0, p.id)
-    return requestShopifyAccess(shopifyProject(p.slug)!)
-  }
-  if (sub === 'ready') {
-    const missing = shopify.missingAccess(p)
-    if (missing.length) return void (await notify(`Not yet, still missing: ${missing.join(', ')}.\n\n${shopify.accessChecklist(p)}`))
-    db.prepare(`update projects set access_ready = 1 where id = ?`).run(p.id)
-    feed('task', `Store access ready for ${p.name}`)
-    const ready = shopifyProject(p.slug)!
-    await kickoff(ready)
-    // Requests that arrived while waiting on access go to Devin now
-    const waiting = db.prepare(`select * from tasks where project_id = ? and route = 'queued' and status = 'queued' and prompt is null`).all(p.id) as Task[]
-    for (const t of waiting) {
-      db.prepare(`update tasks set route = 'cloud', prompt = ? where id = ?`).run(shopify.shopifyChangePrompt(ready, t.request), t.id)
-      await launchQueued(t.id)
-    }
-    return void (await notify(`✅ #${p.slug} is ready. Devin is building${waiting.length ? `, plus ${waiting.length} waiting request(s)` : ''}.`))
-  }
-  await notify(`${shopify.accessChecklist(p)}${p.access_ready ? '\n\n✅ Access is marked ready.' : ''}`)
-})
 
 // ---------- Commands ----------
 
