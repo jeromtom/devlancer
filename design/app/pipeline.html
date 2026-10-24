@@ -1,0 +1,185 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pipeline | Devlancer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+.flow{margin-bottom:20px}
+.flow-bar{display:flex;gap:3px;height:10px}
+.flow-bar i{display:block;border-radius:3px}
+.flow-legend{display:flex;flex-wrap:wrap;gap:6px 28px;margin-top:10px;font-size:var(--text-sm);color:var(--ink-2)}
+.flow-legend div{display:flex;align-items:baseline;gap:8px}
+.flow-legend div::before{content:"";width:9px;height:10px;align-self:center;background:var(--c);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.flow-legend b{font:600 var(--text-lg)/1 var(--font-display);color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.toolbar .meta{margin-left:auto}
+
+.board{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(212px,1fr);gap:12px;overflow-x:auto;padding-bottom:12px;align-items:start;scroll-snap-type:x proximity}
+.col{display:grid;gap:8px;scroll-snap-align:start;min-width:0}
+.col-head{padding:10px 4px 8px;border-top:3px solid var(--c);display:grid;gap:2px}
+.col-head .nm{display:flex;align-items:center;gap:7px;font-weight:600}
+.col-head .nm .badge{margin-left:auto}
+.col-head .val{font:700 var(--text-xl)/1.2 var(--font-display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.col-head .val small{font:400 var(--text-sm) var(--font-ui);color:var(--ink-3);letter-spacing:0;margin-left:4px}
+.col-head .stuck{font-size:var(--text-sm);color:var(--coral-ink);font-weight:500}
+.col-head .calm{font-size:var(--text-sm);color:var(--ink-3)}
+.c-blue{--c:var(--hex-blue)}.c-cyan{--c:var(--hex-cyan)}.c-amber{--c:var(--amber)}.c-green{--c:var(--hex-green)}
+
+.card{display:grid;gap:8px;padding:12px 13px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:inherit;text-decoration:none!important;box-shadow:var(--shadow-panel)}
+.card:hover{border-color:var(--line-strong)}
+.card.is-stuck{border-color:#e0524c59;box-shadow:inset 3px 0 0 var(--coral)}
+.card.is-slow{box-shadow:inset 3px 0 0 var(--amber)}
+.card .top{display:flex;gap:8px;align-items:baseline}
+.card .top b{font-weight:500;line-height:1.3}
+.card .top .amt{margin-left:auto;font-weight:500;font-variant-numeric:tabular-nums;white-space:nowrap}
+.card .who{font-size:var(--text-sm);color:var(--ink-3)}
+.card .why{font-size:var(--text-sm);color:var(--coral-ink);line-height:1.4}
+.card .why.amber{color:var(--amber-ink)}
+.card .info{font-size:var(--text-sm);color:var(--ink-2);line-height:1.4}
+.card .bar{height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.card .bar i{display:block;height:100%;background:var(--hex-cyan)}
+.next{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;padding-top:8px;border-top:1px dashed var(--line);font-size:var(--text-sm)}
+.next span:last-child{color:var(--ink);line-height:1.35}
+.move{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:5px;font-size:var(--text-xs);font-weight:600;white-space:nowrap;background:var(--sunken);color:var(--ink-2)}
+.move.you{background:var(--amber-wash);color:var(--amber-ink)}
+.move.devin{background:var(--hex-cyan-wash);color:var(--hex-cyan-ink)}
+.move.client{background:var(--sunken);color:var(--ink-2)}
+.col-foot{font-size:var(--text-sm);color:var(--ink-3);padding:2px 4px}
+.toolbar .seg{max-width:100%;overflow-x:auto;scrollbar-width:none}.seg button{white-space:nowrap}
+.board-hint{font-size:var(--text-xs);color:var(--ink-3)}
+@media (max-width:820px){.flow-legend{gap:6px 18px}.toolbar .meta{margin-left:0}.board{grid-auto-columns:82%}}
+</style>
+</head>
+<body data-page="pipeline">
+<div class="app"><main class="main"><div class="page wide">
+
+<header class="page-head">
+  <div>
+    <h1>Pipeline</h1>
+    <p class="sub">Every deal from the moment a gig is spotted to the day it is paid. <b style="color:var(--coral-ink);font-weight:600">₹82,000 is stuck</b>: Joseph's proposal expires on Wednesday and Fathima's invoice is 6 days overdue.</p>
+  </div>
+  <div class="actions"><a class="btn" href="gigs.html"><svg class="i sm"><use href="#i-gigs"/></svg>All gigs</a><a class="btn primary" href="proposal.html"><svg class="i sm"><use href="#i-plus"/></svg>New proposal</a></div>
+</header>
+
+<section class="flow" aria-label="Value by stage">
+  <div class="flow-bar" role="img" aria-label="₹3,05,000 across the pipeline">
+    <i style="flex:142;background:var(--hex-blue)"></i><i style="flex:84;background:var(--hex-cyan)"></i><i style="flex:44;background:var(--amber)"></i><i style="flex:35;background:var(--hex-green)"></i>
+  </div>
+  <div class="flow-legend">
+    <div style="--c:var(--hex-blue)"><b>₹1,42,000</b>still to win, 5 deals</div>
+    <div style="--c:var(--hex-cyan)"><b>₹84,000</b>being built, 2 projects</div>
+    <div style="--c:var(--amber)"><b>₹44,000</b>invoiced, ₹22,000 owed</div>
+    <div style="--c:var(--hex-green)"><b>₹35,000</b>paid in full</div>
+  </div>
+</section>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Whose move">
+    <button aria-pressed="true">All <span class="n">9</span></button>
+    <button aria-pressed="false">Your move <span class="n">5</span></button>
+    <button aria-pressed="false">Waiting on client <span class="n">2</span></button>
+    <button aria-pressed="false">Devin's move <span class="n">2</span></button>
+    <button aria-pressed="false">Stuck <span class="n">2</span></button>
+  </div>
+  <span class="meta">Scroll sideways for Invoiced and Paid</span>
+</div>
+
+<div class="board">
+  <!-- Gig spotted -->
+  <section class="col c-blue">
+    <header class="col-head"><span class="nm">Gig spotted<span class="badge">3</span></span><span class="val">₹52,000</span><span class="calm">First reply often wins</span></header>
+    <a class="card" href="gigs.html">
+      <div class="top"><b>Pharmacy order bot</b><span class="amt">₹25,000</span></div>
+      <span class="who">Rahul, MedPlus Edappally, 2 h</span>
+      <span class="fit hi"><i style="--v:86%"></i>0.86</span>
+      <div class="next"><span class="move you">You</span><span>Approve the pitch, 2 others already replied</span></div>
+    </a>
+    <a class="card" href="gigs.html">
+      <div class="top"><b>Wedding photographer portfolio</b><span class="amt">₹12,000</span></div>
+      <span class="who">Nikhil, 13 h</span>
+      <span class="fit"><i style="--v:71%"></i>0.71</span>
+      <div class="next"><span class="move you">You</span><span>Pitch or skip</span></div>
+    </a>
+    <a class="card" href="gigs.html">
+      <div class="top"><b>Bakery landing page</b><span class="amt">₹15,000</span></div>
+      <span class="who">Anu, Anu's Bakes, 16 h</span>
+      <span class="fit"><i style="--v:68%"></i>0.68</span>
+      <div class="next"><span class="move you">You</span><span>Pitch or skip</span></div>
+    </a>
+  </section>
+
+  <!-- Pitched -->
+  <section class="col c-blue">
+    <header class="col-head"><span class="nm">Pitched<span class="badge">1</span></span><span class="val">₹30,000</span><span class="calm">Nothing stuck</span></header>
+    <a class="card is-slow" href="gigs.html">
+      <div class="top"><b>Clinic appointment booking</b><span class="amt">₹30,000</span></div>
+      <span class="who">Dr Meera, Meera's Dental Care</span>
+      <span class="why amber">Seen Thu 23 Oct, no reply in 2 days</span>
+      <div class="next"><span class="move client">Client</span><span>Follow-up drafted for Mon 10:00 am</span></div>
+    </a>
+  </section>
+
+  <!-- Proposal sent -->
+  <section class="col c-blue">
+    <header class="col-head"><span class="nm">Proposal sent<span class="badge">1</span></span><span class="val">₹60,000</span><span class="stuck">1 expiring Wed</span></header>
+    <a class="card is-stuck" href="proposal.html">
+      <div class="top"><b>Inventory dashboard</b><span class="amt">₹60,000</span></div>
+      <span class="who">Joseph, Malabar Spice Exports</span>
+      <span class="info">PR-2026-005 sent Wed 22 Oct, opened twice</span>
+      <span class="why">Expires Wed 29 Oct. No reply in 3 days since "will discuss with my brother and revert".</span>
+      <div class="next"><span class="move client">Client</span><span>Nudge or extend validity to 5 Nov</span></div>
+    </a>
+  </section>
+
+  <!-- Building -->
+  <section class="col c-cyan">
+    <header class="col-head"><span class="nm">Building<span class="badge">1</span></span><span class="val">₹48,000<small>₹16,000 billed</small></span><span class="calm">Milestone 2 due Mon</span></header>
+    <a class="card" href="project.html">
+      <div class="top"><b>Homestay booking site</b><span class="amt">₹48,000</span></div>
+      <span class="who">Thomas K J, Thekkady Hills Homestay</span>
+      <span class="info">Gallery with 12 room photos, Devin Cloud, 38 min</span>
+      <div class="bar"><i style="width:70%"></i></div>
+      <div class="next"><span class="move devin">Devin</span><span>PR and preview expected by 9:00 am</span></div>
+    </a>
+  </section>
+
+  <!-- Preview live -->
+  <section class="col c-cyan">
+    <header class="col-head"><span class="nm">Preview live<span class="badge">1</span></span><span class="val">₹36,000<small>+₹10,000 pending</small></span><span class="calm">Autopilot on</span></header>
+    <a class="card" href="project.html">
+      <div class="top"><b>Tuition centre app</b><span class="amt">₹36,000</span></div>
+      <span class="who">Lakshmi R, Tuition Centre Kakkanad</span>
+      <span class="info">Malayalam toggle shipped 2:14 am. INV-2026-003 ₹12,000 due 30 Oct.</span>
+      <div class="next"><span class="move you">You</span><span>Approve change order CO-2026-003, ₹10,000</span></div>
+    </a>
+  </section>
+
+  <!-- Invoiced -->
+  <section class="col c-amber">
+    <header class="col-head"><span class="nm">Invoiced<span class="badge">1</span></span><span class="val">₹44,000<small>₹22,000 owed</small></span><span class="stuck">1 overdue 6 days</span></header>
+    <a class="card is-stuck" href="invoice.html">
+      <div class="top"><b>Boutique catalogue</b><span class="amt">₹44,000</span></div>
+      <span class="who">Fathima S, Fab by Fathima</span>
+      <span class="why">INV-2026-004 ₹22,000 was due 19 Oct. First reminder on 22 Oct went unanswered.</span>
+      <div class="next"><span class="move you">You</span><span>Approve the second reminder, goes Mon 10:00 am</span></div>
+    </a>
+  </section>
+
+  <!-- Paid -->
+  <section class="col c-green">
+    <header class="col-head"><span class="nm">Paid<span class="badge">1</span></span><span class="val" style="color:var(--hex-green-ink)">₹35,000</span><span class="calm">Paid in October</span></header>
+    <a class="card" href="project.html">
+      <div class="top"><b>Restaurant menu site</b><span class="amt">₹35,000</span></div>
+      <span class="who">Arjun Menon, Malabar Kitchen</span>
+      <span class="info">INV-2026-001 paid 14 Oct via UPI, on time</span>
+      <div class="next"><span class="move devin">Devin</span><span>Weekly upkeep, Fri 31 Oct</span></div>
+    </a>
+    <p class="col-foot">Skipped gigs stay on <a href="gigs.html">Gigs</a>, not here</p>
+  </section>
+</div>
+
+</div></main></div>
+<script src="shell.js"></script>
+</body>
+</html>

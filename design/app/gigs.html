@@ -1,0 +1,215 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Gigs | Devlancer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+.gig-layout{display:grid;grid-template-columns:minmax(0,1fr) 410px;gap:24px;align-items:start}
+.gig-tbl td{padding:10px 10px}
+.gig-tbl th{padding:9px 10px}
+.gig-tbl tbody tr{cursor:pointer}
+.gig-tbl tr.sel td:first-child{box-shadow:inset 3px 0 0 var(--hex-blue)}
+.gig-tbl .t{font-weight:500;display:block;max-width:24ch;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gig-tbl tr.skipped td{color:var(--ink-3)}
+.gig-tbl tr.skipped .t{font-weight:400}
+.grp{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;font-size:var(--text-sm);color:var(--ink-2)}
+.grp .i{color:var(--amber)}
+.toolbar .meta{margin-left:auto}
+
+.gd{border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface);position:relative}
+.gd-head{padding:16px 18px 14px;border-bottom:1px solid var(--line)}
+.gd-top{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font-size:var(--text-sm);color:var(--ink-3)}
+.gd-top .btn{margin-left:auto}
+.gd h2{font:700 21px/1.2 var(--font-display);letter-spacing:-.02em;margin:8px 0 4px}
+.gd-sec{padding:16px 18px;border-bottom:1px solid var(--line)}
+.label-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:var(--text-sm);font-weight:500;color:var(--ink-2)}
+.label-row .meta{margin-left:auto;font-weight:400}
+.gd .thread{padding:12px}
+.gd .msg{max-width:92%}
+.react{display:inline-flex;align-items:center;gap:4px;margin:-4px 0 0 10px;padding:1px 7px;border-radius:99px;background:var(--surface);box-shadow:0 1px 2px #1720361f;font-size:var(--text-xs);color:var(--ink-2);justify-self:start}
+.race{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;margin-top:12px;font-size:var(--text-sm)}
+.race time{color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.race .you{color:var(--hex-blue-ink);font-weight:500}
+.gd .dl{grid-template-columns:96px 1fr;gap:8px 12px;font-size:var(--text-sm)}
+.gd .dl dd q{color:var(--ink-3)}
+.gd .dl dd q::before{content:"\201C"}.gd .dl dd q::after{content:"\201D"}
+.match{display:grid;gap:7px;font-size:var(--text-sm)}
+.match li{display:grid;grid-template-columns:16px 1fr;gap:8px}
+.match li::before{content:"✓";color:var(--hex-green-ink);font-weight:600}
+.match li.x::before{content:"?";color:var(--amber-ink)}
+.match small{display:block;color:var(--ink-3);font-size:var(--text-xs)}
+.attach{display:flex;align-items:center;gap:8px}
+.voice{display:flex;align-items:center;gap:6px;font-size:var(--text-xs);color:var(--ink-3);margin-top:8px}
+.gd-sub{display:flex;align-items:center;gap:4px;margin-top:8px}.gd-sub .meta{margin-right:auto}
+.keys{margin-top:6px;font-size:var(--text-xs)}
+.gd-acts{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:14px}
+.gd .note .i{flex:none;margin-top:1px}
+@media (max-width:1180px){.gig-layout{grid-template-columns:minmax(0,1fr)}}
+.toolbar .seg{max-width:100%;overflow-x:auto;scrollbar-width:none}.seg button{white-space:nowrap}
+.gig-tbl .sub{white-space:nowrap}
+.gig-tbl td:first-child .sub{max-width:24ch;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:820px){.search{min-width:0;flex:1}.toolbar .meta{margin-left:0}}
+</style>
+</head>
+<body data-page="gigs">
+<div class="app"><main class="main"><div class="page wide">
+
+<header class="page-head">
+  <div>
+    <h1>Gigs</h1>
+    <p class="sub">Every gig Devlancer spotted in your marketplace groups. Pitches always go privately to the poster, never into the group. One pitch is waiting for you, and Joseph's proposal expires on Wednesday.</p>
+  </div>
+  <div class="actions"><button class="btn"><svg class="i sm"><use href="#i-upkeep"/></svg>Rescan groups</button></div>
+</header>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filter gigs">
+    <button aria-pressed="true">All <span class="n">8</span></button>
+    <button aria-pressed="false">Needs you <span class="n">1</span></button>
+    <button aria-pressed="false">New <span class="n">2</span></button>
+    <button aria-pressed="false">Waiting on poster <span class="n">2</span></button>
+    <button aria-pressed="false">Won <span class="n">2</span></button>
+    <button aria-pressed="false">Skipped <span class="n">1</span></button>
+  </div>
+  <label class="search"><svg class="i sm"><use href="#i-search"/></svg><input placeholder="Search gigs, posters, budgets" aria-label="Search gigs"></label>
+  <select class="select" style="width:auto;height:34px" aria-label="Group"><option>All 3 groups</option><option>Kochi Freelancers</option><option>Kochi Business Network</option><option>Kerala Startups Hub</option></select>
+  <span class="meta">Ignoring Ernakulam Traders Circle</span>
+</div>
+
+<div class="gig-layout">
+<div class="tbl-wrap">
+<table class="tbl gig-tbl">
+  <thead><tr><th>Gig</th><th>Spotted</th><th class="r">Budget</th><th>Fit</th><th>Status</th></tr></thead>
+  <tbody>
+    <tr class="group"><td colspan="5">This week</td></tr>
+    <tr class="sel">
+      <td><span class="t">WhatsApp order bot for a pharmacy</span><span class="sub">Rahul, MedPlus Edappally</span></td>
+      <td><span class="grp" title="Speed mode on"><svg class="i sm"><use href="#i-bolt"/></svg>Kochi Freelancers</span><span class="sub">2 h ago</span></td>
+      <td class="r num">₹25,000</td>
+      <td><span class="fit hi"><i style="--v:86%"></i>0.86</span></td>
+      <td><span class="st amber">Pitch waiting</span><span class="sub">Since 6:02 am</span></td>
+    </tr>
+    <tr>
+      <td><span class="t">Inventory dashboard for a spice exporter</span><span class="sub">Joseph, Malabar Spice Exports</span></td>
+      <td><span class="grp">Kochi Business Network</span><span class="sub">5 d ago</span></td>
+      <td class="r num">₹60,000</td>
+      <td><span class="fit hi"><i style="--v:83%"></i>0.83</span></td>
+      <td><span class="st blue">Proposal sent</span><span class="sub" style="color:var(--coral-ink)">Expires Wed 29 Oct</span></td>
+    </tr>
+    <tr>
+      <td><span class="t">Clinic appointment booking site</span><span class="sub">Dr Meera, Meera's Dental Care</span></td>
+      <td><span class="grp">Kochi Business Network</span><span class="sub">4 d ago</span></td>
+      <td class="r num">₹30,000</td>
+      <td><span class="fit"><i style="--v:79%"></i>0.79</span></td>
+      <td><span class="st blue">Pitched</span><span class="sub">Seen Thu, no reply</span></td>
+    </tr>
+    <tr>
+      <td><span class="t">Wedding photographer portfolio</span><span class="sub">Nikhil, wedding photographer</span></td>
+      <td><span class="grp">Kerala Startups Hub</span><span class="sub">13 h ago</span></td>
+      <td class="r num">₹12,000</td>
+      <td><span class="fit"><i style="--v:71%"></i>0.71</span></td>
+      <td><span class="st blue hollow">New</span><span class="sub">Not pitched</span></td>
+    </tr>
+    <tr>
+      <td><span class="t">Bakery landing page</span><span class="sub">Anu, Anu's Bakes</span></td>
+      <td><span class="grp">Kochi Business Network</span><span class="sub">16 h ago</span></td>
+      <td class="r num">₹15,000</td>
+      <td><span class="fit"><i style="--v:68%"></i>0.68</span></td>
+      <td><span class="st blue hollow">New</span><span class="sub">Not pitched</span></td>
+    </tr>
+    <tr class="skipped">
+      <td><span class="t">Event ticketing site</span><span class="sub">Sana, event organiser</span></td>
+      <td><span class="grp"><svg class="i sm"><use href="#i-bolt"/></svg>Kochi Freelancers</span><span class="sub">3 d ago</span></td>
+      <td class="r num">₹40,000</td>
+      <td><span class="fit lo"><i style="--v:52%"></i>0.52</span></td>
+      <td><span class="st">Skipped</span><span class="sub">Payments licence</span></td>
+    </tr>
+    <tr class="group"><td colspan="5">Won this month</td></tr>
+    <tr>
+      <td><span class="t">Tuition centre app</span><span class="sub">Lakshmi R, Tuition Centre Kakkanad</span></td>
+      <td><span class="grp"><svg class="i sm"><use href="#i-bolt"/></svg>Kochi Freelancers</span><span class="sub">3 wk ago</span></td>
+      <td class="r num">₹36,000</td>
+      <td><span class="fit hi"><i style="--v:88%"></i>0.88</span></td>
+      <td><span class="st green">Won 12 Oct</span><span class="sub"><a href="project.html">Open project</a></span></td>
+    </tr>
+    <tr>
+      <td><span class="t">Homestay booking site</span><span class="sub">Thomas K J, Thekkady Hills Homestay</span></td>
+      <td><span class="grp">Kochi Business Network</span><span class="sub">4 wk ago</span></td>
+      <td class="r num">₹48,000</td>
+      <td><span class="fit hi"><i style="--v:81%"></i>0.81</span></td>
+      <td><span class="st green">Won 6 Oct</span><span class="sub"><a href="project.html">Open project</a></span></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<article class="gd" aria-label="Selected gig">
+  <div class="gd-head">
+    <div class="gd-top"><span class="st amber">Pitch waiting for you</span><span class="nowrap">Kochi Freelancers, 6:02 am</span><button class="btn ghost sm" title="Open the post in WhatsApp" aria-label="Open the post in WhatsApp"><svg class="i sm"><use href="#i-chat"/></svg></button></div>
+    <h2>WhatsApp order bot for a pharmacy</h2>
+    <p class="ink2 small">Rahul, MedPlus Edappally. ₹25,000, needed by Sun 15 Nov.</p>
+    <div class="gd-acts">
+      <button class="btn blue"><svg class="i sm"><use href="#i-send"/></svg>Send pitch <kbd>1</kbd></button>
+      <button class="btn"><svg class="i sm"><use href="#i-file"/></svg>Send pitch with proposal</button>
+    </div>
+    <div class="gd-sub"><span class="meta">Also posts "Check DM 🙂" in the group</span>
+      <button class="btn ghost sm"><svg class="i sm"><use href="#i-edit"/></svg>Edit</button><button class="btn ghost sm"><svg class="i sm"><use href="#i-skip"/></svg>Skip</button></div>
+    <p class="meta keys"><kbd>1</kbd> send, <kbd>3</kbd> with proposal, <kbd>2</kbd> edit, <kbd>0</kbd> skip</p>
+  </div>
+
+  <section class="gd-sec">
+    <div class="label-row">In the group<span class="meta">412 members</span></div>
+    <div class="thread">
+      <span class="day">Today</span>
+      <div class="msg"><span class="from">Rahul MedPlus</span>Hi all, need a WhatsApp bot for our pharmacy in Edappally. Customers should send order or prescription photo, bot confirms and tells total. Delivery within 3 km only. Budget around 25k, need before Nov 15th. Anyone done this before? 🙏<span class="time">6:02 am</span></div>
+      <span class="react">👍 1</span>
+      <div class="msg"><span class="from" style="color:var(--hex-cyan-ink)">Shibu Varghese</span>Interested bro, DM'd you<span class="time">7:14 am</span></div>
+      <div class="msg"><span class="from" style="color:var(--amber-ink)">Anjali, WebNest</span>Check inbox 🙏<span class="time">7:40 am</span></div>
+    </div>
+    <div class="race">
+      <time>6:02 am</time><span class="you">You reacted 👍, 40 seconds after the post</span>
+      <time>7:14 am</time><span>Shibu replied and DM'd him</span>
+      <time>7:40 am</time><span>Anjali replied and DM'd him</span>
+      <time>Next</time><span>"Check DM 🙂" goes into the group with your pitch</span>
+    </div>
+    <p class="note amber" style="margin-top:12px"><svg class="i sm"><use href="#i-bolt"/></svg><span><b>Speed mode is on for Kochi Freelancers</b>, so the 👍 went out straight away. It held the pitch for two reasons: it was 6:02 am, when only the 👍 goes out, and Rahul mentions prescription photos, which Laya flags for you to read first. <a href="groups.html">Speed mode settings</a></span></p>
+  </section>
+
+  <section class="gd-sec">
+    <div class="label-row">What Devlancer read</div>
+    <dl class="dl">
+      <dt>Budget</dt><dd>₹25,000 <q>around 25k</q></dd>
+      <dt>Deadline</dt><dd>Sun 15 Nov, 3 weeks <q>before Nov 15th</q></dd>
+      <dt>Scope hints</dt><dd>Order by chat or prescription photo, pharmacist confirms the total, delivery within 3 km</dd>
+      <dt>Not said</dt><dd>Payment online or cash on delivery; whether stock comes from their billing software</dd>
+    </dl>
+  </section>
+
+  <section class="gd-sec">
+    <div class="label-row">Why it fits you<span class="fit hi" style="margin-left:auto"><i style="--v:86%"></i>0.86</span></div>
+    <ul class="match">
+      <li><span>WhatsApp bots<small>Fee reminders for Tuition Centre Kakkanad, live since October</small></span></li>
+      <li><span>Supabase<small>Orders table and private storage for prescription photos</small></span></li>
+      <li><span>Dashboards<small>A simple screen for the pharmacist to confirm totals</small></span></li>
+      <li class="x"><span>Billing software sync<small>Not in your past work. The pitch asks rather than promises.</small></span></li>
+    </ul>
+  </section>
+
+  <section class="gd-sec" style="border-bottom:0">
+    <div class="label-row">Private pitch to Rahul<span class="meta">Reply privately, quotes his post</span></div>
+    <div class="thread">
+      <div class="msg out draft"><span class="from">Draft</span><div class="quote"><b>Rahul MedPlus, Kochi Freelancers</b>need a WhatsApp bot for our pharmacy in Edappally…</div>Hi Rahul, Jerom here from Kochi Freelancers 🙂 I build WhatsApp bots and order flows for local businesses. Recently did fee reminders on WhatsApp for a tuition centre in Kakkanad.<br><br>For MedPlus: customer sends the order or prescription photo, your pharmacist confirms the total from a small dashboard, customer gets a payment link and delivery time. Very doable before 15 Nov within your budget.<br><br>Do you use any billing software for stock? Happy to come by the shop and see also.<span class="time">Sends when you approve</span></div>
+      <div class="msg out draft"><span class="from">Past work</span><span class="attach"><svg class="i sm"><use href="#i-link"/></svg>malabarkitchen.in, menu with WhatsApp ordering</span></div>
+    </div>
+    <p class="voice"><svg class="i sm"><use href="#i-chat"/></svg>In your voice: short paragraphs, one emoji, Indian English</p>
+  </section>
+
+</article>
+</div>
+
+</div></main></div>
+<script src="shell.js"></script>
+</body>
+</html>

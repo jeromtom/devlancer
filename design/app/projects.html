@@ -1,0 +1,121 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Projects | Devlancer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+.toolbar .seg{max-width:100%;overflow-x:auto;scrollbar-width:none}.seg button{white-space:nowrap}
+.proj-tbl{min-width:1040px}
+.proj-tbl tbody tr{cursor:pointer}
+.proj-tbl .pname{font-weight:600;color:var(--ink)}
+.proj-tbl tr:hover .pname{color:var(--hex-blue-ink);text-decoration:underline;text-underline-offset:3px}
+.proj-tbl td{vertical-align:top}
+.proj-tbl .sub a{font-weight:500}
+.money{display:grid;gap:5px;min-width:160px}
+.money .meter{height:7px;background:var(--line)}
+.money .meter i+i{margin-left:2px}
+.money .nums{display:flex;justify-content:space-between;gap:10px;font-size:var(--text-sm);font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.money .nums b{font-weight:500;color:var(--hex-green-ink)}
+.money .flag{font-size:var(--text-xs);font-weight:500}
+.reqs{display:grid;gap:3px;font-size:var(--text-sm)}
+.reqs .st{font-size:var(--text-sm)}
+.auto{display:inline-flex;align-items:center;gap:8px;font-size:var(--text-sm);color:var(--ink-2)}
+.act time{display:block;font-size:var(--text-sm);color:var(--ink-3)}
+.act{min-width:150px}.act span{display:block;font-size:var(--text-sm)}
+.prev{display:inline-flex;align-items:center;gap:6px;font-size:var(--text-sm);white-space:nowrap;margin-top:6px}
+.mlegend{display:flex;gap:16px;flex-wrap:wrap;font-size:var(--text-xs);color:var(--ink-3)}
+.mlegend span::before{content:"";display:inline-block;width:10px;height:6px;border-radius:2px;background:var(--c);margin-right:6px;vertical-align:1px}
+.toolbar .mlegend{margin-left:auto}
+.proj-tbl td:first-child,.proj-tbl td:nth-child(2){white-space:nowrap}
+.proj-tbl td:nth-child(3) .sub{font-size:var(--text-xs)}
+.proj-tbl td,.proj-tbl th{padding-left:12px;padding-right:12px}
+@media (max-width:820px){.toolbar .mlegend{margin-left:0}.search{min-width:0;flex:1}}
+</style>
+</head>
+<body data-page="projects">
+<div class="app"><main class="main"><div class="page wide">
+
+<header class="page-head">
+  <div>
+    <h1>Projects</h1>
+    <p class="sub">4 projects worth ₹1,63,000. Devin is working on 2 of them right now, and 3 need something from you before the next message goes out.</p>
+  </div>
+  <div class="actions"><a class="btn" href="pipeline.html"><svg class="i sm"><use href="#i-pipeline"/></svg>Pipeline</a><a class="btn primary" href="project.html"><svg class="i sm"><use href="#i-plus"/></svg>New project</a></div>
+</header>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filter projects">
+    <button aria-pressed="true">All <span class="n">4</span></button>
+    <button aria-pressed="false">Needs you <span class="n">3</span></button>
+    <button aria-pressed="false">Devin working <span class="n">2</span></button>
+    <button aria-pressed="false">Money owed <span class="n">3</span></button>
+    <button aria-pressed="false">Paid and on upkeep <span class="n">1</span></button>
+  </div>
+  <label class="search"><svg class="i sm"><use href="#i-search"/></svg><input placeholder="Search projects or clients" aria-label="Search projects"></label>
+  <div class="mlegend"><span style="--c:var(--hex-green)">Paid</span><span style="--c:var(--amber)">Billed, not yet paid</span><span style="--c:var(--coral)">Overdue</span><span style="--c:var(--line-strong)">Not billed yet</span></div>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl proj-tbl">
+  <thead><tr><th>Project</th><th>Stage</th><th class="r">Value</th><th>Billed and paid</th><th>Open requests</th><th>Autopilot</th><th>Last activity</th></tr></thead>
+  <tbody>
+    <tr onclick="location.href='project.html'">
+      <td><a class="pname" href="project.html">Homestay booking site</a><span class="sub">Thomas K J, Thekkady Hills Homestay</span><a class="prev" href="#"><svg class="i sm"><use href="#i-globe"/></svg>thekkady-hills.vercel.app</a></td>
+      <td><span class="st cyan live">Building</span><span class="sub">Milestone 2 due Mon</span></td>
+      <td class="r num strong">₹48,000</td>
+      <td><div class="money">
+        <div class="meter"><i style="flex:8;background:var(--hex-green)"></i><i style="flex:8;background:var(--amber)"></i><i style="flex:32;background:transparent"></i></div>
+        <div class="nums"><span><b>₹8,000</b> of ₹16,000 billed</span></div>
+        <span class="flag" style="color:var(--hex-green-ink)">₹8,000 UPI matched, <a href="approvals.html">confirm</a></span></div></td>
+      <td><div class="reqs"><span class="st cyan live">Gallery, 12 room photos</span><span class="sub">Devin Cloud, 38 min</span></div></td>
+      <td><span class="auto"><span class="switch"><input type="checkbox" aria-label="Autopilot for Homestay booking site"><span></span></span>Off</span></td>
+      <td class="act"><time>7:31 am</time><span>₹8,000 UPI from Thomas</span></td>
+    </tr>
+    <tr onclick="location.href='project.html'">
+      <td><a class="pname" href="project.html">Tuition centre app</a><span class="sub">Lakshmi R, Tuition Centre Kakkanad</span><a class="prev" href="#"><svg class="i sm"><use href="#i-globe"/></svg>tck-tuition.vercel.app</a></td>
+      <td><span class="st cyan">Preview live</span><span class="sub">Since 2:14 am, PR #14</span></td>
+      <td class="r num strong">₹36,000<span class="sub">+₹8,000 from <span class="nowrap">CO-2026-001</span></span></td>
+      <td><div class="money">
+        <div class="meter"><i style="flex:8;background:var(--hex-green)"></i><i style="flex:12;background:var(--amber)"></i><i style="flex:24;background:transparent"></i></div>
+        <div class="nums"><span><b>₹8,000</b> of ₹20,000 billed</span></div>
+        <span class="flag ink3">INV-2026-003 due 30 Oct</span></div></td>
+      <td><div class="reqs"><span class="st amber">Change order ₹10,000</span><span class="st cyan live">Fee calculator rounding</span><span class="sub">Devin CLI on your laptop</span></div></td>
+      <td><span class="auto"><span class="switch"><input type="checkbox" checked aria-label="Autopilot for Tuition centre app"><span></span></span>On</span></td>
+      <td class="act"><time>2:14 am</time><span>Malayalam toggle sent to Lakshmi</span></td>
+    </tr>
+    <tr onclick="location.href='project.html'">
+      <td><a class="pname" href="project.html">Boutique catalogue</a><span class="sub">Fathima S, Fab by Fathima</span><a class="prev" href="#"><svg class="i sm"><use href="#i-globe"/></svg>fabbyfathima.vercel.app</a></td>
+      <td><span class="st amber">Invoiced</span><span class="sub">Final half billed 12 Oct</span></td>
+      <td class="r num strong">₹44,000<span class="sub">incl. <span class="nowrap">CO-2026-002</span></span></td>
+      <td><div class="money">
+        <div class="meter"><i style="flex:22;background:var(--hex-green)"></i><i style="flex:22;background:var(--coral)"></i></div>
+        <div class="nums"><span><b>₹22,000</b> of ₹44,000 billed</span></div>
+        <span class="flag" style="color:var(--coral-ink)">₹22,000 overdue 6 days</span></div></td>
+      <td><div class="reqs"><span class="st amber">Brand colour brief</span><span class="sub">Ask Devin, queued for you</span></div></td>
+      <td><span class="auto"><span class="switch"><input type="checkbox" aria-label="Autopilot for Boutique catalogue"><span></span></span>Off</span></td>
+      <td class="act"><time>3:05 am</time><span>Fathima asked for a new brand colour</span></td>
+    </tr>
+    <tr onclick="location.href='project.html'">
+      <td><a class="pname" href="project.html">Restaurant menu site</a><span class="sub">Arjun Menon, Malabar Kitchen</span><a class="prev" href="#"><svg class="i sm"><use href="#i-globe"/></svg>malabarkitchen.in</a></td>
+      <td><span class="st green">Paid</span><span class="sub">Weekly upkeep on</span></td>
+      <td class="r num strong">₹35,000</td>
+      <td><div class="money">
+        <div class="meter"><i style="flex:35;background:var(--hex-green)"></i></div>
+        <div class="nums"><span><b>₹35,000</b> paid in full</span></div>
+        <span class="flag ink3">INV-2026-001, 14 Oct, UPI</span></div></td>
+      <td><div class="reqs"><span class="ink3">None open</span><span class="sub">Diwali banner, Fri upkeep</span></div></td>
+      <td><span class="auto ink3">Upkeep</span></td>
+      <td class="act"><time>Fri 24 Oct</time><span>Upkeep passed, 2 updates</span></td>
+    </tr>
+  </tbody>
+  <tfoot><tr><td>4 projects</td><td></td><td class="r num">₹1,63,000</td><td class="num"><span style="color:var(--hex-green-ink)">₹73,000</span> <span class="ink3" style="font-weight:400">paid of ₹1,15,000 billed</span></td><td colspan="3" class="ink3" style="font-weight:400">₹42,000 outstanding, ₹22,000 of it overdue</td></tr></tfoot>
+</table>
+</div>
+<p class="meta" style="margin-top:10px">Click a row to open the project: its chat, spec, requests, invoices and Devin knowledge.</p>
+
+</div></main></div>
+<script src="shell.js"></script>
+</body>
+</html>

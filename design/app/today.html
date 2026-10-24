@@ -1,0 +1,122 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Today | Devlancer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+.brief{max-width:62ch}
+.brief .date{color:var(--ink-3);font-size:var(--text-sm);margin-bottom:6px}
+.brief h1{font:700 34px/1.1 var(--font-display);letter-spacing:-.03em}
+.brief p{font-size:17px;line-height:1.6;color:var(--ink-2);margin-top:12px}
+.brief p b{color:var(--ink);font-weight:600}
+.waiting{border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface);overflow:hidden}
+.waiting a{display:grid;grid-template-columns:110px minmax(0,1fr) auto;gap:16px;align-items:center;padding:13px 16px;border-top:1px solid var(--line);color:inherit;text-decoration:none!important}
+.waiting a:first-child{border-top:0}
+.waiting a:hover{background:#f8f9fc}
+.waiting .what{min-width:0}
+.waiting .what b{display:block;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.waiting .what span{display:block;color:var(--ink-3);font-size:var(--text-sm);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.waiting .amt{font-variant-numeric:tabular-nums;font-weight:500;text-align:right}
+.night{display:grid;grid-template-columns:64px 1fr;gap:0 14px}
+.night time{font-size:var(--text-sm);color:var(--ink-3);padding-top:1px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.night .ev{padding-bottom:16px;border-left:2px solid var(--line);padding-left:16px;position:relative}
+.night .ev::before{content:"";position:absolute;left:-6px;top:5px;width:10px;height:11px;background:var(--c,var(--line-strong));clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.night .ev:last-child{border-color:transparent}
+.night .ev p{line-height:1.45}
+.night .ev .meta{margin-top:3px}
+.ev.blue{--c:var(--hex-blue)}.ev.cyan{--c:var(--hex-cyan)}.ev.green{--c:var(--hex-green)}.ev.amber{--c:var(--amber)}
+.money dl{display:grid;gap:14px}
+.money dt{font-size:var(--text-sm);color:var(--ink-3)}
+.money dd{font:700 24px/1.15 var(--font-display);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.money dd small{font:400 var(--text-sm) var(--font-ui);color:var(--ink-2);letter-spacing:0;display:block;margin-top:2px}
+.aging{display:flex;gap:2px;height:8px;border-radius:4px;overflow:hidden;margin-top:8px}
+.aging i{display:block}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:var(--text-xs);color:var(--ink-3);margin-top:6px}
+.legend span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:2px;background:var(--c);margin-right:5px;vertical-align:-1px}
+.run{display:grid;gap:6px;padding:12px 0;border-top:1px solid var(--line)}
+.run:first-of-type{border-top:0;padding-top:0}
+.run b{font-weight:500;line-height:1.35}
+.bar{height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--hex-cyan);border-radius:2px}
+.gig{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 16px;padding:12px 0;border-top:1px solid var(--line)}
+.gig:first-child{border-top:0;padding-top:0}
+.gig b{font-weight:500}
+.gig .meta{grid-column:1}
+.gig .fit{grid-row:1;grid-column:2;justify-self:end}
+.due li{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--line);font-size:var(--text-sm)}
+.due li:first-child{border-top:0;padding-top:0}
+.due time{color:var(--ink-3);white-space:nowrap}
+.due .soon{color:var(--coral-ink);font-weight:500}
+</style>
+</head>
+<body data-page="today">
+<div class="app"><main class="main"><div class="page">
+
+<div class="with-aside">
+<div>
+  <header class="brief">
+    <p class="date">Saturday 25 October, 8:12 am</p>
+    <h1>While you were away</h1>
+    <p>Devlancer covered for <b>9 hours</b>. It replied to <b>3 clients</b> in your voice, Devin shipped <b>2 changes</b> to live previews, and one request turned out to be new work, so it was priced instead of built. <b>4 drafts</b> are waiting for you before anything else goes out.</p>
+  </header>
+
+  <section class="sec" style="margin-top:28px;border-top:0;padding-top:0">
+    <div class="sec-head"><h2 class="h2">Waiting for you</h2><span class="meta">Nothing below has been sent</span><a class="more" href="approvals.html">Review all <kbd>A</kbd></a></div>
+    <div class="waiting">
+      <a href="approvals.html"><span class="st coral">Change order</span><span class="what"><b>Online fee payments for Tuition centre app</b><span>Lakshmi asked at 11:48 pm. Outside the agreed scope, priced at your rate.</span></span><span class="amt">₹10,000</span></a>
+      <a href="approvals.html"><span class="st blue">Pitch</span><span class="what"><b>WhatsApp order bot for a pharmacy</b><span>Rahul posted in Kochi Freelancers at 6:02 am. Fit 0.86, budget ₹25,000.</span></span><span class="fit hi"><i style="--v:86%"></i>0.86</span></a>
+      <a href="approvals.html"><span class="st green">Payment</span><span class="what"><b>Match ₹8,000 from Thomas to INV-2026-002</b><span>UPI credit alert in Gmail at 7:31 am. Amount and payer match.</span></span><span class="amt">₹8,000</span></a>
+      <a href="approvals.html"><span class="st amber">Reminder</span><span class="what"><b>Second reminder to Fathima for INV-2026-004</b><span>6 days overdue. Polite, in your voice, quotes the invoice.</span></span><span class="amt">₹22,000</span></a>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="sec-head"><h2 class="h2">Overnight</h2><span class="meta">11:00 pm to 8:00 am</span><a class="more" href="requests.html">All activity</a></div>
+    <div class="night">
+      <time>11:48 pm</time><div class="ev amber"><p>Lakshmi asked for <b>online fee payments</b> on Tuition centre app. That is not in the accepted proposal, so nothing was built. A change order is waiting for you.</p><p class="meta">Tuition centre app, WhatsApp group</p></div>
+      <time>12:20 am</time><div class="ev cyan"><p>Thomas asked to <b>add a gallery with 12 room photos</b>. Clear and small, so it went straight to a Devin Cloud session. He got a holding reply: "Sure, will share the update by morning."</p><p class="meta">Homestay booking site, <a href="request.html">Request</a></p></div>
+      <time>2:14 am</time><div class="ev green"><p>Devin shipped the <b>Malayalam language toggle</b>. Preview was checked on mobile and the link went to Lakshmi, as autopilot is on for this project.</p><p class="meta">Tuition centre app, <a href="#">Pull request #14</a>, <a href="#">Preview</a></p></div>
+      <time>3:05 am</time><div class="ev cyan"><p>Fathima asked if she could <b>change the brand colour</b> on Boutique catalogue. That needs your eye, so Ask Devin wrote a brief and it is queued for you.</p><p class="meta">Boutique catalogue, <a href="request.html">Brief</a></p></div>
+      <time>6:02 am</time><div class="ev blue"><p>Spotted a gig in <b>Kochi Freelancers</b>: WhatsApp order bot for a pharmacy. Reacted 👍 in the group; the pitch is waiting for you.</p><p class="meta">Kochi Freelancers, <a href="gigs.html">Gig</a></p></div>
+    </div>
+  </section>
+</div>
+
+<aside class="aside">
+  <section class="box money"><div class="box-head"><h2 class="h3">Money</h2><a class="more" href="invoices.html">Invoices</a></div>
+    <div class="box-body"><dl>
+      <div><dt>Outstanding</dt><dd>₹42,000<small>3 invoices, ₹22,000 of it overdue</small></dd>
+        <div class="aging"><i style="flex:12;background:var(--hex-blue)"></i><i style="flex:8;background:var(--amber)"></i><i style="flex:22;background:var(--coral)"></i></div>
+        <div class="legend"><span style="--c:var(--hex-blue)">Not due</span><span style="--c:var(--amber)">Due this week</span><span style="--c:var(--coral)">Overdue</span></div></div>
+      <div><dt>Collected in October</dt><dd style="color:var(--hex-green-ink)">₹65,000<small>4 payments, all matched</small></dd></div>
+      <div><dt>Scope creep caught</dt><dd style="color:var(--hex-blue-ink)">₹18,000<small>2 change orders billed instead of built free</small></dd></div>
+    </dl></div></section>
+
+  <section class="box"><div class="box-head"><h2 class="h3">Devin right now</h2><span class="st cyan live" style="margin-left:auto">2 running</span></div>
+    <div class="box-body">
+      <div class="run"><b>Gallery with 12 room photos</b><div class="bar"><i style="width:70%"></i></div><span class="meta">Homestay booking site, Cloud, 38 min</span></div>
+      <div class="run"><b>Fee calculator rounding for sibling discounts</b><div class="bar"><i style="width:35%;background:var(--hex-blue)"></i></div><span class="meta">Tuition centre app, CLI on your laptop</span></div>
+    </div></section>
+
+  <section class="box"><div class="box-head"><h2 class="h3">New gigs</h2><a class="more" href="gigs.html">All 6</a></div>
+    <div class="box-body">
+      <div class="gig"><b>Pharmacy order bot</b><span class="fit hi"><i style="--v:86%"></i>0.86</span><span class="meta">Rahul, ₹25,000, 2 h ago</span></div>
+      <div class="gig"><b>Wedding photographer portfolio</b><span class="fit"><i style="--v:71%"></i>0.71</span><span class="meta">Nikhil, ₹12,000, yesterday</span></div>
+      <div class="gig"><b>Bakery landing page</b><span class="fit"><i style="--v:68%"></i>0.68</span><span class="meta">Anu, ₹15,000, yesterday</span></div>
+    </div></section>
+
+  <section class="box"><div class="box-head"><h2 class="h3">Due this week</h2></div>
+    <div class="box-body"><ul class="due">
+      <li><span>Homestay booking site, milestone 2</span><time class="soon">Mon</time></li>
+      <li><span>Inventory dashboard proposal expires</span><time>Wed</time></li>
+      <li><span>Weekly upkeep, 4 projects</span><time>Fri</time></li>
+    </ul></div></section>
+</aside>
+</div>
+
+</div></main></div>
+<script src="shell.js"></script>
+</body>
+</html>

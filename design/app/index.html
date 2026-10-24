@@ -1,0 +1,91 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Devlancer screens</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+body{background:var(--surface)}
+.wrap{max-width:1240px;margin:0 auto;padding:48px 40px 80px}
+.top{display:flex;align-items:center;gap:12px}
+.top img{width:34px;height:34px}
+.top b{font:700 22px/1 var(--font-display);letter-spacing:-.02em}
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:48px;align-items:end;margin:40px 0 44px;padding-bottom:40px;border-bottom:1px solid var(--line)}
+.hero h1{font:700 48px/1.02 var(--font-display);letter-spacing:-.035em;max-width:13ch}
+.hero p{font-size:17px;line-height:1.6;color:var(--ink-2)}
+.hero p+p{margin-top:12px}
+.flow{display:flex;gap:0;margin-top:22px;font-size:var(--text-sm);font-weight:500}
+.flow span{display:flex;align-items:center;gap:7px;padding-right:18px;margin-right:18px;border-right:1px solid var(--line);white-space:nowrap}
+.flow span:last-child{border:0}
+.flow span::before{content:"";width:9px;height:10px;background:var(--c);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.area{display:grid;grid-template-columns:220px minmax(0,1fr);gap:32px;padding:28px 0;border-top:1px solid var(--line)}
+.hero+.area{border-top:0}
+.area h2{font:700 20px/1.2 var(--font-display);letter-spacing:-.015em}
+.area>div>p{color:var(--ink-3);font-size:var(--text-sm);margin-top:6px;max-width:28ch}
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:22px 20px}
+.shot{display:grid;gap:8px;color:inherit;text-decoration:none!important}
+.shot .frame{aspect-ratio:16/10;border-radius:10px;border:1px solid var(--line);background:var(--canvas) center top/cover no-repeat;overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.shot:hover .frame{border-color:var(--line-strong);box-shadow:var(--shadow-float)}
+.shot b{font-weight:600}
+.shot span{color:var(--ink-2);font-size:var(--text-sm);line-height:1.45}
+.foot{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--ink-3);font-size:var(--text-sm);display:flex;gap:20px;flex-wrap:wrap}
+@media (max-width:860px){.wrap{padding:28px 16px 56px}.hero{grid-template-columns:1fr;gap:16px}.hero h1{font-size:38px}.area{grid-template-columns:1fr;gap:14px}.flow{flex-wrap:wrap;gap:8px 0}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><img src="brand/mark.svg" alt=""><b>Devlancer</b><span class="meta" style="margin-left:auto">App screens, October 2026</span></div>
+
+  <section class="hero">
+    <h1>The freelancer's side of the ghost.</h1>
+    <div>
+      <p>Devlancer works on your WhatsApp while you sleep. These screens are where you check in: approve what it drafted in your name, see what Devin built, and know who owes you what.</p>
+      <div class="flow"><span style="--c:var(--hex-blue)">Gig spotted</span><span style="--c:var(--hex-cyan)">Devin builds</span><span style="--c:var(--amber)">Invoiced</span><span style="--c:var(--hex-green)">Paid</span></div>
+    </div>
+  </section>
+
+  <section class="area"><div><h2>Daily</h2><p>Where the freelancer starts every morning.</p></div>
+    <div class="shots">
+      <a class="shot" href="today.html"><div class="frame" style="background-image:url(thumbs/today.png)"></div><b>Today</b><span>A written briefing of the night, then what is waiting for you.</span></a>
+      <a class="shot" href="approvals.html"><div class="frame" style="background-image:url(thumbs/approvals.png)"></div><b>Approvals</b><span>Keyboard triage of every draft: 1 send, 2 edit, 0 skip.</span></a>
+      <a class="shot" href="mobile.html"><div class="frame" style="background-image:url(thumbs/mobile.png)"></div><b>On the phone</b><span>Approvals, Today and an invoice at 390 wide.</span></a>
+    </div></section>
+
+  <section class="area"><div><h2>Work</h2><p>From a post in a WhatsApp group to a live project.</p></div>
+    <div class="shots">
+      <a class="shot" href="gigs.html"><div class="frame" style="background-image:url(thumbs/gigs.png)"></div><b>Gigs</b><span>Every gig spotted in marketplace groups, with fit and the private pitch.</span></a>
+      <a class="shot" href="pipeline.html"><div class="frame" style="background-image:url(thumbs/pipeline.png)"></div><b>Pipeline</b><span>Deals by stage, with value, what is stuck and the next action.</span></a>
+      <a class="shot" href="projects.html"><div class="frame" style="background-image:url(thumbs/projects.png)"></div><b>Projects</b><span>Every project, its stage, billing and open requests.</span></a>
+      <a class="shot" href="project.html"><div class="frame" style="background-image:url(thumbs/project.png)"></div><b>Project</b><span>Scope baseline, milestones, requests, billing and what Devin knows.</span></a>
+      <a class="shot" href="clients.html"><div class="frame" style="background-image:url(thumbs/clients.png)"></div><b>Clients</b><span>People, how they pay, and preferences Devlancer has learned.</span></a>
+    </div></section>
+
+  <section class="area"><div><h2>Devin</h2><p>Which Devin option took each request, and why.</p></div>
+    <div class="shots">
+      <a class="shot" href="requests.html"><div class="frame" style="background-image:url(thumbs/requests.png)"></div><b>Requests</b><span>Every client request with its route and status.</span></a>
+      <a class="shot" href="request.html"><div class="frame" style="background-image:url(thumbs/request.png)"></div><b>Request</b><span>Laya's reading, the routing decision and the live session.</span></a>
+      <a class="shot" href="upkeep.html"><div class="frame" style="background-image:url(thumbs/upkeep.png)"></div><b>Upkeep</b><span>Weekly checks per project and the client updates they produce.</span></a>
+    </div></section>
+
+  <section class="area"><div><h2>Money</h2><p>Scope creep made visible, and invoices that chase themselves.</p></div>
+    <div class="shots">
+      <a class="shot" href="invoices.html"><div class="frame" style="background-image:url(thumbs/invoices.png)"></div><b>Invoices</b><span>Aging, status and reminders across every client.</span></a>
+      <a class="shot" href="invoice.html"><div class="frame" style="background-image:url(thumbs/invoice.png)"></div><b>Invoice</b><span>The client's view with UPI QR, beside the reminder trail.</span></a>
+      <a class="shot" href="scope.html"><div class="frame" style="background-image:url(thumbs/scope.png)"></div><b>Scope ledger</b><span>Every out-of-scope request caught and what it was worth.</span></a>
+      <a class="shot" href="proposal.html"><div class="frame" style="background-image:url(thumbs/proposal.png)"></div><b>Proposal</b><span>Structured editing with a live A4 preview.</span></a>
+    </div></section>
+
+  <section class="area"><div><h2>Setup and system</h2><p>Getting started, control, and what happens when things break.</p></div>
+    <div class="shots">
+      <a class="shot" href="onboarding.html"><div class="frame" style="background-image:url(thumbs/onboarding.png)"></div><b>Onboarding</b><span>Link WhatsApp, describe your work, sort groups, first scan.</span></a>
+      <a class="shot" href="groups.html"><div class="frame" style="background-image:url(thumbs/groups.png)"></div><b>Groups</b><span>Marketplace, client or ignore, and speed mode per group.</span></a>
+      <a class="shot" href="settings.html"><div class="frame" style="background-image:url(thumbs/settings.png)"></div><b>Settings</b><span>Presence, voice, rates, payments, approvals and connections.</span></a>
+      <a class="shot" href="states.html"><div class="frame" style="background-image:url(thumbs/states.png)"></div><b>States</b><span>Empty, error, loading and confirmation states.</span></a>
+      <a class="shot" href="today.html#cmdk"><div class="frame" style="background-image:url(thumbs/cmdk.png)"></div><b>Command bar</b><span>⌘K to jump anywhere or run an action.</span></a>
+    </div></section>
+
+  <p class="foot"><span>Built on the Devlancer design system: tokens.css, kit.css, shell.js</span><span>Sidebar collapses with [ and ⌘K opens the command bar on every screen</span></p>
+</div>
+</body>
+</html>

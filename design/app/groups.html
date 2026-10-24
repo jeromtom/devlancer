@@ -1,0 +1,245 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Groups | Devlancer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+.gtbl td{vertical-align:top}
+.gtbl .gname{min-width:220px}
+.gtbl .gname b{display:block;font-weight:500}
+.gtbl .gname span{font-size:var(--text-sm);color:var(--ink-3)}
+.gtbl .seg button{height:26px;padding:0 9px;font-size:var(--text-xs)}
+.gtbl .seg [aria-pressed=true].mk{color:var(--hex-blue-ink)}
+.gtbl .seg [aria-pressed=true].cl{color:var(--hex-cyan-ink)}
+.gtbl tr.off td{color:var(--ink-3)}
+.gtbl tr.off .gname b{color:var(--ink-2);font-weight:400}
+.gtbl tr.new td{background:#e39b270a}
+.gigs-n{font-variant-numeric:tabular-nums;white-space:nowrap}
+.gigs-n b{font-weight:600}
+.gigs-n span{display:block;font-size:var(--text-sm);color:var(--ink-3)}
+.speed{display:flex;align-items:center;gap:10px}
+.speed label{font-size:var(--text-sm);color:var(--ink-2)}
+.speed .on{color:var(--ink);font-weight:500}
+.linked{display:grid;gap:3px;font-size:var(--text-sm)}
+.linked a{display:inline-flex;align-items:center;gap:6px}
+/* Expanded speed mode row: evidence for the decision */
+.tbl tr.expand td{background:#3b63d106;padding:0 14px 16px}
+.tbl tr.expand:hover td{background:#3b63d106}
+.tbl tr.has-expand td{border-bottom:0}
+.evidence{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.evidence h3{margin-bottom:4px}
+.evidence p{font-size:var(--text-sm);color:var(--ink-2)}
+.race{display:grid;gap:7px;margin-top:12px}
+.race li{display:grid;grid-template-columns:150px minmax(0,1fr) 54px;gap:10px;align-items:center;font-size:var(--text-sm)}
+.race .track{position:relative;height:8px;border-radius:4px;background:var(--sunken)}
+.race .track i{position:absolute;top:0;bottom:0;left:0;border-radius:4px}
+.race .t{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.race .you i{background:var(--hex-blue)}
+.race .them i{background:var(--line-strong)}
+.recent li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:8px 0;border-top:1px solid var(--line);font-size:var(--text-sm)}
+.recent li:first-child{border-top:0;padding-top:4px}
+.recent b{font-weight:500}
+.foot-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;margin-top:28px}
+.rules{display:grid;gap:12px}
+.rules li{display:grid;grid-template-columns:20px 1fr;gap:10px;font-size:var(--text-sm);color:var(--ink-2);line-height:1.5}
+.rules li svg{margin-top:2px;color:var(--ink-3)}
+.rules b{color:var(--ink);font-weight:500}
+.rate{display:grid;gap:12px}
+.rate .row{display:grid;gap:5px}
+.rate .row div{display:flex;justify-content:space-between;font-size:var(--text-sm)}
+.rate .row b{font-weight:500;font-variant-numeric:tabular-nums}
+@media (max-width:1100px){.evidence,.foot-grid{grid-template-columns:1fr}}
+@media (max-width:820px){
+  .search{min-width:0;flex:1}.toolbar .seg{max-width:100%;overflow-x:auto}
+  .race li{grid-template-columns:110px minmax(0,1fr) 46px}
+  .gtbl thead{display:none}
+  .gtbl,.gtbl tbody,.gtbl tr,.gtbl td{display:block}
+  .gtbl tr{padding:12px 14px;border-bottom:1px solid var(--line)}
+  .gtbl td{padding:3px 0;border:0!important}
+  .gtbl .gname{min-width:0}
+  .gtbl tr.group{padding:0}.gtbl tr.group td{padding:7px 14px}
+  .gtbl tr.has-expand{border-bottom:0;padding-bottom:4px}
+  .gtbl tr.expand{padding:0 10px 12px}.gtbl tr.expand td{padding:0}
+  .gtbl .gigs-n span{display:inline;margin-left:4px}
+  .evidence{padding:12px}
+}
+</style>
+</head>
+<body data-page="groups">
+<div class="app"><main class="main"><div class="page">
+
+<header class="page-head">
+  <div>
+    <h1>Groups</h1>
+    <p class="sub">Every WhatsApp group on +91 98470 21436. Devlancer reads marketplaces for gigs, works in client groups as you, and leaves the rest alone.</p>
+  </div>
+  <div class="actions">
+    <button class="btn" type="button"><svg class="i sm"><use href="#i-upkeep"/></svg>Rescan groups</button>
+  </div>
+</header>
+
+<dl class="facts" style="margin-bottom:24px">
+  <div><dt>Marketplaces watched</dt><dd class="blue">3</dd></div>
+  <div><dt>Gigs that fit, 30 days</dt><dd>37 <span class="meta" style="font:400 var(--text-sm) var(--font-ui)">of 243 job posts</span></dd></div>
+  <div><dt>Client groups</dt><dd class="cyan">4</dd></div>
+  <div><dt>Ignored</dt><dd>15</dd></div>
+  <div><dt>Sent today</dt><dd>14 <span class="meta" style="font:400 var(--text-sm) var(--font-ui)">of 150 allowed</span></dd></div>
+</dl>
+
+<div class="toolbar">
+  <div class="seg" role="group" aria-label="Filter by kind">
+    <button aria-pressed="true">All <span class="n">23</span></button>
+    <button aria-pressed="false">Marketplace <span class="n">3</span></button>
+    <button aria-pressed="false">Client <span class="n">4</span></button>
+    <button aria-pressed="false">Ignore <span class="n">15</span></button>
+    <button aria-pressed="false">Not sorted <span class="n">1</span></button>
+  </div>
+  <label class="search"><svg class="i sm"><use href="#i-search"/></svg><input placeholder="Find a group" aria-label="Find a group"></label>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl gtbl">
+  <thead><tr><th>Group</th><th>Kind</th><th>Gigs, 30 days</th><th>What Devlancer does here</th><th>Last activity</th></tr></thead>
+  <tbody>
+    <tr class="new">
+      <td class="gname"><b>Kochi Startup Founders</b><span>58 members, joined 18 Oct</span></td>
+      <td><div class="seg" role="group" aria-label="Kind"><button class="mk" aria-pressed="false">Marketplace</button><button aria-pressed="false">Client</button><button aria-pressed="false">Ignore</button></div>
+        <p class="meta" style="margin-top:6px">Suggested: Marketplace</p></td>
+      <td class="gigs-n"><b>2</b><span>of 6 posts, not read yet</span></td>
+      <td><span class="st amber">Not sorted</span><p class="meta" style="margin-top:4px;max-width:34ch">Two posts were dashboard work. Pick a kind to start reading it.</p></td>
+      <td class="nowrap meta">7:40 am</td>
+    </tr>
+
+    <tr class="group"><td colspan="5">Marketplaces</td></tr>
+    <tr class="has-expand">
+      <td class="gname"><b>Kochi Freelancers</b><span>412 members</span></td>
+      <td><div class="seg" role="group" aria-label="Kind"><button class="mk" aria-pressed="true">Marketplace</button><button aria-pressed="false">Client</button><button aria-pressed="false">Ignore</button></div></td>
+      <td class="gigs-n"><b>19</b><span>of 128 posts</span></td>
+      <td><div class="speed"><span class="switch"><input type="checkbox" checked aria-label="Speed mode for Kochi Freelancers"><span></span></span><label class="on">Speed mode on</label></div>
+        <p class="meta" style="margin-top:4px">Auto-sends 👍 and pitch above fit 0.85</p></td>
+      <td class="nowrap"><span class="small">6:02 am</span><span class="meta" style="display:block">Rahul, pharmacy bot</span></td>
+    </tr>
+    <tr class="expand"><td colspan="5">
+      <div class="evidence">
+        <div>
+          <h3 class="h3">Speed mode is winning here</h3>
+          <p>In this group the first developer to reply usually gets the DM. Since you turned speed mode on, 3 October, Devlancer has pitched 6 gigs above 0.85 without waiting for you, and replied first on 5.</p>
+          <ul class="race" aria-label="Median time to first reply">
+            <li class="you"><span>Devlancer, speed mode</span><span class="track"><i style="width:6%"></i></span><span class="t">47 s</span></li>
+            <li class="you"><span>Devlancer, with approval</span><span class="track"><i style="width:58%;background:var(--hex-blue-wash);box-shadow:inset 0 0 0 1.5px var(--hex-blue)"></i></span><span class="t">38 min</span></li>
+            <li class="them"><span>Fastest other reply</span><span class="track"><i style="width:9%"></i></span><span class="t">4 min</span></li>
+          </ul>
+          <p class="meta" style="margin-top:8px">Median over the last 30 days. Pitches under 0.85 still wait for you, and between 11 pm and 8 am only the 👍 goes out, because a pitch at 6 am would not look like you. That is why Rahul's pharmacy bot (0.86) is in <a href="approvals.html">Approvals</a>.</p>
+        </div>
+        <div>
+          <h3 class="h3">Sent by speed mode</h3>
+          <ul class="recent">
+            <li><b>Turf booking bot, Akhil</b><span class="fit hi"><i style="--v:88%"></i>0.88</span><span class="meta">21 Oct, replied first, call on Monday</span></li>
+            <li><b>Supabase admin panel, Vivek</b><span class="fit hi"><i style="--v:87%"></i>0.87</span><span class="meta">12 Oct, replied first, no answer yet</span></li>
+            <li><b>WhatsApp reminder bot, Sreeja</b><span class="fit hi"><i style="--v:91%"></i>0.91</span><span class="meta">8 Oct, second to reply, lost</span></li>
+          </ul>
+          <a class="small" href="gigs.html" style="display:inline-block;margin-top:6px">All 6 in Gigs</a>
+        </div>
+      </div>
+    </td></tr>
+    <tr>
+      <td class="gname"><b>Kochi Business Network</b><span>1,180 members</span></td>
+      <td><div class="seg" role="group" aria-label="Kind"><button class="mk" aria-pressed="true">Marketplace</button><button aria-pressed="false">Client</button><button aria-pressed="false">Ignore</button></div></td>
+      <td class="gigs-n"><b>11</b><span>of 74 posts</span></td>
+      <td><div class="speed"><span class="switch"><input type="checkbox" aria-label="Speed mode for Kochi Business Network"><span></span></span><label>Speed mode off</label></div>
+        <p class="meta" style="margin-top:4px;max-width:36ch">Posters here usually wait a day and compare quotes, so approval first costs little.</p></td>
+      <td class="nowrap"><span class="small">Yesterday</span><span class="meta" style="display:block">Anu, bakery page</span></td>
+    </tr>
+    <tr>
+      <td class="gname"><b>Kerala Startups Hub</b><span>860 members</span></td>
+      <td><div class="seg" role="group" aria-label="Kind"><button class="mk" aria-pressed="true">Marketplace</button><button aria-pressed="false">Client</button><button aria-pressed="false">Ignore</button></div></td>
+      <td class="gigs-n"><b>7</b><span>of 41 posts</span></td>
+      <td><div class="speed"><span class="switch"><input type="checkbox" aria-label="Speed mode for Kerala Startups Hub"><span></span></span><label>Speed mode off</label></div>
+        <p class="meta" style="margin-top:4px">No gig above 0.85 here in 30 days</p></td>
+      <td class="nowrap"><span class="small">Yesterday</span><span class="meta" style="display:block">Nikhil, portfolio</span></td>
+    </tr>
+
+    <tr class="group"><td colspan="5">Clients</td></tr>
+    <tr>
+      <td class="gname"><b>TCK App Project</b><span>4 members, Lakshmi R</span></td>
+      <td><div class="seg" role="group" aria-label="Kind"><button aria-pressed="false">Marketplace</button><button class="cl" aria-pressed="true">Client</button><button aria-pressed="false">Ignore</button></div></td>
+      <td class="meta">Not scanned</td>
+      <td><div class="linked"><a href="project.html"><span class="st cyan">Tuition centre app</span></a><span class="meta">Autopilot on, replies as you</span></div></td>
+      <td class="nowrap"><span class="small">11:56 pm</span><span class="meta" style="display:block">You, holding reply</span></td>
+    </tr>
+    <tr>
+      <td class="gname"><b>Thekkady Hills x Jerom</b><span>3 members, Thomas K J</span></td>
+      <td><div class="seg" role="group" aria-label="Kind"><button aria-pressed="false">Marketplace</button><button class="cl" aria-pressed="true">Client</button><button aria-pressed="false">Ignore</button></div></td>
+      <td class="meta">Not scanned</td>
+      <td><div class="linked"><a href="project.html"><span class="st cyan">Homestay booking site</span></a><span class="meta">Replies as you, drafts wait for approval</span></div></td>
+      <td class="nowrap"><span class="small">12:24 am</span><span class="meta" style="display:block">You, "Sure, will share..."</span></td>
+    </tr>
+    <tr>
+      <td class="gname"><b>Fab by Fathima Website</b><span>3 members, Fathima S</span></td>
+      <td><div class="seg" role="group" aria-label="Kind"><button aria-pressed="false">Marketplace</button><button class="cl" aria-pressed="true">Client</button><button aria-pressed="false">Ignore</button></div></td>
+      <td class="meta">Not scanned</td>
+      <td><div class="linked"><a href="project.html"><span class="st amber">Boutique catalogue</span></a><span class="meta">INV-2026-004 overdue 6 days</span></div></td>
+      <td class="nowrap"><span class="small">3:05 am</span><span class="meta" style="display:block">Fathima, brand colour</span></td>
+    </tr>
+    <tr>
+      <td class="gname"><b>Malabar Kitchen Online</b><span>5 members, Arjun Menon</span></td>
+      <td><div class="seg" role="group" aria-label="Kind"><button aria-pressed="false">Marketplace</button><button class="cl" aria-pressed="true">Client</button><button aria-pressed="false">Ignore</button></div></td>
+      <td class="meta">Not scanned</td>
+      <td><div class="linked"><a href="project.html"><span class="st green">Restaurant menu site</span></a><a href="upkeep.html"><span class="st cyan">Weekly upkeep</span></a></div></td>
+      <td class="nowrap"><span class="small">Thu</span><span class="meta" style="display:block">Arjun, "thanks bro 👍"</span></td>
+    </tr>
+
+    <tr class="group"><td colspan="5">Ignored, not read</td></tr>
+    <tr class="off">
+      <td class="gname"><b>Ernakulam Traders Circle</b><span>240 members</span></td>
+      <td><div class="seg" role="group" aria-label="Kind"><button aria-pressed="false">Marketplace</button><button aria-pressed="false">Client</button><button aria-pressed="true">Ignore</button></div></td>
+      <td>3 of 3 posts were not dev work</td>
+      <td>Nothing. Mostly wholesale offers.</td>
+      <td class="nowrap">8:05 am</td>
+    </tr>
+    <tr class="off">
+      <td class="gname"><b>MEC Batch of 2019</b><span>92 members</span></td>
+      <td><div class="seg" role="group" aria-label="Kind"><button aria-pressed="false">Marketplace</button><button aria-pressed="false">Client</button><button aria-pressed="true">Ignore</button></div></td>
+      <td>2 posts, both full-time</td>
+      <td>Nothing</td>
+      <td class="nowrap">Yesterday</td>
+    </tr>
+    <tr class="off">
+      <td class="gname"><b>Family ❤️</b><span>14 members</span></td>
+      <td><div class="seg" role="group" aria-label="Kind"><button aria-pressed="false">Marketplace</button><button aria-pressed="false">Client</button><button aria-pressed="true">Ignore</button></div></td>
+      <td></td>
+      <td>Nothing</td>
+      <td class="nowrap">7:58 am</td>
+    </tr>
+    <tr class="off"><td colspan="5"><button class="btn ghost sm" type="button">Show 12 more ignored groups</button></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="foot-grid">
+  <section class="box">
+    <div class="box-head"><h2 class="h3">How Devlancer stays invisible in groups</h2></div>
+    <ul class="box-body rules">
+      <li><svg class="i sm"><use href="#i-chat"/></svg><span><b>Never posts a pitch in a group.</b> In a marketplace it only reacts 👍 or replies "Check DM 🙂" to the post. The pitch goes privately to the poster, quoting their message.</span></li>
+      <li><svg class="i sm"><use href="#i-clock"/></svg><span><b>Types like you.</b> A typing indicator and a pause that grows with message length, 8 to 40 seconds. Non-urgent replies wait for your usual hours.</span></li>
+      <li><svg class="i sm"><use href="#i-alert"/></svg><span><b>Stops before WhatsApp notices.</b> If the hourly limit is reached, sending pauses and drafts queue for you. Nothing is dropped.</span></li>
+      <li><svg class="i sm"><use href="#i-skip"/></svg><span><b>Ignored groups are not read.</b> Their messages never leave your phone.</span></li>
+    </ul>
+  </section>
+  <section class="box">
+    <div class="box-head"><h2 class="h3">Sending limits</h2><a class="more" href="settings.html">Change in Settings</a></div>
+    <div class="box-body rate">
+      <div class="row"><div><span>This hour</span><b>3 of 20</b></div><div class="meter"><i style="width:15%;background:var(--hex-blue)"></i></div></div>
+      <div class="row"><div><span>Today</span><b>14 of 150</b></div><div class="meter"><i style="width:9.3%;background:var(--hex-blue)"></i></div></div>
+      <div class="row"><div><span>Group reactions and "Check DM" today</span><b>2 of 10</b></div><div class="meter"><i style="width:20%;background:var(--hex-blue)"></i></div></div>
+      <p class="meta">Limits are lower than what a busy person sends in a day. Last pause: never.</p>
+    </div>
+  </section>
+</div>
+
+</div></main></div>
+<script src="shell.js"></script>
+</body>
+</html>

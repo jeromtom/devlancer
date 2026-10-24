@@ -48,3 +48,14 @@ Only in response to change: a stage-change ring on a deal that moved, a cyan was
 - `tokens.css`: all tokens. `fonts.css` and `fonts/`: self-hosted type. `components.css`: dashboard components and shell.
 - `cards/`: Claude Design preview cards.
 - The dashboard (`web/`) loads these files directly, so this folder is the source of truth.
+
+## App screens
+
+`app/` holds 20 high-fidelity screens built on this system: `app/kit.css` (shell and components) and `app/shell.js` (sidebar, icons, ⌘K command bar, mobile bar). Start at `app/index.html`, the screen map. `app/BRIEF.md` is the brief every screen was designed against, including the shared sample data that keeps figures consistent across screens.
+
+Patterns the screens share:
+- **Approve before anything commits money, scope or deadlines.** The draft, the client's own words and Devlancer's reasoning sit together, with `1` send, `2` edit, `0` skip.
+- **Written summaries over KPI tiles.** Pages open with a sentence that says what happened and what needs you; figures sit in a `.facts` strip.
+- **Status is a hex glyph plus a word** (`.st`), coloured by meaning.
+- **Every card says whose move it is** (you, the client, or Devin).
+- **Every error says what still works**, so the freelancer knows whether to act now.

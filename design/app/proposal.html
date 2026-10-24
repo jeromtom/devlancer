@@ -1,0 +1,269 @@
+<!-- @dsCard group="Screens" -->
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PR-2026-005 | Devlancer</title>
+<link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="fonts.css"><link rel="stylesheet" href="kit.css">
+<style>
+.page{max-width:1480px}
+.page-head h1 .st{font:500 var(--text-md)/1 var(--font-ui);letter-spacing:0;vertical-align:5px;margin-left:10px}
+/* Top band: where it stands and the nudge */
+.band{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);border:1px solid var(--line);border-radius:var(--r-panel);background:var(--surface);margin-bottom:28px}
+.band>div{padding:16px 20px}
+.band>div+div{border-left:1px solid var(--line)}
+.trail{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin-top:12px}
+.trail>div{position:relative;padding:12px 12px 0 0}
+.trail>div::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;border-radius:2px;background:var(--line)}
+.trail>div.done::before{background:var(--hex-blue)}
+.trail>div.warn::before{background:var(--amber)}
+.trail dt{font-size:var(--text-sm);color:var(--ink-3)}
+.trail dd{font-weight:600;margin-top:1px}
+.trail dd small{display:block;font-weight:400;font-size:var(--text-sm);color:var(--ink-2)}
+.last-word{display:flex;gap:10px;align-items:flex-start;margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:var(--text-sm);color:var(--ink-2)}
+.last-word q{color:var(--ink)}
+.fu-head{display:flex;align-items:baseline;gap:10px}
+.fu-head .meta{margin-left:auto}
+.fu .thread{padding:10px 12px;margin-top:10px}
+.fu .msg{max-width:100%;font-size:var(--text-sm)}
+.fu-actions{display:flex;align-items:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.fu-actions .via{display:flex;gap:12px;font-size:var(--text-sm);color:var(--ink-2);margin-right:auto}
+.fu-actions .via label{display:inline-flex;align-items:center;gap:6px}
+/* Editor and preview */
+.work{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:start}
+.ed{display:grid;gap:14px}
+.ed-sec{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-panel)}
+.ed-sec.active{border-color:var(--hex-blue);box-shadow:0 0 0 3px #3b63d11a}
+.ed-head{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.ed-head .meta{margin-left:auto}
+.ed-body{padding:14px 16px;display:grid;gap:12px}
+.items-ed{display:grid;gap:6px}
+.items-ed li{display:grid;grid-template-columns:22px minmax(0,1fr) 28px;gap:8px;align-items:center}
+.items-ed li>span{font-size:var(--text-sm);color:var(--ink-3);text-align:right;font-variant-numeric:tabular-nums}
+.items-ed .input{height:34px}
+.input.ce{height:auto;min-height:34px;padding:6px 11px;line-height:1.45}
+.items-ed li{align-items:start}.items-ed li>span{padding-top:7px}.items-ed .x{margin-top:3px}
+.price td{padding-top:6px;padding-bottom:6px}
+.seg button{white-space:nowrap}
+.items-ed .x{width:28px;height:28px;border:0;background:none;color:var(--ink-3);border-radius:6px;cursor:pointer}
+.items-ed .x:hover{background:var(--sunken);color:var(--ink)}
+.add{justify-self:start}
+.ms{width:100%;border-collapse:collapse;font-size:var(--text-md)}
+.ms th{font-weight:500;font-size:var(--text-sm);color:var(--ink-3);text-align:left;padding:0 6px 6px 0}
+.ms td{padding:4px 6px 4px 0}
+.ms .input{height:34px}
+.ms .pct{width:72px;text-align:right}
+.ms .dt{width:132px}
+.ms tfoot td{font-size:var(--text-sm);color:var(--ink-2);padding-top:8px}
+.split{display:flex;height:8px;border-radius:4px;overflow:hidden;gap:2px;margin-top:4px}
+.split i{display:block;background:var(--hex-blue)}
+.split i:nth-child(2){background:#6f8be0}.split i:nth-child(3){background:#a8b9ec}
+.price td .input{height:32px;width:64px;text-align:right}
+.price tfoot td{font-size:var(--text-md)}
+.terms{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.term{border:1px solid var(--line);border-radius:var(--r-control);padding:10px 12px}
+.term b{display:block;font:600 var(--text-lg)/1.2 var(--font-display);font-variant-numeric:tabular-nums}
+.term span{font-size:var(--text-sm);color:var(--ink-2)}
+/* Live preview */
+.pv{position:sticky;top:20px;background:var(--sunken);border-radius:var(--r-panel);padding:12px 18px 18px;max-height:calc(100vh - 40px);overflow:auto}
+.pv-bar{display:flex;align-items:center;gap:10px;font-size:var(--text-sm);color:var(--ink-3);margin-bottom:12px;position:sticky;top:-12px;background:var(--sunken);padding:12px 0 6px;margin-top:-12px;z-index:1}
+.pv-bar .live{margin-left:auto}
+.sheet{background:#fff;box-shadow:0 1px 2px #1720361a,0 8px 24px -12px #17203633;padding:38px 40px;font-size:11.5px;line-height:1.5;color:#1d2433;min-height:560px;margin-bottom:14px}
+.sh-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;font-size:10.5px;color:var(--ink-3)}
+.sh-top b{display:block;color:var(--ink);font:700 13px/1.2 var(--font-display)}
+.sheet h2{font:700 21px/1.15 var(--font-display);letter-spacing:-.02em;color:var(--ink);margin-top:26px;max-width:24ch}
+.sh-for{display:flex;gap:28px;margin-top:10px;color:var(--ink-2);font-size:11px}
+.sh-for b{color:var(--ink);font-weight:600}
+.sh-rule{height:2px;background:var(--ink);margin:18px 0 14px}
+.sheet h3{font:600 12px/1.3 var(--font-ui);color:var(--ink);margin:14px 0 5px}
+.sheet ul{display:grid;gap:3px}
+.sheet ul li{padding-left:12px;position:relative}
+.sheet ul li::before{content:"";position:absolute;left:0;top:7px;width:5px;height:5px;background:var(--hex-blue);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+.sheet ul.no li::before{background:var(--ink-3)}
+.sheet .hl{box-shadow:-10px 0 0 -7px var(--hex-blue);background:#3b63d10a;margin:0 -8px;padding:2px 8px 6px;border-radius:4px}
+.sh-tbl{width:100%;border-collapse:collapse;font-size:11px}
+.sh-tbl th{text-align:left;font-weight:500;color:var(--ink-3);border-bottom:1px solid var(--line-strong);padding:0 0 4px}
+.sh-tbl td{padding:5px 0;border-bottom:1px solid var(--line)}
+.sh-tbl .r{text-align:right;font-variant-numeric:tabular-nums}
+.sh-tbl tfoot td{border-bottom:0;border-top:2px solid var(--ink);font-weight:700;font-size:13px;padding-top:7px}
+.sh-sign{display:flex;justify-content:space-between;margin-top:22px;color:var(--ink-2);font-size:11px;align-items:flex-end}
+.sh-sign i{display:block;font:italic 500 19px/1 Georgia,serif;color:var(--ink);margin-bottom:3px}
+.pgno{font-size:10px;color:var(--ink-3);text-align:right;margin-top:10px}
+@media (max-width:1180px){.band{grid-template-columns:1fr}.band>div+div{border-left:0;border-top:1px solid var(--line)}.work{grid-template-columns:1fr}.pv{position:static;max-height:none}}
+@media (max-width:820px){
+  .trail{grid-template-columns:1fr 1fr;row-gap:12px}
+  .band>div{padding:14px}
+  .terms{grid-template-columns:1fr}
+  .ms .dt{width:92px}.ms .pct{width:58px}
+  .ed-sec .seg{overflow-x:auto;max-width:100%}
+  .sheet{padding:22px 18px;min-height:0;font-size:11px}
+  .pv{padding:10px 8px 8px;margin:0 -8px}
+  .page-head .actions{flex-wrap:wrap}
+}
+</style>
+</head>
+<body data-page="invoices">
+<div class="app"><main class="main"><div class="page">
+
+<nav class="crumbs"><a href="invoices.html">Invoices</a><span>/</span><a href="pipeline.html">Proposals</a><span>/</span><span>PR-2026-005</span></nav>
+<header class="page-head">
+  <div>
+    <h1>Inventory dashboard<span class="st blue">Sent, no reply</span></h1>
+    <p class="sub">For Joseph at Malabar Spice Exports, ₹60,000. Found in Kochi Business Network on 20 Oct, fit 0.83.</p>
+  </div>
+  <div class="actions">
+    <button class="btn ghost"><svg class="i sm"><use href="#i-copy"/></svg>Duplicate</button>
+    <button class="btn"><svg class="i sm"><use href="#i-download"/></svg>Download PDF</button>
+  </div>
+</header>
+
+<section class="band" aria-label="Where this proposal stands">
+  <div>
+    <h2 class="h3">Where it stands</h2>
+    <dl class="trail">
+      <div class="done"><dt>Sent</dt><dd>22 Oct<small>4:10 pm, WhatsApp and Gmail</small></dd></div>
+      <div class="done"><dt>Opened</dt><dd>Twice<small>22 Oct 6:02 pm, 24 Oct 9:41 am</small></dd></div>
+      <div><dt>Reply</dt><dd>None yet<small>3 days quiet</small></dd></div>
+      <div class="warn"><dt>Expires</dt><dd style="color:var(--amber-ink)">Wed 29 Oct<small>in 4 days</small></dd></div>
+    </dl>
+    <p class="last-word"><span class="avatar sm blue">J</span><span><b style="color:var(--ink);font-weight:500">Joseph's last message</b>, 22 Oct 2:31 pm: <q>Ok send me the details, will discuss with my brother and revert</q>. The second open on Friday morning was probably the brother.</span></p>
+  </div>
+  <div class="fu">
+    <div class="fu-head"><h2 class="h3">Follow-up draft</h2><span class="meta">Sends Mon 27 Oct, 10:00 am</span></div>
+    <div class="thread">
+      <div class="msg out draft"><span class="from">Draft, in your voice</span>Hi Joseph, hope you and your brother got a chance to go through the proposal 🙂 Happy to walk you both through it on a quick call, or start with just stock and lots if you'd like to begin smaller. The quote holds till Wednesday.<span class="time">Mon 10:00 am</span></div>
+    </div>
+    <div class="fu-actions">
+      <div class="via"><label><span class="switch"><input type="checkbox" checked><span></span></span>WhatsApp</label><label><span class="switch"><input type="checkbox"><span></span></span>Gmail</label></div>
+      <button class="btn"><svg class="i sm"><use href="#i-edit"/></svg>Edit</button>
+      <button class="btn blue"><svg class="i sm"><use href="#i-send"/></svg>Send follow-up <kbd>1</kbd></button>
+    </div>
+  </div>
+</section>
+
+<div class="work">
+  <div class="ed">
+    <div class="note blue"><svg class="i sm"><use href="#i-edit"/></svg><span>This is version 1, as Joseph received it. Any edit saves as version 2, and Devlancer sends the new PDF with one line on what changed.</span></div>
+
+    <section class="ed-sec"><div class="ed-head"><h2 class="h3">Understanding of the need</h2><span class="meta">From your chat with Joseph</span></div>
+      <div class="ed-body"><textarea class="textarea" rows="5" aria-label="Understanding of the need">Malabar Spice Exports buys pepper, cardamom and turmeric from farmers and auctions, holds it in two godowns in Mattancherry, and ships to buyers in the Gulf and Europe. Stock lives in Excel sheets that three people edit. Lots get mixed up between purchase and shipment, and low stock is noticed only when a buyer order comes in.</textarea></div></section>
+
+    <section class="ed-sec"><div class="ed-head"><h2 class="h3">Scope and deliverables</h2><span class="meta">6 items, the baseline for scope checks</span></div>
+      <div class="ed-body"><ol class="items-ed">
+        <li><span>1</span><div class="input ce" contenteditable="true" role="textbox">Stock by spice, grade and godown, updated as entries are made</div><button class="x" aria-label="Remove">✕</button></li>
+        <li><span>2</span><div class="input ce" contenteditable="true" role="textbox">Purchase entries with supplier, grade, moisture and weight, each given a lot number</div><button class="x" aria-label="Remove">✕</button></li>
+        <li><span>3</span><div class="input ce" contenteditable="true" role="textbox">Shipment tracking: buyer, container, port and document status, linked to lots</div><button class="x" aria-label="Remove">✕</button></li>
+        <li><span>4</span><div class="input ce" contenteditable="true" role="textbox">Low-stock alerts to Joseph on WhatsApp</div><button class="x" aria-label="Remove">✕</button></li>
+        <li><span>5</span><div class="input ce" contenteditable="true" role="textbox">Import of the current Excel sheets, 3 years of entries</div><button class="x" aria-label="Remove">✕</button></li>
+        <li><span>6</span><div class="input ce" contenteditable="true" role="textbox">Logins for 4 staff, with owner, godown and accounts roles</div><button class="x" aria-label="Remove">✕</button></li>
+      </ol><button class="btn sm ghost add"><svg class="i sm"><use href="#i-plus"/></svg>Add deliverable</button></div></section>
+
+    <section class="ed-sec"><div class="ed-head"><h2 class="h3">Out of scope</h2><span class="meta">Priced as change orders if asked</span></div>
+      <div class="ed-body"><ol class="items-ed">
+        <li><span>1</span><div class="input ce" contenteditable="true" role="textbox">Tally sync or GST filing</div><button class="x" aria-label="Remove">✕</button></li>
+        <li><span>2</span><div class="input ce" contenteditable="true" role="textbox">A separate mobile app (the dashboard works in the phone browser)</div><button class="x" aria-label="Remove">✕</button></li>
+        <li><span>3</span><div class="input ce" contenteditable="true" role="textbox">Barcode scanners or weighing scale hardware</div><button class="x" aria-label="Remove">✕</button></li>
+        <li><span>4</span><div class="input ce" contenteditable="true" role="textbox">A portal for buyers</div><button class="x" aria-label="Remove">✕</button></li>
+      </ol><button class="btn sm ghost add"><svg class="i sm"><use href="#i-plus"/></svg>Add exclusion</button></div></section>
+
+    <section class="ed-sec active"><div class="ed-head"><h2 class="h3">Milestones</h2><span class="meta">Starts Mon 3 Nov if accepted by Wed</span></div>
+      <div class="ed-body">
+        <table class="ms"><thead><tr><th>Milestone</th><th class="r">Share</th><th>Delivered by</th></tr></thead>
+          <tbody>
+            <tr><td><div class="input ce" contenteditable="true" role="textbox">Data model and Excel import</div></td><td><input class="input pct num" value="25%"></td><td><input class="input dt" value="Fri 7 Nov"></td></tr>
+            <tr><td><div class="input ce" contenteditable="true" role="textbox">Stock, lots and purchase entry</div></td><td><input class="input pct num" value="40%"></td><td><input class="input dt" value="Fri 21 Nov"></td></tr>
+            <tr><td><div class="input ce" contenteditable="true" role="textbox">Shipments, alerts and handover</div></td><td><input class="input pct num" value="35%"></td><td><input class="input dt" value="Fri 5 Dec"></td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="3"><div class="split"><i style="flex:25"></i><i style="flex:40"></i><i style="flex:35"></i></div><span style="display:block;margin-top:6px">Adds up to 100%, 5 weeks in all. Previews go to Joseph at each milestone.</span></td></tr></tfoot></table>
+      </div></section>
+
+    <section class="ed-sec"><div class="ed-head"><h2 class="h3">Pricing</h2><span class="meta">At ₹1,500 an hour</span></div>
+      <div class="ed-body" style="padding:0">
+        <table class="tbl price">
+          <thead><tr><th>Item</th><th class="r">Hours</th><th class="r">Amount</th></tr></thead>
+          <tbody>
+            <tr><td>Discovery call and data model</td><td class="r"><input class="input num" value="4"></td><td class="r num">₹6,000</td></tr>
+            <tr><td>Excel import and clean-up</td><td class="r"><input class="input num" value="6"></td><td class="r num">₹9,000</td></tr>
+            <tr><td>Stock, lots and purchase entry</td><td class="r"><input class="input num" value="12"></td><td class="r num">₹18,000</td></tr>
+            <tr><td>Shipment tracking</td><td class="r"><input class="input num" value="8"></td><td class="r num">₹12,000</td></tr>
+            <tr><td>WhatsApp low-stock alerts</td><td class="r"><input class="input num" value="4"></td><td class="r num">₹6,000</td></tr>
+            <tr><td>Logins, roles, testing and training</td><td class="r"><input class="input num" value="6"></td><td class="r num">₹9,000</td></tr>
+          </tbody>
+          <tfoot><tr><td>Total</td><td class="r num">40</td><td class="r num">₹60,000</td></tr></tfoot>
+        </table>
+      </div></section>
+
+    <section class="ed-sec"><div class="ed-head"><h2 class="h3">Payment terms and validity</h2></div>
+      <div class="ed-body">
+        <div class="seg" role="group" aria-label="Payment terms"><button aria-pressed="true">50% advance, 50% on delivery</button><button aria-pressed="false">Per milestone</button><button aria-pressed="false">Custom</button></div>
+        <div class="terms">
+          <div class="term"><b>₹30,000</b><span>Advance on acceptance, by UPI or bank transfer</span></div>
+          <div class="term"><b>₹30,000</b><span>On delivery, within 7 days of the final invoice</span></div>
+        </div>
+        <div class="field"><label for="valid">Valid until</label><input id="valid" class="input" value="Wednesday 29 October 2026" style="max-width:280px"><span class="hint">7 days from sending. Devlancer reminds Joseph once, the day before.</span></div>
+      </div></section>
+  </div>
+
+  <aside class="pv" aria-label="Live preview">
+    <div class="pv-bar"><svg class="i sm"><use href="#i-file"/></svg><span>PR-2026-005.pdf, 2 pages</span><span class="st cyan live">Live preview</span></div>
+
+    <article class="sheet">
+      <div class="sh-top"><div><b>Jerom Palimattom Tom</b>Freelance web developer, Kochi</div><div style="text-align:right">Proposal PR-2026-005<br>22 October 2026</div></div>
+      <h2>Inventory dashboard for Malabar Spice Exports</h2>
+      <div class="sh-for"><span>Prepared for <b>Joseph</b>, Malabar Spice Exports</span><span>Price <b>₹60,000</b></span><span>Valid until <b>29 Oct</b></span></div>
+      <div class="sh-rule"></div>
+      <h3>What I understood</h3>
+      <p>Malabar Spice Exports buys pepper, cardamom and turmeric from farmers and auctions, holds it in two godowns in Mattancherry, and ships to buyers in the Gulf and Europe. Stock lives in Excel sheets that three people edit. Lots get mixed up between purchase and shipment, and low stock is noticed only when a buyer order comes in.</p>
+      <h3>What you get</h3>
+      <ul>
+        <li>Stock by spice, grade and godown, updated as entries are made</li>
+        <li>Purchase entries with supplier, grade, moisture and weight, each given a lot number</li>
+        <li>Shipment tracking: buyer, container, port and document status, linked to lots</li>
+        <li>Low-stock alerts to Joseph on WhatsApp</li>
+        <li>Import of the current Excel sheets, 3 years of entries</li>
+        <li>Logins for 4 staff, with owner, godown and accounts roles</li>
+      </ul>
+      <h3>Not included</h3>
+      <ul class="no">
+        <li>Tally sync or GST filing</li>
+        <li>A separate mobile app (the dashboard works in the phone browser)</li>
+        <li>Barcode scanners or weighing scale hardware</li>
+        <li>A portal for buyers</li>
+      </ul>
+      <div class="hl">
+        <h3>Timeline</h3>
+        <table class="sh-tbl"><thead><tr><th>Milestone</th><th class="r">Share</th><th class="r">By</th></tr></thead><tbody>
+          <tr><td>Data model and Excel import</td><td class="r">25%</td><td class="r">7 Nov</td></tr>
+          <tr><td>Stock, lots and purchase entry</td><td class="r">40%</td><td class="r">21 Nov</td></tr>
+          <tr><td>Shipments, alerts and handover</td><td class="r">35%</td><td class="r">5 Dec</td></tr>
+        </tbody></table>
+      </div>
+      <p class="pgno">Page 1 of 2</p>
+    </article>
+
+    <article class="sheet">
+      <h3 style="margin-top:0">Price</h3>
+      <table class="sh-tbl"><thead><tr><th>Item</th><th class="r">Hours</th><th class="r">Amount</th></tr></thead><tbody>
+        <tr><td>Discovery call and data model</td><td class="r">4</td><td class="r">₹6,000</td></tr>
+        <tr><td>Excel import and clean-up</td><td class="r">6</td><td class="r">₹9,000</td></tr>
+        <tr><td>Stock, lots and purchase entry</td><td class="r">12</td><td class="r">₹18,000</td></tr>
+        <tr><td>Shipment tracking</td><td class="r">8</td><td class="r">₹12,000</td></tr>
+        <tr><td>WhatsApp low-stock alerts</td><td class="r">4</td><td class="r">₹6,000</td></tr>
+        <tr><td>Logins, roles, testing and training</td><td class="r">6</td><td class="r">₹9,000</td></tr>
+      </tbody><tfoot><tr><td>Total</td><td class="r">40</td><td class="r">₹60,000</td></tr></tfoot></table>
+      <h3>Payment</h3>
+      <p>50% advance (₹30,000) on acceptance, and 50% (₹30,000) on delivery, within 7 days of the final invoice. UPI to jerom@okhdfc or bank transfer. Not registered under GST, so no tax is added.</p>
+      <h3>Changes</h3>
+      <p>Anything outside the list above is welcome. I'll price it at ₹1,500 an hour and share it before starting, so there are no surprises on the invoice.</p>
+      <h3>Validity</h3>
+      <p>This quote is valid until Wednesday 29 October 2026. To go ahead, just reply on WhatsApp and send the advance.</p>
+      <div class="sh-sign"><span>Looking forward to working with you, Joseph.</span><span style="text-align:right"><i>Jerom</i>Jerom Palimattom Tom</span></div>
+      <p class="pgno">Page 2 of 2</p>
+    </article>
+  </aside>
+</div>
+
+</div></main></div>
+<script src="shell.js"></script>
+</body>
+</html>
