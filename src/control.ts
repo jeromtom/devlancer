@@ -100,7 +100,7 @@ export function helpText() {
     '*Devlancer commands*',
     '/online, /offline  set presence',
     '/status  what is going on',
-    '/gigs  recent leads',
+    '/gigs  recent leads   /scan  rescan marketplaces',
     '/groups  mark marketplace and client groups',
     '/m 1,3  mark groups as marketplaces   /c 2  mark as client group',
     '/won <lead#> [slug]  start a project from a lead',

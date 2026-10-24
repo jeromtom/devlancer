@@ -15,10 +15,14 @@ const FIT_MIN = 0.35
 const pct = (n: number) => `${Math.round(n * 100)}%`
 
 /** A message in a marketplace group: is it a gig worth pitching? */
+// Cheap prefilter so the model budget is only spent on messages that could be gigs
+const GIG_HINT = /\b(need|needed|looking for|require|requirement|hiring|hire|freelanc|anyone|budget|developer|website|web ?site|app|automation|bot|landing|build|dm me|quote|project|work)\b|₹|\brs\.?\s?\d|\d+\s?k\b/i
+
 export async function scoutMessage(m: InMsg, opts: { fromHistory?: boolean } = {}) {
-  if (m.fromMe || m.text.length < 20) return null
+  if (m.fromMe || m.text.length < 20 || !GIG_HINT.test(m.text)) return null
   if (db.prepare(`select 1 from leads where src_msg_id = ?`).get(m.id)) return null
-  const c = await classifyGig(m.text)
+  // Live messages get Laya first; the history scan uses the fallback so it never starves live traffic
+  const c = await classifyGig(m.text, { preferFallback: opts.fromHistory })
   if (c.isGig < GIG_P || c.fit < FIT_MIN) return null
 
   const d = await extract(
@@ -137,15 +141,15 @@ onApproval('start_project', async (p: { leadId: number; chat: string }, choice) 
 export async function scanHistory() {
   const markets = db.prepare(`select jid from chats where kind = 'marketplace'`).pluck().all() as string[]
   if (!markets.length) return
-  const rows = db
+  const rows = (db
     .prepare(
       `select * from messages where chat_jid in (${markets.map(() => '?').join(',')}) and from_me = 0 and length(text) > 30
-       and ts > ? order by ts desc limit 40`,
+       and ts > ? order by ts desc limit 150`,
     )
-    .all(...markets, now() - 7 * 864e5) as any[]
-  await notify(`🔎 Scanning ${rows.length} recent messages from your marketplace groups...`)
+    .all(...markets, now() - 7 * 864e5) as any[]).filter(r => GIG_HINT.test(r.text)).slice(0, 25)
+  await notify(`🔎 Checking ${rows.length} likely gig posts from the last 7 days...`)
   const found: number[] = []
-  for (const r of rows) {
+  const one = async (r: any) => {
     const raw = { key: { remoteJid: r.chat_jid, id: r.ext_id, participant: r.sender, fromMe: false }, message: { conversation: r.text } }
     const id = await scoutMessage(
       { raw: raw as any, id: r.ext_id, chat: r.chat_jid, sender: r.sender, senderAlt: '', senderName: r.sender_name, fromMe: false, text: r.text, ts: r.ts, isGroup: true, isSelfChat: false },
@@ -153,6 +157,7 @@ export async function scanHistory() {
     ).catch(e => (console.error(e), null))
     if (id) found.push(id)
   }
+  for (let i = 0; i < rows.length; i += 5) await Promise.all(rows.slice(i, i + 5).map(one))
   if (!found.length) return void (await notify('No matching gigs in the last 7 days. I will keep watching.'))
   const leads = db.prepare(`select * from leads where id in (${found.join(',')}) order by fit desc`).all() as Lead[]
   await notify(`Found *${leads.length} gigs* that fit you in the last 7 days:\n` + leads.map((l, i) => `${i + 1}. ${l.title}${l.budget ? `, ${l.budget}` : ''} (fit ${pct(l.fit)})`).join('\n'))
@@ -201,13 +206,17 @@ onCommand('m', async args => {
   const picked = pickGroups(args)
   for (const c of picked) db.prepare(`update chats set kind = 'marketplace' where jid = ?`).run(c.jid)
   await notify(`🛒 Watching for gigs in: ${picked.map(c => c.name).join(', ')}`)
-  await scanHistory()
+  void scanHistory().catch(e => console.error('scan', e)) // runs alongside live messages
 })
 
 onCommand('c', async args => {
   const picked = pickGroups(args)
   for (const c of picked) db.prepare(`update chats set kind = 'client' where jid = ?`).run(c.jid)
   await notify(`🤝 Client groups: ${picked.map(c => c.name).join(', ')}`)
+})
+
+onCommand('scan', async () => {
+  void scanHistory().catch(e => console.error('scan', e))
 })
 
 onCommand('speed', async args => {
