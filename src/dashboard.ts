@@ -122,36 +122,37 @@ const FONT_FACES = [400, 500, 600]
 
 const PAGE = /* html */ `<!doctype html><html lang="en-IN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Devlancer</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f1716'/%3E%3Cpath d='M7 16h18' stroke='%23243431' stroke-width='3'/%3E%3Ccircle cx='9' cy='16' r='4' fill='%237dd3fc'/%3E%3Ccircle cx='23' cy='16' r='4' fill='%232dd4bf'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23ffffff'/%3E%3Cpath d='M7 16h18' stroke='%23e4e8ef' stroke-width='3'/%3E%3Ccircle cx='9' cy='16' r='4' fill='%237b61ff'/%3E%3Ccircle cx='23' cy='16' r='4' fill='%233b82f6'/%3E%3C/svg%3E">
 <style>
 ${FONT_FACES}
-:root{--ground:#0f1716;--panel:#141f1d;--raise:#1b2927;--line:#243431;--ink:#e8f1ee;--mute:#a3b8b3;--dim:#7a9290;
---lead:#7dd3fc;--build:#2dd4bf;--owed:#f5b342;--paid:#86efac;--alert:#fb7185;color-scheme:dark}
+:root{--ground:#f3f5f9;--panel:#fff;--raise:#f4f6fa;--line:#e4e8ef;--ink:#1d2433;--mute:#5d6679;--dim:#97a0b2;
+--lead:#7b61ff;--lead-ink:#5b3fe0;--build:#3b82f6;--build-ink:#1d63d8;--owed:#f0a020;--owed-ink:#a25e00;
+--paid:#22b573;--paid-ink:#11804d;--alert:#ef5353;--alert-ink:#c93030;--shadow:0 1px 2px rgba(29,36,51,.05),0 6px 20px -8px rgba(29,36,51,.12);color-scheme:light}
 *{box-sizing:border-box}
 html{font-size:16px;scrollbar-color:var(--line) transparent;scrollbar-width:thin}
 body{margin:0;min-height:100vh;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto auto minmax(0,1fr);background:var(--ground);color:var(--ink);
-font:400 1rem/1.5 Plex,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;caret-color:var(--build)}
-::selection{background:#2dd4bf55;color:#fff}
+font:400 1rem/1.5 Plex,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;caret-color:var(--build-ink)}
+::selection{background:#3b82f633;color:var(--ink)}
 :focus-visible{outline:2px solid var(--build);outline-offset:2px;border-radius:4px}
-a{color:var(--build);text-underline-offset:3px;text-decoration-thickness:1px}
-a:hover{color:#5eead4}
+a{color:var(--build-ink);text-underline-offset:3px;text-decoration-thickness:1px}
+a:hover{color:#174fae}
 h1,h2{margin:0;font-weight:600;letter-spacing:-.01em}
 .num{font-variant-numeric:tabular-nums}
 .zero{color:var(--dim)!important}
 
-header{display:flex;align-items:center;flex-wrap:wrap;gap:6px 18px;padding:14px 28px;border-bottom:1px solid var(--line)}
+header{display:flex;align-items:center;flex-wrap:wrap;gap:6px 18px;padding:14px 28px;background:var(--panel);border-bottom:1px solid var(--line)}
 h1{font-size:1.44rem}
 .tagline{color:var(--mute);font-size:.94rem}
 .status{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px 18px;list-style:none;padding:0;margin-block:0;font-size:.875rem;color:var(--mute)}
 .status li{display:flex;align-items:center;gap:7px}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--dim);flex:none}
-.on .dot{background:var(--build)}.off-warn .dot{background:var(--owed)}
+.on .dot{background:var(--paid)}.off-warn .dot{background:var(--owed)}
 
-.demo{margin:14px 28px 0;padding:10px 14px;border-radius:8px;background:#f5b3421a;color:#fcd38a;font-size:.875rem}
+.demo{margin:14px 28px 0;padding:10px 14px;border-radius:8px;background:#fff4de;color:#7a4700;font-size:.875rem}
 
 .top{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:20px;padding:20px 28px 0}
 .bottom{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:20px;padding:20px 28px 24px;min-height:0}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;min-height:0;min-width:0}
+.panel{background:var(--panel);box-shadow:var(--shadow);border-radius:14px;padding:16px 18px;display:flex;flex-direction:column;min-height:0;min-width:0}
 .phead{display:flex;align-items:baseline;gap:12px;margin-bottom:12px}
 .phead h2{font-size:1rem}
 .meta{color:var(--mute);font-size:.875rem}
@@ -159,35 +160,35 @@ h1{font-size:1.44rem}
 
 /* Pipeline: the deal track */
 .track{list-style:none;margin:0;padding:0 0 4px;display:grid;grid-template-columns:repeat(7,minmax(132px,1fr));gap:12px;overflow-x:auto}
-.stage{position:relative;min-width:0;--c:var(--lead)}
-.stage[data-stage=building],.stage[data-stage=live]{--c:var(--build)}
-.stage[data-stage=invoiced]{--c:var(--owed)}.stage[data-stage=paid]{--c:var(--paid)}
+.stage{position:relative;min-width:0;--c:var(--lead);--ci:var(--lead-ink)}
+.stage[data-stage=building],.stage[data-stage=live]{--c:var(--build);--ci:var(--build-ink)}
+.stage[data-stage=invoiced]{--c:var(--owed);--ci:var(--owed-ink)}.stage[data-stage=paid]{--c:var(--paid);--ci:var(--paid-ink)}
 .stage::before{content:"";position:absolute;top:5px;left:0;right:-12px;height:2px;background:var(--line)}
 .stage[data-stage=paid]::before{right:0}
 .stage.has::before{background:linear-gradient(90deg,var(--c) 0 12px,var(--line) 12px)}
-.node{position:relative;display:block;width:12px;height:12px;border-radius:50%;background:var(--ground);border:2px solid var(--line)}
+.node{position:relative;display:block;width:12px;height:12px;border-radius:50%;background:var(--panel);border:2px solid var(--line)}
 .stage.has .node{background:var(--c);border-color:var(--c)}
 .sh{display:flex;align-items:baseline;gap:8px;margin:10px 0}
 .sh .name{color:var(--mute);font-size:.875rem}
 .sh .count{font-size:1.44rem;font-weight:600;line-height:1}
-.stage.has .count{color:var(--c)}
+.stage.has .count{color:var(--ci)}
 .deals{list-style:none;margin:0;padding:0;display:grid;gap:8px;max-height:24vh;overflow:auto}
-.deal{background:var(--raise);border-radius:8px;padding:8px 10px;min-width:0}
+.deal{background:var(--raise);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
 .deal b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-weight:500;font-size:.875rem;line-height:1.35}
 .deal span{display:block;color:var(--mute);font-size:.8125rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.deal .late{color:var(--alert)}
+.deal .late{color:var(--alert-ink)}
 .deal.moved{animation:moved 1.8s cubic-bezier(.16,1,.3,1)}
 @keyframes moved{from{box-shadow:0 0 0 2px var(--c),0 6px 24px -6px var(--c)}to{box-shadow:0 0 0 2px transparent,0 6px 24px -6px transparent}}
-.more{color:var(--dim);font-size:.8125rem;padding-left:2px}
+.more{color:var(--mute);font-size:.8125rem;padding-left:2px}
 .pipe-empty{grid-column:1/-1;color:var(--mute);font-size:.94rem;margin:2px 0 0}
 
 /* Money */
 .money dl{margin:0;display:grid;gap:16px}
 .money dt{color:var(--mute);font-size:.875rem}
 .money dd{margin:0;font-size:1.44rem;font-weight:600;line-height:1.2}
-.money .lead dd{font-size:2.07rem;color:var(--owed)}
-.money .collected dd{color:var(--paid)}
-.money .alerting dd{color:var(--alert)}
+.money .lead dd{font-size:2.07rem;color:var(--owed-ink)}
+.money .collected dd{color:var(--paid-ink)}
+.money .alerting dd{color:var(--alert-ink)}
 .money p{margin:2px 0 0;color:var(--mute);font-size:.8125rem}
 
 /* Feed */
@@ -200,15 +201,15 @@ h1{font-size:1.44rem}
 #feed li:first-child{border-top:0}
 #feed li.none{display:block}
 #feed li.fresh{animation:fresh 1.2s cubic-bezier(.16,1,.3,1)}
-@keyframes fresh{from{background:#2dd4bf1f}to{background:transparent}}
-.t{color:var(--dim);font-size:.8125rem}
+@keyframes fresh{from{background:#3b82f614}to{background:transparent}}
+.t{color:var(--mute);font-size:.8125rem}
 .kind{display:flex;align-items:center;gap:7px;font-size:.8125rem;color:var(--mute)}
 .kind .dot{background:var(--k)}
 .k-lead{--k:var(--lead)}.k-build{--k:var(--build)}.k-owed{--k:var(--owed)}.k-paid{--k:var(--paid)}.k-note{--k:var(--dim)}
 .msg{font-size:.94rem}
-.tag{display:inline-block;margin-left:8px;font-size:.75rem;padding:0 7px;border-radius:5px;border:1px solid var(--line);color:var(--mute);white-space:nowrap}
-.tag.cloud{color:var(--build);border-color:#2dd4bf55}.tag.cli{color:var(--lead);border-color:#7dd3fc55}
-.tag.queued{color:var(--owed);border-color:#f5b34255}.tag.blocked{color:var(--alert);border-color:#fb718555}
+.tag{display:inline-block;margin-left:8px;font-size:.75rem;padding:1px 7px;border-radius:5px;background:var(--raise);color:var(--mute);white-space:nowrap}
+.tag.cloud{color:var(--build-ink);background:#3b82f614}.tag.cli{color:var(--lead-ink);background:#7b61ff14}
+.tag.queued{color:var(--owed-ink);background:#f0a0201f}.tag.blocked{color:var(--alert-ink);background:#ef53531a}
 .msg a{margin-left:8px;font-size:.875rem}
 .empty{color:var(--mute);font-size:.94rem;margin:0;max-width:44ch}
 .empty a{white-space:nowrap}
@@ -229,8 +230,8 @@ td{padding:8px 6px 8px 0;border-bottom:1px solid var(--line)}
 tr:last-child td{border-bottom:0}
 td.num{white-space:nowrap}
 th.n,td.n{text-align:right;padding-right:16px}
-.auto{color:var(--build);font-size:.75rem;margin-left:6px}
-.s-paid{color:var(--paid)}.s-overdue{color:var(--alert)}.s-sent,.s-part_paid{color:var(--owed)}.s-draft{color:var(--dim)}
+.auto{color:var(--build-ink);font-size:.75rem;margin-left:6px}
+.s-paid{color:var(--paid-ink)}.s-overdue{color:var(--alert-ink)}.s-sent,.s-part_paid{color:var(--owed-ink)}.s-draft{color:var(--mute)}
 
 @media (min-width:1101px){body{height:100vh}}
 @media (max-width:1100px){.top,.bottom{grid-template-columns:1fr}.side{overflow:visible}#feed{max-height:70vh}}
@@ -322,7 +323,7 @@ return '<li><div class="req">'+esc(t.request)+'</div><div class="row"><span clas
 (t.route?'<span class="tag '+routeClass(t.route)+'" style="margin-left:0">'+esc(routeLabel(t.route))+'</span>':'')+link(t.devin_url,'Session')+link(t.pr_url,'Pull request')+link(t.preview_url,'Preview')+'</div></li>'}).join('')
 :'<li><p class="empty">'+(s.devin?'No sessions yet. Devin starts one when a client accepts a proposal or asks for a change.':'Devin is not connected. Add DEVIN_API_KEY to .env and restart Devlancer.')+'</p></li>';
 
-$('projects').innerHTML=s.projects.length?'<table><thead><tr><th>Project</th><th>Client</th><th>Preview</th></tr></thead><tbody>'+s.projects.map(p=>'<tr><td>#'+esc(p.slug)+(p.autopilot?'<span class="auto">Autopilot</span>':'')+'</td><td>'+esc(p.client_name)+'</td><td>'+(p.preview_url?link(p.preview_url,'Open'):'<span class="zero">Building</span>')+'</td></tr>').join('')+'</tbody></table>'
+$('projects').innerHTML=s.projects.length?'<table><thead><tr><th>Project</th><th>Client</th><th>Preview</th></tr></thead><tbody>'+s.projects.map(p=>'<tr><td>#'+esc(p.slug)+(p.autopilot?'<span class="auto">Autopilot</span>':'')+'</td><td>'+esc(p.client_name)+'</td><td>'+(p.preview_url?link(p.preview_url,'Open'):'<span class="meta">Building</span>')+'</td></tr>').join('')+'</tbody></table>'
 :'<p class="empty">Projects appear here when a client accepts your proposal.</p>';
 $('invoices').innerHTML=s.invoices.length?'<table><thead><tr><th>Number</th><th>Project</th><th class="n">Amount</th><th>Status</th></tr></thead><tbody>'+s.invoices.map(i=>'<tr><td class="num">'+esc(i.number)+'</td><td>'+esc(i.name)+'</td><td class="n num">'+inr(i.amount)+'</td><td class="s-'+esc(i.status)+'">'+esc(STATUS[i.status]||i.status)+'</td></tr>').join('')+'</tbody></table>'
 :'<p class="empty">Invoices appear when a project starts (the advance) and when a change order is approved.</p>';

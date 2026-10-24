@@ -85,19 +85,41 @@ export async function runLocalUpkeep() {
   }
 }
 
+/** Devin's GitHub access can push but not create repos, so Devlancer creates the repo first. */
+async function ensureRepo(project: Project): Promise<string> {
+  const full = `${GITHUB_OWNER}/${project.slug}`
+  const run = (args: string[]) =>
+    new Promise<string>((res, rej) => execFile('gh', args, (err, out, errOut) => (err ? rej(new Error(errOut || err.message)) : res(out))))
+  try {
+    await run(['repo', 'view', full, '--json', 'url'])
+  } catch {
+    try {
+      await run(['repo', 'create', full, '--private', '--add-readme', '--description', `${project.name} (built with Devlancer + Devin)`])
+      feed('devin', `Created GitHub repo ${full}`)
+    } catch (e: any) {
+      console.error('[gh] repo create failed:', e.message)
+      return ''
+    }
+  }
+  const url = `https://github.com/${full}`
+  db.prepare(`update projects set repo_url = ? where id = ?`).run(url, project.id)
+  return url
+}
+
 async function kickoff(project: Project) {
+  const repoUrl = await ensureRepo(project)
   const prompt = [
     `You are the engineer for a freelance client project: "${project.name}".`,
     `Agreed spec:\n${project.spec}`,
     '',
     'Do this:',
-    config.demoTemplateRepo
-      ? `1. Create a new GitHub repo ${GITHUB_OWNER}/${project.slug} from the template ${config.demoTemplateRepo}.`
+    repoUrl
+      ? `1. The GitHub repo already exists: ${repoUrl} (clone ${GITHUB_OWNER}/${project.slug}). Work in it.`
       : `1. Create a new GitHub repo ${GITHUB_OWNER}/${project.slug}.`,
     '2. Build a polished, mobile-first first version that covers the spec. Keep it simple and fast: plain Next.js or static HTML is fine. Use realistic placeholder content where the client has not provided any.',
-    '3. Make sure it builds. Deploy it to Vercel and get the public URL.',
+    '3. Make sure it builds. Deploy it to Vercel with the Vercel CLI using the VERCEL_TOKEN secret (npx vercel deploy --prod --yes --token $VERCEL_TOKEN) and get the public URL.',
     '4. Push to main.',
-    'Report preview_url and repo_url in your structured output, and also finish with the lines PREVIEW_URL: <url> and REPO_URL: <url>.',
+    'Report preview_url and repo_url in your structured output. Do not stop to ask questions unless you are truly blocked.',
   ].join('\n')
   await startDevinTask(project, 'kickoff', 'Build first version', prompt, '')
 }
@@ -143,11 +165,22 @@ export async function watchSessions() {
       const st = await devin.sessionStatus(t.devin_session_id)
       if (!st.done) continue
       const msgs = await devin.sessionMessages(t.devin_session_id).catch(() => '')
-      const all = `${st.raw}\n${msgs}`
-      const field = (k: string) => all.match(new RegExp(`${k}["']?\\s*[:=]\\s*["']?(https?://[^\\s"',}]+)`, 'i'))?.[1] ?? ''
-      const preview = field('preview_url') || all.match(/PREVIEW_URL:\s*(\S+)/)?.[1] || devin.findUrl(all, devin.PREVIEW_RE)
-      const repo = field('repo_url') || all.match(/REPO_URL:\s*(\S+)/)?.[1] || ''
-      const pr = field('pr_url') || devin.findUrl(all, devin.PR_RE)
+      // Read only the structured output (the message log echoes our own prompt)
+      const out = st.raw.slice(st.raw.indexOf('structured_output'))
+      const field = (k: string) => out.match(new RegExp(`${k}["']?\\s*[:=]\\s*["']?(https?://[^\\s"',}]+)`, 'i'))?.[1] ?? ''
+      const summary = out.match(/summary["']?\s*[:=]\s*["']?([^\n]+)/i)?.[1]?.trim() ?? ''
+      const preview = field('preview_url') || devin.findUrl(st.raw, devin.PREVIEW_RE)
+      const repo = field('repo_url')
+      const pr = field('pr_url') || devin.findUrl(st.raw, devin.PR_RE)
+      if (!preview && !pr) {
+        // Devin stopped without a deliverable: tell the freelancer what is blocking, never the client
+        db.prepare(`update tasks set status = 'blocked' where id = ?`).run(t.id)
+        const project = db.prepare(`select * from projects where id = ?`).get(t.project_id) as Project
+        const lastDevin = msgs.split(/\[devin\]/).pop()?.replace(/^[^\n]*\n/, '').trim().slice(0, 700) ?? ''
+        feed('devin', `Devin needs you on "${t.request}" (${project.name})`, { route: 'Blocked', url: t.devin_url })
+        await notify(`🧱 *Devin is blocked* on ${t.request} (${project.name}).\n${summary ? `Summary: ${summary}\n` : ''}\n${lastDevin}\n\nOpen: ${t.devin_url}\nReply here with \`/devin ${t.id} <message>\` to answer Devin.`)
+        continue
+      }
       db.prepare(`update tasks set status = 'done', pr_url = ?, preview_url = ? where id = ?`).run(pr, preview, t.id)
       const project = db.prepare(`select * from projects where id = ?`).get(t.project_id) as Project
       if (preview) db.prepare(`update projects set preview_url = ? where id = ?`).run(preview, project.id)
@@ -341,8 +374,8 @@ function changePrompt(project: Project, request: string) {
     '',
     `Client request: "${request}"`,
     '',
-    'Make the change on a new branch, keep the existing style, make sure it builds, open a PR, and deploy a Vercel preview for the branch.',
-    'Report preview_url and pr_url in your structured output, and also finish with the lines PREVIEW_URL: <url> and PR_URL: <url>.',
+    'Make the change on a new branch, keep the existing style, make sure it builds, open a PR, and deploy a Vercel preview for the branch with the Vercel CLI using the VERCEL_TOKEN secret (npx vercel deploy --yes --token $VERCEL_TOKEN).',
+    'Report preview_url and pr_url in your structured output. Do not stop to ask questions unless you are truly blocked.',
   ].join('\n')
 }
 
@@ -368,6 +401,15 @@ function launchCli(project: Project, briefPath: string, brief: string) {
 }
 
 // ---------- Commands ----------
+
+onCommand('devin', async args => {
+  const [idStr, ...rest] = args.split(/\s+/)
+  const t = db.prepare(`select * from tasks where id = ?`).get(Number(idStr)) as Task | undefined
+  if (!t?.devin_session_id || !rest.length) return void (await notify('Usage: /devin <task#> <message>'))
+  await devin.sendToSession(t.devin_session_id, rest.join(' '))
+  db.prepare(`update tasks set status = 'running' where id = ?`).run(t.id)
+  await notify(`📨 Sent to Devin. I will watch task ${t.id} again.`)
+})
 
 onCommand('projects', async () => {
   const rows = db.prepare(`select * from projects order by id desc`).all() as Project[]
