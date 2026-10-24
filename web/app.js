@@ -255,63 +255,12 @@ document.addEventListener('keydown', ev => {
 /* ---------- Data ---------- */
 function apply(s) { state = s; render() }
 
-if (new URLSearchParams(location.search).has('demo')) {
-  $('demo').hidden = false
-  const m = 60000, n = Date.now()
-  feed = [
-    { ts: n - 2 * m, kind: 'devin', text: 'Devin Cloud session started for Homestay booking site: add a gallery section with 12 room photos', route: 'Devin Cloud', url: '#' },
-    { ts: n - 6 * m, kind: 'scope', text: 'Scope creep caught on Tuition centre app: "Add online fee payments" priced at ₹10,000' },
-    { ts: n - 9 * m, kind: 'task', text: 'Hands-on request on Tuition centre app: fix the fee calculator rounding. Opening Devin CLI', route: 'Devin CLI' },
-    { ts: n - 14 * m, kind: 'gig', text: 'Gig in Kochi Freelancers: WhatsApp order bot for a pharmacy, ₹25,000 (fit 86%)' },
-    { ts: n - 21 * m, kind: 'payment', text: 'Payment of ₹35,000 recorded for Restaurant menu site (UPI)' },
-    { ts: n - 30 * m, kind: 'pitch', text: 'Pitched Clinic appointment booking site privately to Dr Meera' },
-    { ts: n - 42 * m, kind: 'email', text: 'Client email from Fathima: Can we add a size chart?' },
-    { ts: n - 75 * m, kind: 'invoice', text: 'Reminder sent for INV-2026-004 (Boutique catalogue), 6 days overdue' },
-    { ts: n - 130 * m, kind: 'proposal', text: 'Proposal sent to Joseph for Inventory dashboard, ₹60,000 in 3 milestones' },
-  ]
-  apply({
-    presence: 'offline', devin: true, gmail: false, scopeCaught: 18000, changeOrders: 2, outstanding: 42000, outstandingCount: 3, overdueCount: 1, collected: 65000, payments: 4, tasksRunning: 2,
-    deals: [
-      { id: 'l1', title: 'Landing page for a bakery in Kakkanad', client: 'Anu', budget: '₹15,000', stage: 'gig' },
-      { id: 'l2', title: 'WhatsApp order bot for a pharmacy', client: 'Rahul', budget: '₹25,000', stage: 'gig' },
-      { id: 'l5', title: 'Portfolio site for a wedding photographer', client: 'Nikhil', budget: '₹12,000', stage: 'gig' },
-      { id: 'l3', title: 'Clinic appointment booking site', client: 'Dr Meera', budget: '₹30,000', stage: 'pitched' },
-      { id: 'l4', title: 'Inventory dashboard for a spice exporter', client: 'Joseph', budget: '₹60,000', stage: 'proposal' },
-      { id: 'p1', title: 'Homestay booking site', client: 'Thomas', stage: 'building' },
-      { id: 'p2', title: 'Tuition centre app', client: 'Lakshmi', stage: 'live', autopilot: true, preview_url: '#' },
-      { id: 'p3', title: 'Boutique catalogue', client: 'Fathima', stage: 'invoiced', overdue: true, preview_url: '#' },
-      { id: 'p4', title: 'Restaurant menu site', client: 'Arjun', stage: 'paid', preview_url: '#' },
-    ],
-    tasks: [
-      { request: 'Add a gallery section with 12 room photos', route: 'cloud', status: 'running', project: 'Homestay booking site', devin_url: '#' },
-      { request: 'Fix the fee calculator rounding for sibling discounts', route: 'cli', status: 'running_local', project: 'Tuition centre app' },
-      { request: 'Add a size chart to every product page', route: 'queued', status: 'queued', project: 'Boutique catalogue' },
-      { request: 'Add a Malayalam language toggle', route: 'cloud', status: 'done', project: 'Tuition centre app', pr_url: '#', preview_url: '#' },
-      { request: 'Compress menu photos for faster loading', route: 'cloud', status: 'done', project: 'Restaurant menu site', pr_url: '#' },
-    ],
-    projects: [
-      { id: 1, slug: 'homestay', name: 'Homestay booking site', client_name: 'Thomas' },
-      { id: 2, slug: 'tuition', name: 'Tuition centre app', client_name: 'Lakshmi', preview_url: '#', autopilot: 1 },
-      { id: 3, slug: 'boutique', name: 'Boutique catalogue', client_name: 'Fathima', preview_url: '#' },
-      { id: 4, slug: 'menu', name: 'Restaurant menu site', client_name: 'Arjun', preview_url: '#' },
-    ],
-    invoices: [
-      { number: 'INV-2026-005', name: 'Tuition centre app', amount: 10000, paid_amount: 0, status: 'draft' },
-      { number: 'INV-2026-004', name: 'Boutique catalogue', amount: 22000, paid_amount: 0, status: 'overdue' },
-      { number: 'INV-2026-003', name: 'Tuition centre app', amount: 12000, paid_amount: 0, status: 'sent' },
-      { number: 'INV-2026-002', name: 'Homestay booking site', amount: 16000, paid_amount: 8000, status: 'part_paid' },
-      { number: 'INV-2026-001', name: 'Restaurant menu site', amount: 35000, paid_amount: 35000, status: 'paid' },
-    ],
-  })
-  route()
-} else {
-  fetch('/api/state').then(r => r.json()).then(d => { feed = d.feed.slice().reverse(); apply(d.stats); route() })
-  const es = new EventSource('/events')
-  es.addEventListener('feed', msg => {
-    const d = JSON.parse(msg.data)
-    feed.unshift(d.ev); if (feed.length > 200) feed.pop()
-    freshTs = d.ev.ts
-    apply(d.stats)
-  })
-}
+fetch('/api/state').then(r => r.json()).then(d => { feed = d.feed.slice().reverse(); apply(d.stats); route() })
+const es = new EventSource('/events')
+es.addEventListener('feed', msg => {
+  const d = JSON.parse(msg.data)
+  feed.unshift(d.ev); if (feed.length > 200) feed.pop()
+  freshTs = d.ev.ts
+  apply(d.stats)
+})
 setInterval(render, 60000) // keep "x min ago" honest
