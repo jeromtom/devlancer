@@ -1,0 +1,6 @@
+name = "devlancer-edge"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+account_id = "9f7e4d46cbee40a399480ecd03246d9e"
+workers_dev = false
+routes = [{ pattern = "devlancer.rexindynamics.com", custom_domain = true }]
