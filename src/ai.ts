@@ -130,7 +130,16 @@ async function classifyGigLaya(text: string) {
 
 type ClientInput = { spec: string; recent: string; message: string; projects: { slug: string; name: string }[] }
 
+/** Signals that a request needs the freelancer no matter what the models say. */
+const NEEDS_HUMAN = /\b(i('| wi)ll (share|send)|will (share|send)|later|logo|brand( guide)?|fonts?|colou?rs?|feel|vibe|premium|look and feel|redesign|password|login|credentials|access|domain|dns|payment gateway|razorpay|stripe)\b/i
+
 export async function classifyClientMessage(input: ClientInput) {
+  const r = await classifyClientRaw(input)
+  if (NEEDS_HUMAN.test(input.message)) r.humanDependence = Math.max(r.humanDependence, 0.7)
+  return r
+}
+
+async function classifyClientRaw(input: ClientInput) {
   return decideOr('client message', () => classifyClientLaya(input), async () => {
     const r = await extract(
       z.object({
@@ -140,7 +149,7 @@ export async function classifyClientMessage(input: ClientInput) {
         inScope: z.number().describe('0-1 probability the request is covered by the agreed scope'),
         clarity: z.number().describe('0-1 how clear and specific'),
         verifiable: z.number().describe('0-1 how easily success can be checked'),
-        humanDependence: z.number().describe('0-1 how much it needs human judgement: taste, negotiation, credentials, prod data, missing context'),
+        humanDependence: z.number().describe('0-1 how much it needs human judgement: taste or brand decisions, negotiation, credentials, prod data, or assets the client has not sent yet'),
         sizeOk: z.number().describe('0-1 probability it takes under 3 hours'),
       }),
       'Classify the new client message for a freelance developer.',
@@ -152,6 +161,8 @@ export async function classifyClientMessage(input: ClientInput) {
     // Laya picks the choices (intent, project); calibrated scores are averaged with the text model
     merge: (l, o) => ({
       ...l,
+      // On disagreement the text model wins on intent (Laya over-reads approvals from context)
+      intent: l.intent === o.intent ? l.intent : o.intent,
       inScope: (l.inScope + o.inScope) / 2,
       clarity: (l.clarity + o.clarity) / 2,
       verifiable: (l.verifiable + o.verifiable) / 2,
@@ -162,12 +173,14 @@ export async function classifyClientMessage(input: ClientInput) {
 }
 
 async function classifyClientLaya(input: ClientInput) {
+  // Laya choice keys must be simple identifiers: map p1, p2... back to slugs
   const projectCriteria: Record<string, string> = { none: 'Not about any listed project' }
-  for (const p of input.projects) projectCriteria[p.slug] = p.name
+  input.projects.forEach((p, i) => (projectCriteria[`p${i + 1}`] = p.name))
+  const keyToSlug = (k: string) => (k.startsWith('p') ? input.projects[Number(k.slice(1)) - 1]?.slug ?? 'none' : 'none')
   const r = await decide({
     maxRetries: 0,
     model: config.decideModel,
-    state: `Agreed scope of work:\n${input.spec.slice(0, 2500)}\n\nRecent conversation:\n${input.recent.slice(-2500)}\n\nNew client message:\n"""${input.message}"""`,
+    state: `Agreed scope of work:\n${input.spec.slice(0, 1500)}\n\nRecent conversation:\n${input.recent.slice(-1200)}\n\nNew client message:\n"""${input.message}"""`,
     questions: {
       project: { type: 'choice', instructions: 'Which project is the new client message about?', criteria: projectCriteria },
       intent: {
@@ -195,7 +208,7 @@ async function classifyClientLaya(input: ClientInput) {
   })
   const a = r.answers
   return {
-    project: a.project.choice as string,
+    project: keyToSlug(a.project.choice as string),
     projectConfidence: a.project.probabilities?.[a.project.choice] ?? 1,
     intent: a.intent.choice,
     inScope: prob(a.in_scope),
