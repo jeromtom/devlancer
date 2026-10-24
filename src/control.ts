@@ -108,7 +108,7 @@ export function helpText() {
     '/project email <slug> <email>  set client email for Gmail',
     '/projects  list projects',
     '/invoice <slug> <amount> <note>  draft an invoice',
-    '/invoices  outstanding',
+    '/invoices  outstanding   /paid <INV-no|all>  mark paid',
     '/autopilot on|off <slug>   /speed on|off <group#>',
     '/gmail  connect Gmail',
   ].join('\n')

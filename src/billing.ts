@@ -272,14 +272,34 @@ export async function proposePayment(source: string, amount: number | null, proj
 
 onApproval('mark_paid', async (p: { invoiceId: number; amount: number; source: string; ref: string }, choice) => {
   if (choice !== '1') return
+  await recordPayment(p)
+})
+
+/** Record a payment against an invoice and thank the client. */
+async function recordPayment(p: { invoiceId: number; amount: number; source: string; ref: string }) {
   const inv = db.prepare(`select * from invoices where id = ?`).get(p.invoiceId) as any
   const paid = inv.paid_amount + p.amount
   db.prepare(`update invoices set paid_amount = ?, status = ? where id = ?`).run(paid, paid >= inv.amount - 1 ? 'paid' : 'part_paid', inv.id)
   db.prepare(`insert into payments (invoice_id, source, amount, ref, ts) values (?, ?, ?, ?, ?)`).run(inv.id, p.source, p.amount, p.ref, now())
   feed('payment', `Payment ${inr(p.amount)} recorded (${p.source})`)
   const proj = db.prepare(`select * from projects where id = ?`).get(inv.project_id) as Project
-  const thanks = await write(`Thank the client briefly for the payment of ${inr(p.amount)} for ${proj.name}.`)
+  const thanks = await write(`Thank the client briefly for the payment of ${inr(p.amount)} for ${proj.name}.`, '', `Received ${inr(p.amount)}, thank you! 🙏`)
   await sendText(proj.client_jid || proj.chat_jid, thanks)
+}
+
+/** /paid <INV-number|all>: mark invoices paid by hand (bank transfer, cash, or a simulated payment in a demo). */
+onCommand('paid', async args => {
+  const q = args.trim().toUpperCase()
+  const open = db
+    .prepare(
+      `select i.*, d.number from invoices i join documents d on d.id = i.document_id
+       where i.status in ('draft','sent','part_paid','overdue') ${q === 'ALL' || !q ? '' : 'and d.number = ?'} order by i.id`,
+    )
+    .all(...(q === 'ALL' || !q ? [] : [q])) as any[]
+  if (!q) return void (await notify(`Usage: /paid <invoice number> or /paid all\nOpen: ${open.map(i => i.number).join(', ') || 'none'}`))
+  if (!open.length) return void (await notify(`No open invoice ${q === 'ALL' ? '' : q}`))
+  for (const i of open) await recordPayment({ invoiceId: i.id, amount: i.amount - i.paid_amount, source: 'Manual', ref: `Marked paid from self-chat` })
+  await notify(`✅ Marked paid: ${open.map(i => `${i.number} (${inr(i.amount - i.paid_amount)})`).join(', ')}`)
 })
 
 export async function chaseOverdue() {

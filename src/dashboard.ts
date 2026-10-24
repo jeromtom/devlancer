@@ -1,5 +1,6 @@
 import { Hono } from 'hono'
-import { basicAuth } from 'hono/basic-auth'
+import { getSignedCookie, setSignedCookie, deleteCookie } from 'hono/cookie'
+import { createHash } from 'node:crypto'
 import { serve } from '@hono/node-server'
 import { streamSSE } from 'hono/streaming'
 import { board, history } from './board.js'
@@ -25,12 +26,29 @@ export const devHooks: { self?: (text: string) => void } = {}
 
 export function startDashboard() {
   const app = new Hono()
-  // Public deployment: everything except the OAuth callback sits behind basic auth
-  if (config.dashboardPassword)
+  // Public deployment: a login screen with one shared password, then a signed session cookie
+  if (config.dashboardPassword) {
+    const secret = createHash('sha256').update(`devlancer:${config.dashboardPassword}:${config.devToken}`).digest('hex')
+    const OPEN = /^\/(healthz|login|logout|tokens\.css|fonts\.css|components\.css|fonts\/|brand\/|auth\/google\/callback|dev\/self)/
     app.use('*', async (c, next) => {
-      if (c.req.path === '/healthz' || c.req.path.startsWith('/auth/google/callback')) return next()
-      return basicAuth({ username: config.dashboardUser, password: config.dashboardPassword })(c, next)
+      if (OPEN.test(c.req.path)) return next()
+      if ((await getSignedCookie(c, secret, 'dl_session')) === 'ok') return next()
+      if (c.req.path.startsWith('/api') || c.req.path === '/events') return c.json({ error: 'login required' }, 401)
+      return c.redirect(`/login?next=${encodeURIComponent(c.req.path)}`)
     })
+    app.get('/login', c => c.html(loginPage(c.req.query('error') ? 'That password did not work. Try again.' : '', c.req.query('next') ?? '/')))
+    app.post('/login', async c => {
+      const form = await c.req.parseBody()
+      const next = String(form.next ?? '/').startsWith('/') ? String(form.next ?? '/') : '/'
+      if (String(form.password ?? '') !== config.dashboardPassword) return c.redirect(`/login?error=1&next=${encodeURIComponent(next)}`)
+      await setSignedCookie(c, 'dl_session', 'ok', secret, { httpOnly: true, secure: true, sameSite: 'Lax', path: '/', maxAge: 60 * 60 * 24 * 30 })
+      return c.redirect(next)
+    })
+    app.get('/logout', c => {
+      deleteCookie(c, 'dl_session', { path: '/' })
+      return c.redirect('/login')
+    })
+  }
   app.get('/healthz', c => c.json({ ok: true, whatsapp: !lastQr, devin: devinReady() }))
   app.post('/dev/self', async c => {
     // Test hook: needs DEV_TOKEN in production (every tunnel request looks local)
@@ -65,6 +83,21 @@ export function startDashboard() {
   serve({ fetch: app.fetch, port: config.port, hostname: config.host })
   console.log(`Dashboard on http://localhost:${config.port}`)
 }
+
+const esc = (t: string) => t.replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[ch]!)
+
+/** Login screen: one password field, branded like the rest of the app. */
+const loginPage = (error: string, next: string) =>
+  notice(
+    'Sign in',
+    `<p>Your freelance dev that finds the gig, builds it, and keeps the client happy.</p>
+<form method="post" action="/login" style="display:grid;gap:12px;width:100%">
+<input type="hidden" name="next" value="${esc(next)}">
+<label style="display:grid;gap:6px;font-weight:500">Password<input class="input" type="password" name="password" autocomplete="current-password" autofocus required style="padding:10px 12px;border:1px solid var(--line);border-radius:var(--r-control);font:inherit;background:var(--surface,#fff);color:inherit"></label>
+${error ? `<p role="alert" style="color:var(--danger,#b42318);margin:0">${error}</p>` : ''}
+<button class="btn primary" type="submit">Open dashboard</button>
+</form>`,
+  )
 
 /** Small branded page for one-off screens (WhatsApp linking, OAuth return). */
 const notice = (title: string, body: string, head = '') => `<!doctype html><html lang="en-IN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${head}
