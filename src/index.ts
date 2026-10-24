@@ -1,3 +1,4 @@
+import { execSync } from 'node:child_process'
 import fs from 'node:fs'
 import path from 'node:path'
 import { db, getSetting, setSetting, type Chat, type Lead, type Project } from './db.js'
@@ -112,7 +113,10 @@ function takeOver() {
   try {
     const old = Number(fs.readFileSync(pidFile, 'utf8'))
     if (old && old !== process.pid) {
-      process.kill(old, 'SIGTERM')
+      // tsx keeps the child alive on SIGTERM, so stop it hard (and its tsx parent)
+      const parent = Number(execSync(`ps -o ppid= -p ${old}`).toString().trim() || 0)
+      process.kill(old, 'SIGKILL')
+      if (parent > 1 && parent !== process.ppid) process.kill(parent, 'SIGKILL')
       console.log(`Stopped previous Devlancer (pid ${old})`)
     }
   } catch {}
