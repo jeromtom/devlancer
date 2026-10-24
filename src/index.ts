@@ -32,12 +32,16 @@ function route(m: InMsg) {
     if (projectsForChat(m).length) return queue(() => handleClientMessage(m))
     return
   }
-  // Direct message: an existing client, or someone we pitched?
-  if (projectsForChat(m).length) return queue(() => handleClientMessage(m))
+  // Direct message: someone we pitched, or an existing client? A repeat client with a newer open
+  // lead is talking about the new gig, so the lead wins over older projects.
   const ids = [m.chat, m.sender, m.senderAlt].filter(Boolean)
   const lead = db
     .prepare(`select * from leads where poster_jid in (${ids.map(() => '?').join(',')}) and status in ('pitched','proposal_sent') order by id desc limit 1`)
     .get(...ids) as Lead | undefined
+  const projects = projectsForChat(m)
+  const newestProject = Math.max(0, ...projects.map(p => p.created_at ?? 0))
+  if (lead && lead.created_at > newestProject) return queue(() => handleLeadDm(m, lead))
+  if (projects.length) return queue(() => handleClientMessage(m))
   if (lead) return queue(() => handleLeadDm(m, lead))
 }
 
