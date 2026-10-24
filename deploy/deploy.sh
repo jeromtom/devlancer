@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Deploy main to the VM: pull, install deps if the lockfile changed, restart. Usage: deploy/deploy.sh
 set -euo pipefail
-gcloud compute ssh devlancer --project=devlancer-rexin --zone=us-central1-a --account="${GCP_ACCOUNT:-rexindynamics@gmail.com}" --quiet --command '
+gcloud compute ssh devlancer --project=devlancer-rexin --zone=us-central1-a --account="${GCP_ACCOUNT:-rexindynamics@gmail.com}" --quiet --ssh-flag="-o ConnectTimeout=60" --command '
   set -e
   cd /opt/devlancer
   before=$(sudo git rev-parse HEAD:package-lock.json)
