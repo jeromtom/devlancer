@@ -1,86 +1,146 @@
 # Devlancer
 
-> Your freelance dev that finds the gig, builds it, and keeps the client happy.
+> **Devlancer: your freelance dev that finds the gig, builds it, and keeps the client happy.**
 
-Built solo at **Devin Hacks Kochi** (24-25 October 2026). Track 1: Kill the Busywork, with a Track 2 hook (scope creep made visible).
+Devlancer runs on a freelancer's own WhatsApp number, quietly (ghost mode). It spots gigs in marketplace groups, pitches privately, sends proposals, kicks off the build on Devin, delivers previews to the client, routes change requests to the right Devin surface, catches scope creep as priced change orders, and tracks invoices and payments. The freelancer approves everything from their own "Message yourself" chat.
 
-Freelancers in India find, run and bill client work inside WhatsApp. Devlancer runs on the freelancer's own WhatsApp number, invisibly. It spots gigs in busy business groups, pitches privately, sends proposals and invoices, hands the engineering to **Devin**, and keeps every client request moving, whether the freelancer is at the keyboard or asleep.
+Built for **Devin Hacks Kochi** (24-25 October 2026). Live dashboard: **https://devlancer.rexindynamics.com** (password-protected login).
 
-## What it does
-
-| Stage | What happens |
+| Doc | What it covers |
 |---|---|
-| **Scout** | Watches marketplace groups. When a real gig fits, it reacts 👍 and replies "Check DM 🙂" in the group, then sends a tailored pitch as a **private reply** quoting the post. |
-| **Propose** | Generates a proposal PDF (scope, out-of-scope, milestones, pricing, terms) and sends it in the DM. |
-| **Kick off** | When the client accepts, it creates the project, drafts the 50% advance invoice with a UPI QR code, saves the spec to **Devin Knowledge**, starts a **Devin Cloud** build, and schedules weekly upkeep on **Devin Schedules**. |
-| **Deliver** | When Devin finishes, the preview link and a mobile screenshot go to the client in the freelancer's voice. |
-| **Maintain** | Every client message is classified (intent, scope, clarity, how checkable, human dependence, size) and routed to the right Devin surface (below). |
-| **Protect** | Out-of-scope requests are never built for free: a change order PDF is drafted, and the client's "ok" turns it into an invoice. The dashboard tracks **scope creep caught (₹)**. |
-| **Get paid** | Invoices are tracked through sent, part-paid, paid and overdue. "Sent the advance" in chat proposes a payment match; overdue invoices get polite reminders. |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Components, data flow, SQLite tables, dashboard |
+| [docs/DEPLOY.md](docs/DEPLOY.md) | Production VM, tunnel, edge worker, env vars, relinking WhatsApp |
+| [docs/DEMO.md](docs/DEMO.md) | 4-minute judge demo script and checklist |
+| [docs/PRD.md](docs/PRD.md) | Product requirements |
+| [design/DESIGN.md](design/DESIGN.md) | Design system |
+| [AGENTS.md](AGENTS.md) | Rules for the multi-agent workflow |
 
-### Routing: which Devin surface does the work
+## The problem
 
-Based on Cognition's [When to use Devin](https://docs.devin.ai/essential-guidelines/when-to-use-devin): clear, checkable work under about 3 hours goes to the cloud; ambiguous or taste-heavy work needs a human.
+Freelance developers in India find, run, bill and maintain client work almost entirely inside WhatsApp.
 
-| | Clear, checkable, small | Needs taste, access or judgement |
+- Gig leads vanish in busy business groups, and the first reply usually wins.
+- Proposals and invoices are slow, repetitive admin.
+- Change requests arrive at all hours, mixed with chatter, sometimes for several projects in one group.
+- Scope creep goes unbilled, invoices go unchased, and clients wait when the freelancer is asleep.
+
+## End-to-end flow
+
+| # | Stage | What Devlancer does |
 |---|---|---|
-| **Freelancer offline** | **Devin Cloud** session on its own; client gets a natural holding reply, then the preview | **Ask Devin** (repo Q&A) writes a brief; queued for the morning; client gets an honest ETA |
-| **Freelancer online** | **Devin Cloud** in parallel; freelancer reviews | **Devin CLI** opens locally with the brief on the clipboard; `/handoff` to cloud once direction is set |
+| 1 | **Scout** | Watches groups marked as marketplaces. A regex prefilter, then a Laya classification (is it a gig, how well does it fit, which category). Gigs above 60% probability and 35% fit become a card in the self-chat with a drafted pitch. |
+| 2 | **Pitch** | On approval: 👍 reaction on the post, a short "Check DM 🙂" reply in the group, and the full pitch sent as a private reply quoting the group post. Option 3 also sends a proposal PDF. |
+| 3 | **Proposal** | When the lead asks for details, a proposal PDF (scope, deliverables, out of scope, milestones, priced items in INR, 50/50 terms) is drafted and offered for approval. |
+| 4 | **Acceptance** | When the lead accepts in DM, an approval card offers "start project + advance invoice + Devin build". |
+| 5 | **Kickoff** | Creates the project, saves the spec to Devin Knowledge, drafts a 50% advance invoice, creates a private GitHub repo with `gh`, and starts a Devin Cloud session to build and deploy to Vercel. Schedules weekly upkeep. |
+| 6 | **Delivery** | A watcher polls Devin every 45 seconds. On finish it reads the structured output (preview, repo, PR), takes a mobile screenshot of the preview, drafts a client message, and asks to send (or sends straight away on autopilot, except for the first build). |
+| 7 | **Change requests** | Client messages are classified (intent, scope, clarity, verifiability, human dependence, size) and routed by presence x human dependence (table below). |
+| 8 | **Scope creep** | An out-of-scope change request gets a holding reply and a change order PDF priced at the hourly rate. When the client says "ok", the change order is accepted, the spec is updated, an invoice is drafted, and the work is routed to Devin. |
+| 9 | **Invoices** | Invoice PDFs carry a UPI QR code ("Scan to pay with any UPI app"). Overdue invoices get a gentle reminder draft every 6 hours. |
+| 10 | **Payments** | Payment claims in WhatsApp and payment alerts in Gmail are matched to open invoices and offered as "mark paid". On approval the client gets a short thank-you. For the demo, `/paid` marks invoices paid directly. |
 
-## Ghost mode and control
+### Change request routing
 
-- Runs as a **linked device** on the freelancer's number; never shows "online", types and paces like a person, writes in the freelancer's voice (learned from their sent messages), and never signs as a bot.
-- The freelancer's **"Message yourself" chat is the control panel**: approval cards (`1` send, `2` edit, `0` skip) and commands. Nothing that commits money, scope or deadlines reaches a client without approval. Autopilot is opt-in per project.
+"High" means human dependence of at least 0.55, or likely more than 3 hours, or hard to verify. Requests about logos, brand, look and feel, credentials, domains or payment gateways are always treated as high.
 
-### Self-chat commands
-
-```
-/groups [search]        list groups (30 most active, or matching a name)
-/m 1,4   /c 2           mark marketplace groups / client groups
-/scan    /gigs          rescan marketplaces / list leads
-/won <lead#>            start a project from a lead
-/projects   /link <slug> <group#>   /autopilot on|off <slug>
-/invoice <slug> <amount> <note>     /invoices
-/online   /offline   /status   /speed on|off <group#>   /help
-```
-
-## Always on
-
-Every dependency has a fallback, so Devlancer keeps working when something is down or rate limited:
-
-| Layer | Primary | Fallback |
+| | Freelancer `/online` | Freelancer `/offline` |
 |---|---|---|
-| Decisions | **Laya** (`convaiinnovations/laya`, typed answers with probabilities) voting with a text model | Text model alone, then keyword rules |
-| Writing | `openai/gpt-4.1-mini` via Vercel AI Gateway | Gemini 2.5 Flash Lite, gpt-5-mini, gpt-4o-mini, Llama 3.3, Mistral, then templates |
-| Devin | MCP session | Auto-reconnect; tasks queue and retry every 45 seconds |
-| Documents | PDF (Playwright) | Formatted WhatsApp text |
-| WhatsApp | Quoted send | Plain send retry |
+| **Low human dependence** | Devin Cloud session (PR + Vercel preview), freelancer notified | Natural holding reply to the client, then Devin Cloud session |
+| **High human dependence** | Engineering brief written (with `ask_wiki_question` repo context) and Devin CLI opened with the brief on the clipboard (on the server: a ready-to-paste `devin` command) | Brief queued for the morning, holding reply ("first thing tomorrow") |
 
-## Devin surfaces used
+Before routing: unclear requests get a drafted clarifying question, questions get a drafted answer grounded in the repo via `ask_wiki_question`, and payment claims go to payment matching.
 
-`devin_session_create` (with structured output for preview, repo and PR URLs), `devin_session_interact`, `devin_session_gather`, `devin_knowledge_manage`, `devin_schedule_manage`, `ask_wiki_question`, plus Devin CLI for hands-on work, all over the **Devin MCP server** (`https://mcp.devin.ai/mcp`).
+## Ghost mode
+
+Devlancer acts as the freelancer, never as a bot.
+
+- Messages are written in the freelancer's voice, learnt from their last 25 sent WhatsApp messages. No bot names, no "As an AI", no em dashes.
+- Human pacing: typing indicator and a delay proportional to length, a global send gap, and it does not mark itself online on connect.
+- In groups it only reacts and says "Check DM"; the pitch goes privately.
+- Anything that commits money, scope or deadlines waits for approval. Doubts (for example, which project a message is about) go to the freelancer, never to the client.
+
+## Self-chat control panel
+
+The freelancer's "Message yourself" chat is the control panel. Approval cards end with numbered choices: reply `1`, `2` (edit, then send the new text), `3` or `0`, quote a card to answer that one, or use `#12 1` to answer card 12.
+
+| Command | What it does |
+|---|---|
+| `/online`, `/offline` | Set presence (drives routing) |
+| `/status` | Presence, Devin connection, tasks running and queued, open pitches |
+| `/groups [search]` | List the 30 most active groups (or name matches) with numbers |
+| `/m 1,3` | Mark groups as marketplaces and scan their last 7 days |
+| `/c 2` | Mark a group as a client group |
+| `/speed on\|off <group#>` | Speed mode: auto-pitch gigs with fit of 85% or more in that group |
+| `/scan` | Rescan marketplace history |
+| `/gigs` | Last 10 leads with fit and status |
+| `/won <lead#>` | Start a project from a lead manually |
+| `/link <slug> <group#>` | Move a project into a client group |
+| `/projects` | List projects with preview links |
+| `/project email <slug> <email>` | Set the client email (for Gmail) |
+| `/autopilot on\|off <slug>` | Send finished change requests to the client without asking |
+| `/devin <task#> <message>` | Answer a blocked Devin session |
+| `/invoice <slug> <amount> <note>` | Draft a milestone invoice |
+| `/invoices` | Recent invoices and total outstanding |
+| `/paid <INV-number>`, `/paid all` | Mark an invoice (or all open invoices) paid, for simulated payments |
+| `/gmail` | Gmail connection status or link |
+| `/help` | Command list |
+
+## AI layer
+
+| Layer | Used for | Details |
+|---|---|---|
+| **Laya** (`convaiinnovations/laya`) via Vercel AI Gateway, `experimental_decide` | Typed decisions: gig or not, fit, category, client intent, scope, clarity, human dependence, size, lead acceptance, email kind | Booleans with probabilities, 5-level scores, choices. Budget of 5 requests a minute (`LAYA_RPM`); history scans use the text model so live messages keep Laya. |
+| **Ensemble** | Gig and client classification | Laya and the text model run in parallel. Scores are averaged; on client intent, the text model wins on disagreement. If the text model fails, Laya decides alone. |
+| **Text model** (`TEXT_MODEL`) | Writing in the freelancer's voice, structured extraction (proposals, specs, change orders, briefs) | Fallback chain through several gateway models; rate-limited or refused models are parked for a while. |
+| **Rules** | Last resort for every decision | Keyword rules, so classification never stalls. Writing falls back to safe templates. |
+
+## Devin surfaces
+
+| Surface | How Devlancer uses it |
+|---|---|
+| **Devin MCP** (`mcp.devin.ai`) | `devin_session_create` with a structured output schema (preview, repo, PR, summary); `devin_session_interact` to poll, read messages and answer blocked sessions |
+| **Devin Cloud sessions** | First build and deploy to Vercel, clear change requests (branch, PR, Vercel preview), weekly upkeep |
+| **Knowledge** | `devin_knowledge_manage` saves each client's spec, triggered when working on that repo |
+| **Schedules** | `devin_schedule_manage` creates weekly upkeep (Mondays 9 AM). If the key lacks permission, a local scheduler runs the same upkeep as a Cloud session |
+| **ask_wiki_question** | Repo-grounded answers to client questions and file hints for engineering briefs |
+| **Devin CLI** | Hands-on work when the freelancer is online and the task needs judgement; `/handoff` sends it to the cloud |
+
+## Always-on fallbacks
+
+| Failure | Fallback |
+|---|---|
+| Laya rate limit or error | Text model, then keyword rules |
+| Text model down | Next model in the chain, then a template |
+| Devin cannot start a session | Task queued, retried every 45 seconds (up to 30 attempts), freelancer told once |
+| Devin finishes without a deliverable | Task marked blocked; the freelancer sees Devin's last message and replies with `/devin` |
+| Devin Schedules not permitted | Local weekly scheduler |
+| `gh` repo creation fails | Devin is asked to create the repo |
+| PDF rendering fails | Text summary sent instead |
+| Quoted send fails | Plain send |
+| Any job hangs | 2-minute timeout per job; the process never exits on errors and systemd restarts it if it does |
 
 ## Stack
 
-TypeScript on Node 22, [Baileys](https://github.com/WhiskeySockets/Baileys) for WhatsApp, Vercel AI SDK 7 and AI Gateway (`experimental_decide` for Laya), MCP TypeScript SDK, SQLite, Playwright for PDFs and screenshots, Hono for the live dashboard.
+Node 22 and TypeScript (run with `tsx`), Baileys (WhatsApp Web), Vercel AI SDK with AI Gateway, Model Context Protocol SDK (Devin MCP), better-sqlite3, Hono (dashboard, SSE), Playwright Chromium (PDFs and screenshots), `qrcode` (UPI QR), Google APIs (Gmail), GitHub CLI. Hosted on a GCP e2-micro behind Cloudflare Tunnel and a Cloudflare Worker.
 
-## Run it
+## Local development
 
 ```bash
+git clone https://github.com/jeromtom/devlancer && cd devlancer
 npm install
-npx playwright install chromium
-cp .env.example .env    # add AI_GATEWAY_API_KEY, DEVIN_API_KEY (cog_ service user key), DEVIN_ORG_ID, UPI_ID
-npm start               # scan the QR (terminal or http://localhost:4000/qr) with the freelancer's phone
+cp .env.example .env          # fill in keys (see docs/DEPLOY.md for the list)
+gh auth login                 # Devlancer creates client repos with gh
+npm run dev                   # scan the QR in the terminal or at http://localhost:4000/qr
+npx tsc --noEmit              # typecheck
 ```
 
-Then send `/groups` in your "Message yourself" chat. The live dashboard is at http://localhost:4000.
-
-To work on the dashboard UI without starting WhatsApp or Devin, run `npm run preview` and open http://localhost:4100. It reads the real database and never sends anything. The brand and design system live in `design/` (see `design/DESIGN.md`) and are synced to Claude Design.
-
-For Devin to deploy previews, add a `VERCEL_TOKEN` secret in Devin (Settings > Secrets).
+Then send `/groups` in your "Message yourself" chat and mark marketplaces with `/m`. Do not run a local copy against the same WhatsApp number as production: two sessions kick each other off (error 440).
 
 ## Honest limits
 
-- Baileys uses WhatsApp's unofficial web protocol; use a spare number and low volumes.
-- Gmail (send documents, read payment alerts) is built in `src/gmail.ts` but switched off for the MVP.
-- Laya's free tier allows 5 requests a minute, so live messages get Laya first and history scans use the fallback.
+- One freelancer per install; WhatsApp through Baileys (unofficial WhatsApp Web), not the Cloud API, so there is some ban risk on a real number.
+- Payments are not collected online. Matching works from client messages and Gmail alerts; in the demo, payments are marked with `/paid`.
+- Devin CLI opens a Terminal only on macOS; on the server it sends a paste-ready command instead.
+- Devin result parsing reads the structured output text; an unusual response can leave a task marked blocked.
+- Laya is limited to 5 requests a minute on our gateway tier; beyond that the text model decides.
+- Gmail OAuth must be completed in a browser before email features work.
