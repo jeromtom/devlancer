@@ -1,5 +1,6 @@
 import { experimental_decide as decide, generateText, generateObject } from 'ai'
 import type { z } from 'zod'
+import { anthropic } from '@ai-sdk/anthropic'
 import { config } from './config.js'
 import { db } from './db.js'
 
@@ -124,6 +125,12 @@ export async function classifyEmail(subject: string, body: string) {
 
 // ---------- Text model: writing ----------
 
+// Use the Anthropic key directly when present (the gateway free tier blocks Claude models)
+const textModel = () =>
+  process.env.ANTHROPIC_API_KEY && config.textModel.startsWith('anthropic/')
+    ? anthropic(config.textModel.replace('anthropic/', ''))
+    : config.textModel
+
 function voiceGuide(): string {
   const rows = db
     .prepare(`select text from messages where from_me = 1 and source = 'wa' and length(text) between 8 and 300
@@ -137,7 +144,7 @@ function voiceGuide(): string {
 
 export async function write(task: string, context = ''): Promise<string> {
   const { text } = await generateText({
-    model: config.textModel,
+    model: textModel(),
     system: voiceGuide(),
     prompt: `${context ? `Context:\n${context}\n\n` : ''}Task: ${task}\n\nReply with only the message text.`,
   })
@@ -146,7 +153,7 @@ export async function write(task: string, context = ''): Promise<string> {
 
 export async function extract<T>(schema: z.ZodType<T>, task: string, context: string): Promise<T> {
   const { object } = await generateObject({
-    model: config.textModel,
+    model: textModel(),
     schema,
     system: `You help ${config.freelancer.name} (${config.freelancer.business}), a freelance developer in Kerala, India. Skills: ${config.freelancer.skills}. Hourly rate INR ${config.freelancer.hourlyRate}. Prices in INR. Never use em dashes.`,
     prompt: `${task}\n\n${context}`,

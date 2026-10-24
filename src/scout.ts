@@ -10,7 +10,7 @@ import { makeProposal, sendDocument } from './billing.js'
 import { startProject } from './projects.js'
 
 const GIG_P = 0.6
-const FIT_MIN = 0.5
+const FIT_MIN = 0.35
 
 const pct = (n: number) => `${Math.round(n * 100)}%`
 

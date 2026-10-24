@@ -71,9 +71,7 @@ async function kickoff(project: Project) {
     '2. Build a polished, mobile-first first version that covers the spec. Keep it simple and fast: plain Next.js or static HTML is fine. Use realistic placeholder content where the client has not provided any.',
     '3. Make sure it builds. Deploy it to Vercel and get the public URL.',
     '4. Push to main.',
-    'Finish with these lines exactly:',
-    'PREVIEW_URL: <url>',
-    'REPO_URL: <url>',
+    'Report preview_url and repo_url in your structured output, and also finish with the lines PREVIEW_URL: <url> and REPO_URL: <url>.',
   ].join('\n')
   await startDevinTask(project, 'kickoff', 'Build first version', prompt, '')
 }
@@ -103,9 +101,10 @@ export async function watchSessions() {
       if (!st.done) continue
       const msgs = await devin.sessionMessages(t.devin_session_id).catch(() => '')
       const all = `${st.raw}\n${msgs}`
-      const preview = all.match(/PREVIEW_URL:\s*(\S+)/)?.[1] ?? devin.findUrl(all, devin.PREVIEW_RE)
-      const repo = all.match(/REPO_URL:\s*(\S+)/)?.[1] ?? ''
-      const pr = devin.findUrl(all, devin.PR_RE)
+      const field = (k: string) => all.match(new RegExp(`${k}["']?\\s*[:=]\\s*["']?(https?://[^\\s"',}]+)`, 'i'))?.[1] ?? ''
+      const preview = field('preview_url') || all.match(/PREVIEW_URL:\s*(\S+)/)?.[1] || devin.findUrl(all, devin.PREVIEW_RE)
+      const repo = field('repo_url') || all.match(/REPO_URL:\s*(\S+)/)?.[1] || ''
+      const pr = field('pr_url') || devin.findUrl(all, devin.PR_RE)
       db.prepare(`update tasks set status = 'done', pr_url = ?, preview_url = ? where id = ?`).run(pr, preview, t.id)
       const project = db.prepare(`select * from projects where id = ?`).get(t.project_id) as Project
       if (preview) db.prepare(`update projects set preview_url = ? where id = ?`).run(preview, project.id)
@@ -300,9 +299,7 @@ function changePrompt(project: Project, request: string) {
     `Client request: "${request}"`,
     '',
     'Make the change on a new branch, keep the existing style, make sure it builds, open a PR, and deploy a Vercel preview for the branch.',
-    'Finish with these lines exactly:',
-    'PREVIEW_URL: <url>',
-    'PR_URL: <url>',
+    'Report preview_url and pr_url in your structured output, and also finish with the lines PREVIEW_URL: <url> and PR_URL: <url>.',
   ].join('\n')
 }
 

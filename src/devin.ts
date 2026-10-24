@@ -73,96 +73,66 @@ export const findUrl = (t: string, re: RegExp) => t.match(re)?.[0] ?? ''
 export const PR_RE = /https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/pull\/\d+/
 export const PREVIEW_RE = /https:\/\/[\w.-]+\.vercel\.app[^\s)"'`]*/
 
-// ---------- Sessions ----------
+// ---------- Sessions (schemas verified against mcp.devin.ai tools/list) ----------
 
-export async function createSession(input: { prompt: string; title: string; tags?: string[]; playbook?: string }) {
-  const name = toolName('devin_session_create')
-  const s = tools.get(name)
-  const one: Record<string, unknown> = {}
-  one[prop(s, 'prompt') ?? 'prompt'] = input.prompt
-  const t = prop(s, 'title')
-  if (t) one[t] = input.title
-  const tg = prop(s, 'tags')
-  if (tg && input.tags) one[tg] = input.tags
-  const pb = prop(s, 'playbook_id', 'playbook')
-  if (pb && input.playbook) one[pb] = input.playbook
-  // Some versions take a list of sessions ("creates one or more sessions")
-  const listKey = prop(s, 'sessions')
-  const text = await call(name, listKey && !prop(s, 'prompt') ? { [listKey]: [one] } : one)
-  const id = findSessionId(text)
+const OUTPUT_SCHEMA = {
+  type: 'object',
+  properties: {
+    preview_url: { type: 'string', description: 'Public deployed URL of the app or preview' },
+    repo_url: { type: 'string' },
+    pr_url: { type: 'string' },
+    summary: { type: 'string', description: 'One line, client-friendly summary of what changed' },
+  },
+}
+
+const withPrefix = (id: string) => (id.startsWith('devin-') ? id : `devin-${id}`)
+
+export async function createSession(input: { prompt: string; title: string; tags?: string[]; playbook?: string; repos?: string[] }) {
+  const text = await call('devin_session_create', {
+    sessions: [{ prompt: input.prompt, title: input.title, tags: input.tags ?? null, playbook_id: input.playbook ?? null }],
+    structured_output_schema: OUTPUT_SCHEMA,
+    ...(input.repos?.length ? { repos: input.repos } : {}),
+  })
+  const raw = text.match(/session_id["']?\s*[:=]\s*["']?([\w-]+)/i)?.[1] ?? text.match(/sessions\/([\w-]+)/)?.[1] ?? ''
+  const id = raw ? withPrefix(raw) : ''
   const url = findUrl(text, /https:\/\/app\.devin\.ai\/sessions\/[\w-]+/) || (id ? `https://app.devin.ai/sessions/${id.replace(/^devin-/, '')}` : '')
   return { id, url, raw: text }
 }
 
 export async function sessionStatus(sessionId: string) {
-  const name = toolName('devin_session_interact')
-  const s = tools.get(name)
-  const actionKey = prop(s, 'action', 'operation')
-  const idKey = prop(s, 'session_id', 'session') ?? 'session_id'
-  const text = await call(name, { [idKey]: sessionId, ...(actionKey ? { [actionKey]: enumValue(s, actionKey, 'get_status', 'status', 'get') } : {}) })
-  const lower = text.toLowerCase()
-  const state = /"status(_enum)?"\s*:\s*"(\w+)"/i.exec(text)?.[2]?.toLowerCase() ?? ''
-  const settled = ['finished', 'blocked', 'stopped', 'expired', 'error', 'errored', 'sleeping', 'waiting', 'completed']
-  const done = settled.includes(state) || /\b(finished|completed|blocked|errored|sleeping|waiting for user)\b/.test(lower)
-  return { done, state: state || (done ? 'settled' : 'running'), raw: text }
+  const text = await call('devin_session_interact', { action: 'get', session_id: withPrefix(sessionId) })
+  const status = text.match(/\bstatus["']?\s*[:=]\s*["']?(\w+)/i)?.[1]?.toLowerCase() ?? ''
+  const detail = text.match(/status_detail["']?\s*[:=]\s*["']?(\w+)/i)?.[1]?.toLowerCase() ?? ''
+  const done =
+    ['exit', 'error', 'suspended'].includes(status) ||
+    (status === 'running' && ['finished', 'waiting_for_user', 'waiting_for_approval'].includes(detail))
+  return { done, state: detail || status || 'unknown', raw: text }
 }
 
-export async function sessionMessages(sessionId: string) {
-  const name = toolName('devin_session_interact')
-  const s = tools.get(name)
-  const actionKey = prop(s, 'action', 'operation')
-  const idKey = prop(s, 'session_id', 'session') ?? 'session_id'
-  return call(name, { [idKey]: sessionId, ...(actionKey ? { [actionKey]: enumValue(s, actionKey, 'read_messages', 'messages', 'get_messages') } : {}) })
-}
+export const sessionMessages = (sessionId: string) =>
+  call('devin_session_interact', { action: 'get_messages', session_id: withPrefix(sessionId) })
 
-export async function sendToSession(sessionId: string, message: string) {
-  const name = toolName('devin_session_interact')
-  const s = tools.get(name)
-  const actionKey = prop(s, 'action', 'operation')
-  const idKey = prop(s, 'session_id', 'session') ?? 'session_id'
-  const msgKey = prop(s, 'message', 'content', 'text') ?? 'message'
-  return call(name, { [idKey]: sessionId, [msgKey]: message, ...(actionKey ? { [actionKey]: enumValue(s, actionKey, 'send_message', 'message', 'send') } : {}) })
-}
+export const sendToSession = (sessionId: string, message: string) =>
+  call('devin_session_interact', { action: 'message', session_id: withPrefix(sessionId), message })
+
+/** Block until sessions settle (used for parallel sub-tasks). */
+export const gather = (ids: string[], timeoutSeconds = 600) =>
+  call('devin_session_gather', { session_ids: ids.map(withPrefix), timeout_seconds: timeoutSeconds })
 
 // ---------- Knowledge ----------
 
-export async function saveKnowledge(title: string, body: string, trigger: string) {
-  const name = toolName('devin_knowledge_manage')
-  const s = tools.get(name)
-  const actionKey = prop(s, 'action', 'operation')
-  const args: Record<string, unknown> = {}
-  if (actionKey) args[actionKey] = enumValue(s, actionKey, 'create', 'add')
-  args[prop(s, 'name', 'title') ?? 'name'] = title
-  args[prop(s, 'body', 'content') ?? 'body'] = body
-  const tr = prop(s, 'trigger_description', 'trigger')
-  if (tr) args[tr] = trigger
-  return call(name, args).catch(e => `knowledge failed: ${e.message}`)
-}
+export const saveKnowledge = (name: string, content: string, trigger: string) =>
+  call('devin_knowledge_manage', { action: 'create', name, content, trigger }).catch(e => `knowledge failed: ${e.message}`)
 
-// ---------- Ask (repo Q&A, used as Ask Devin for scoping briefs) ----------
+// ---------- Repo Q&A (DeepWiki-backed), used for client questions and scoping briefs ----------
 
-export async function askRepo(repo: string, question: string) {
-  const name = toolName('ask_question', 'ask_wiki_question')
-  const s = tools.get(name)
-  const repoKey = prop(s, 'repoName', 'repo_names', 'repos', 'repo') ?? 'repoName'
-  const isArray = s?.properties?.[repoKey]?.type === 'array'
-  return call(name, { [repoKey]: isArray ? [repo] : repo, [prop(s, 'question') ?? 'question']: question })
-}
+export const askRepo = (repo: string, question: string) =>
+  call(toolName('ask_wiki_question', 'ask_question'), { repoName: repo, question })
 
 // ---------- Schedules ----------
 
-export async function createSchedule(title: string, prompt: string, cron: string) {
-  const name = toolName('devin_schedule_manage')
-  const s = tools.get(name)
-  const actionKey = prop(s, 'action', 'operation')
-  const args: Record<string, unknown> = {}
-  if (actionKey) args[actionKey] = enumValue(s, actionKey, 'create')
-  args[prop(s, 'prompt') ?? 'prompt'] = prompt
-  const t = prop(s, 'title', 'name')
-  if (t) args[t] = title
-  args[prop(s, 'cron', 'schedule') ?? 'cron'] = cron
-  return call(name, args)
-}
+export const createSchedule = (name: string, prompt: string, cron: string) =>
+  call('devin_schedule_manage', { action: 'create', name, prompt, frequency: cron, schedule_type: 'recurring', agent: 'devin' })
 
 export async function closeDevin() {
   await client?.close().catch(() => {})
