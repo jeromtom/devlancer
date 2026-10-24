@@ -117,7 +117,7 @@ async function kickoff(project: Project) {
       ? `1. The GitHub repo already exists: ${repoUrl} (clone ${GITHUB_OWNER}/${project.slug}). Work in it.`
       : `1. Create a new GitHub repo ${GITHUB_OWNER}/${project.slug}.`,
     '2. Build a polished, mobile-first first version that covers the spec. Keep it simple and fast: plain Next.js or static HTML is fine. Use realistic placeholder content where the client has not provided any.',
-    '3. Make sure it builds. Deploy it to Vercel with the Vercel CLI using the VERCEL_TOKEN secret (npx vercel deploy --prod --yes --token $VERCEL_TOKEN) and get the public URL.',
+    '3. Make sure it builds. Deploy it to Vercel with the Vercel CLI using the VERCEL_TOKEN secret (npx vercel deploy --prod --yes --token $VERCEL_TOKEN) and get the public URL. Make sure the URL is publicly viewable without a Vercel login: if Deployment Protection is on, disable it for this project via the Vercel API (PATCH https://api.vercel.com/v9/projects/<project>?teamId=<team> with {\"ssoProtection\": null}) using $VERCEL_TOKEN.',
     '4. Push to main.',
     'Report preview_url and repo_url in your structured output. Do not stop to ask questions unless you are truly blocked.',
   ].join('\n')
@@ -374,7 +374,7 @@ function changePrompt(project: Project, request: string) {
     '',
     `Client request: "${request}"`,
     '',
-    'Make the change on a new branch, keep the existing style, make sure it builds, open a PR, and deploy a Vercel preview for the branch with the Vercel CLI using the VERCEL_TOKEN secret (npx vercel deploy --yes --token $VERCEL_TOKEN).',
+    'Make the change on a new branch, keep the existing style, make sure it builds, open a PR, and deploy a Vercel preview for the branch with the Vercel CLI using the VERCEL_TOKEN secret (npx vercel deploy --yes --token $VERCEL_TOKEN). Make sure the URL is publicly viewable without a Vercel login: if Deployment Protection is on, disable it for this project via the Vercel API (PATCH https://api.vercel.com/v9/projects/<project>?teamId=<team> with {\"ssoProtection\": null}) using $VERCEL_TOKEN.',
     'Report preview_url and pr_url in your structured output. Do not stop to ask questions unless you are truly blocked.',
   ].join('\n')
 }
